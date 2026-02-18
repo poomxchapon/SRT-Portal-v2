@@ -84,7 +84,7 @@ import {
 // ═══════════════════════════════════════════
 // 1. CONFIGURATION
 // ═══════════════════════════════════════════
-const APP_VERSION = "3.4.1";
+const APP_VERSION = "3.5.0";
 
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
@@ -415,95 +415,63 @@ const KioskView = ({ shops, onAdmin }) => {
   const audioRef = useRef(null);
   const ttsIdRef = useRef(0);
 
-  // Preload & lock voices for consistency across devices
-  const voiceCacheRef = useRef({});
-  useEffect(() => {
-    if (!('speechSynthesis' in window)) return;
-    const loadVoices = () => {
-      const voices = window.speechSynthesis.getVoices();
-      if (!voices.length) return;
-      // Pick best male/adult voice per language — prioritize Google > Microsoft > any
-      const pick = (langCode, prefNames) => {
-        const matching = voices.filter(v => v.lang.startsWith(langCode));
-        // Try preferred names first (male adult voices)
-        for (const pref of prefNames) {
-          const found = matching.find(v => v.name.toLowerCase().includes(pref.toLowerCase()));
-          if (found) return found;
-        }
-        // Fallback: prefer Google voices (consistent across platforms)
-        const google = matching.find(v => v.name.includes('Google'));
-        if (google) return google;
-        return matching[0] || null;
-      };
-      voiceCacheRef.current = {
-        th: pick('th', ['Google', 'Pattara', 'Kanya', 'Microsoft Niwat']),
-        en: pick('en', ['Google US English', 'Google UK English Male', 'Microsoft David', 'Alex', 'Daniel']),
-        'zh-CN': pick('zh-CN', ['Google', 'Microsoft Huihui', 'Microsoft Kangkang']),
-        ko: pick('ko', ['Google', 'Microsoft InJoon']),
-      };
-    };
-    loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-  }, []);
+  // StreamElements TTS — Microsoft Azure Neural voices (free, consistent everywhere)
+  const SE_VOICES = {
+    th: 'th-TH-NiwatNeural',      // Thai male
+    en: 'en-US-GuyNeural',         // English male
+    cn: 'zh-CN-YunxiNeural',       // Chinese male
+    kr: 'ko-KR-InJoonNeural',      // Korean male
+  };
 
   const tts = (text) => {
     if (muted || !text) return;
 
-    // Unique ID to prevent double-fire
     const id = ++ttsIdRef.current;
 
-    // Stop ALL previous audio
-    if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ''; audioRef.current = null; }
+    // Stop ALL previous audio — single source only
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+      audioRef.current = null;
+    }
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 
-    const langMap = { th: 'th', en: 'en', cn: 'zh-CN', kr: 'ko' };
-    const tl = langMap[lang] || 'en';
-    const wsLang = { th: 'th-TH', cn: 'zh-CN', kr: 'ko-KR', en: 'en-US' }[lang] || 'en-US';
-
-    // Helper: speak via Web Speech API with locked voice
-    const speakWS = () => {
-      if (ttsIdRef.current !== id) return; // stale
-      if (!('speechSynthesis' in window)) { setSpeaking(false); return; }
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = wsLang;
-      u.rate = 0.95;
-      u.pitch = 0.9; // slightly lower = more adult male
-      const locked = voiceCacheRef.current[tl];
-      if (locked) u.voice = locked;
-      u.onend = () => { if (ttsIdRef.current === id) setSpeaking(false); };
-      u.onerror = () => { if (ttsIdRef.current === id) setSpeaking(false); };
-      window.speechSynthesis.speak(u);
-    };
+    const voice = SE_VOICES[lang] || SE_VOICES.en;
+    const shortText = text.substring(0, 300); // API limit
 
     setSpeaking(true);
 
-    // Strategy 1: Google Translate TTS (consistent voice across all devices)
-    try {
-      const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${tl}&client=tw-ob&q=${encodeURIComponent(text.substring(0, 200))}`;
-      const audio = new Audio(url);
-      audioRef.current = audio;
-      let handled = false; // prevent double fallback
+    // StreamElements TTS (Azure Neural voices — same voice on every device)
+    const url = `https://api.streamelements.com/kappa/v2/speech?voice=${encodeURIComponent(voice)}&text=${encodeURIComponent(shortText)}`;
+    const audio = new Audio();
+    audioRef.current = audio;
 
-      audio.onended = () => {
-        if (ttsIdRef.current === id) { setSpeaking(false); audioRef.current = null; }
-      };
-      audio.onerror = () => {
-        if (handled || ttsIdRef.current !== id) return;
-        handled = true;
-        audioRef.current = null;
-        speakWS();
-      };
-      audio.play().then(() => {
-        handled = true; // play succeeded, don't fallback
-      }).catch(() => {
-        if (handled || ttsIdRef.current !== id) return;
-        handled = true;
-        audioRef.current = null;
-        speakWS();
-      });
-    } catch (e) {
-      if (ttsIdRef.current === id) speakWS();
-    }
+    audio.onended = () => {
+      if (ttsIdRef.current === id) { setSpeaking(false); audioRef.current = null; }
+    };
+    audio.onerror = () => {
+      if (ttsIdRef.current !== id) return;
+      audioRef.current = null;
+      // Fallback: Web Speech API (only if StreamElements fails)
+      if ('speechSynthesis' in window) {
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = { th: 'th-TH', cn: 'zh-CN', kr: 'ko-KR', en: 'en-US' }[lang] || 'en-US';
+        u.rate = 0.95;
+        u.onend = () => { if (ttsIdRef.current === id) setSpeaking(false); };
+        u.onerror = () => { if (ttsIdRef.current === id) setSpeaking(false); };
+        window.speechSynthesis.speak(u);
+      } else {
+        setSpeaking(false);
+      }
+    };
+
+    audio.src = url;
+    audio.play().catch(() => {
+      // play() rejected — only fallback if onerror hasn't already
+      if (ttsIdRef.current !== id || !audioRef.current) return;
+      audioRef.current = null;
+      audio.onerror?.();
+    });
   };
 
   const ask = (text) => {
