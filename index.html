@@ -80,7 +80,7 @@ import {
 // ═══════════════════════════════════════════
 // 1. CONFIGURATION
 // ═══════════════════════════════════════════
-const APP_VERSION = "2.4.1";
+const APP_VERSION = "2.5.0";
 
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
@@ -287,31 +287,18 @@ const Modal = ({ open, onClose, title, icon: Icon, color, children }) => {
   );
 };
 
-// Robot Avatar
+// Mascot Avatar
 const Avatar = ({ speaking }) => (
   <div className="relative w-48 h-48 mx-auto">
     <div className="absolute inset-0 bg-kiosk-accent/15 rounded-full blur-3xl animate-pulse-glow" />
-    <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-2xl animate-float" style={{overflow:'visible'}}>
-      <defs>
-        <radialGradient id="hg" cx="35%" cy="30%" r="65%"><stop offset="0%" stopColor="#a5f3fc"/><stop offset="50%" stopColor="#06b6d4"/><stop offset="100%" stopColor="#0e7490"/></radialGradient>
-        <linearGradient id="bg" x1="50%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stopColor="#1e293b"/><stop offset="100%" stopColor="#0f172a"/></linearGradient>
-        <linearGradient id="eg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#164e63"/><stop offset="100%" stopColor="#0c4a6e"/></linearGradient>
-      </defs>
-      <rect x="72" y="132" width="56" height="60" rx="18" fill="url(#bg)"/>
-      <circle cx="100" cy="88" r="48" fill="url(#hg)"/>
-      <rect x="42" y="72" width="14" height="36" rx="5" fill="url(#eg)"/>
-      <rect x="49" y="84" width="4" height="10" rx="2" fill="#06b6d4" className="animate-pulse"/>
-      <rect x="144" y="72" width="14" height="36" rx="5" fill="url(#eg)"/>
-      <rect x="147" y="84" width="4" height="10" rx="2" fill="#06b6d4" className="animate-pulse"/>
-      <ellipse cx="82" cy="88" rx="9" ry="11" fill="#0f172a"/>
-      <circle cx="84" cy="85" r="3.5" fill="#fff"/>
-      <ellipse cx="118" cy="88" rx="9" ry="11" fill="#0f172a"/>
-      <circle cx="120" cy="85" r="3.5" fill="#fff"/>
-      {speaking
-        ? <ellipse cx="100" cy="112" rx="8" ry="6" fill="#f472b6"><animate attributeName="ry" values="2;7;2" dur="0.35s" repeatCount="indefinite"/></ellipse>
-        : <path d="M88,112 Q100,120 112,112" fill="none" stroke="#334155" strokeWidth="3" strokeLinecap="round"/>}
-      <ellipse cx="84" cy="68" rx="14" ry="7" fill="white" opacity="0.25" transform="rotate(-18 84 68)"/>
-    </svg>
+    <div className={`w-full h-full drop-shadow-2xl animate-float ${speaking ? 'animate-bounce-sm' : ''}`}>
+      <img src="mascot.png" alt="SRT Mascot" className="w-full h-full object-contain drop-shadow-lg"/>
+      {speaking && <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-1">
+        <span className="w-2 h-2 rounded-full bg-kiosk-accent animate-bounce" style={{animationDelay:'0ms'}}/>
+        <span className="w-2 h-2 rounded-full bg-kiosk-accent animate-bounce" style={{animationDelay:'150ms'}}/>
+        <span className="w-2 h-2 rounded-full bg-kiosk-accent animate-bounce" style={{animationDelay:'300ms'}}/>
+      </div>}
+    </div>
   </div>
 );
 
