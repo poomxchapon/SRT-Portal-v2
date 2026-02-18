@@ -1808,19 +1808,28 @@ const AdminView = ({ onLogout }) => {
                 {/* Weekly Kiosk Sessions */}
                 <div className="grid grid-cols-2 gap-6">
                   <div className={`${t.card} p-6 rounded-2xl border`}>
-                    <h3 className={`font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} mb-2`}>Weekly Kiosk Sessions</h3>
-                    <p className={`text-xs ${t.textMuted} mb-4`}>Sessions per day this week</p>
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className={`font-bold ${dk ? 'text-gray-200' : 'text-gray-700'}`}>Weekly Kiosk Sessions</h3>
+                      <span className={`text-lg font-bold font-inter ${t.text}`}>{WEEKLY_SESSIONS.reduce((s,d)=>s+d.sessions,0).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center mb-4">
+                      <p className={`text-xs ${t.textMuted}`}>Sessions per day this week</p>
+                      <span className={`text-[10px] ${t.textMuted}`}>total sessions</span>
+                    </div>
                     <div className="flex items-end justify-between h-48 gap-2">
                       {WEEKLY_SESSIONS.map((d, i) => {
                         const maxVal = Math.max(...WEEKLY_SESSIONS.map(s => s.sessions));
                         const pct = (d.sessions / maxVal * 100);
+                        const isPeak = d.sessions === maxVal;
                         return (
                           <div key={i} className="flex flex-col items-center flex-1 gap-1 group cursor-default">
-                            <span className={`text-[10px] font-bold font-inter ${dk ? 'text-gray-300' : 'text-gray-600'} opacity-0 group-hover:opacity-100 transition-opacity`}>{d.sessions.toLocaleString()}</span>
-                            <div className={`w-full rounded-t-lg relative overflow-hidden ${dk ? 'bg-cyan-950/30 group-hover:bg-cyan-900/40' : 'bg-cyan-50 group-hover:bg-cyan-100'} transition-colors`} style={{ height: `${pct}%` }}>
-                              <div className="absolute inset-0 bg-cyan-500 opacity-80 group-hover:opacity-100 transition-opacity"/>
+                            <span className={`text-[10px] font-bold font-inter ${isPeak ? 'text-cyan-500' : (dk ? 'text-gray-300' : 'text-gray-600')}`}>{d.sessions.toLocaleString()}</span>
+                            <div className={`w-full rounded-t-lg relative overflow-hidden transition-all group-hover:scale-[1.04]`} style={{ height: `${pct}%` }}>
+                              <div className={`absolute inset-0 ${isPeak ? 'bg-cyan-400' : 'bg-cyan-500'} opacity-80 group-hover:opacity-100 transition-opacity`}/>
+                              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/10 to-transparent"/>
                             </div>
-                            <span className={`text-[10px] ${t.textMuted} font-bold font-inter`}>{d.day}</span>
+                            <span className={`text-[10px] ${isPeak ? 'text-cyan-500 font-extrabold' : `${t.textMuted} font-bold`} font-inter`}>{d.day}</span>
+                            <span className={`text-[8px] ${t.textMuted} font-inter`}>{d.visitors.toLocaleString()}<span className={`${t.textMuted}`}> vis</span></span>
                           </div>
                         );
                       })}
@@ -1885,15 +1894,26 @@ const AdminView = ({ onLogout }) => {
 
                   {/* Visited Hours */}
                   <div className={`${t.card} p-6 rounded-2xl border`}>
-                    <h3 className={`font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} mb-2 flex items-center gap-2`}><TrendingUp size={16} className="text-indigo-500"/> Visited Hours</h3>
-                    <p className={`text-xs ${t.textMuted} mb-4`}>Unique devices per hour (24h)</p>
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className={`font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} flex items-center gap-2`}><TrendingUp size={16} className="text-indigo-500"/> Visited Hours</h3>
+                      <span className={`text-lg font-bold font-inter ${t.text}`}>{VISITED_HOURS.reduce((s,v)=>s+v,0).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center mb-4">
+                      <p className={`text-xs ${t.textMuted}`}>Unique devices per hour (24h)</p>
+                      <span className={`text-[10px] ${t.textMuted}`}>total devices</span>
+                    </div>
                     <div className="flex items-end justify-between h-44 gap-0.5">
                       {VISITED_HOURS.map((v, h) => {
                         const maxV = Math.max(...VISITED_HOURS);
                         const pct = (v / maxV * 100);
+                        const isPeak = v === maxV;
                         return (
-                          <div key={h} className="flex flex-col items-center flex-1 gap-1 group cursor-default">
-                            <div className="w-full rounded-t transition-colors group-hover:opacity-100" style={{height:`${pct}%`, backgroundColor: pct>80?'#EF4444':pct>50?'#F59E0B':'#06B6D4', opacity: 0.7}}/>
+                          <div key={h} className="flex flex-col items-center flex-1 gap-1 group cursor-default relative">
+                            {/* Hover tooltip */}
+                            <div className={`absolute -top-10 left-1/2 -translate-x-1/2 ${dk ? 'bg-gray-700' : 'bg-gray-800'} text-white text-[9px] px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10 font-inter font-bold`}>
+                              {String(h).padStart(2,'0')}:00 — {v.toLocaleString()}
+                            </div>
+                            <div className={`w-full rounded-t transition-all group-hover:opacity-100 group-hover:scale-x-110 ${isPeak ? 'ring-1 ring-red-400' : ''}`} style={{height:`${pct}%`, backgroundColor: pct>80?'#EF4444':pct>50?'#F59E0B':'#06B6D4', opacity: isPeak ? 1 : 0.7}}/>
                             {h%4===0 && <span className={`text-[8px] ${t.textMuted} font-inter`}>{String(h).padStart(2,'0')}</span>}
                           </div>
                         );
@@ -1901,6 +1921,11 @@ const AdminView = ({ onLogout }) => {
                     </div>
                     <div className={`flex justify-between mt-1 text-[9px] ${t.textMuted} font-inter`}>
                       <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:00</span>
+                    </div>
+                    {/* Peak summary */}
+                    <div className={`mt-3 flex items-center gap-4 text-[10px] ${t.textSec} font-inter`}>
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"/>Peak: 17:00 ({Math.max(...VISITED_HOURS).toLocaleString()})</span>
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-cyan-500"/>Avg: {Math.round(VISITED_HOURS.reduce((s,v)=>s+v,0)/24).toLocaleString()}/hr</span>
                     </div>
                   </div>
                 </div>
