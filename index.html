@@ -80,7 +80,7 @@ import {
 // ═══════════════════════════════════════════
 // 1. CONFIGURATION
 // ═══════════════════════════════════════════
-const APP_VERSION = "2.2.0";
+const APP_VERSION = "2.2.1";
 
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
@@ -116,15 +116,15 @@ const FAQS = [
 
 const LOCATIONS = [
   { id:1, name:{th:'วัดพระแก้ว',en:'Wat Phra Kaew',cn:'玉佛寺',kr:'왓 프라깨우'}, lat:13.751, lng:100.492, type:{th:'วัด',en:'Temple',cn:'寺庙',kr:'사원'},
-    img:'https://images.unsplash.com/photo-1599525419934-8b63428d0111?auto=format&fit=crop&w=600&q=80',
+    img:'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=600&q=80',
     desc:{th:'วัดคู่บ้านคู่เมือง ประดิษฐานพระแก้วมรกต สถาปัตยกรรมล้ำค่าที่สุดในไทย',en:'Home of the sacred Emerald Buddha. Thailand\'s most magnificent temple complex',cn:'供奉翡翠佛像 泰国最壮丽的寺庙建筑群',kr:'에메랄드 불상이 모셔진 태국 최고의 사원'},
     travel:{th:'BTS สนามกีฬา + เรือ ≈ 40 นาที',en:'BTS + boat ≈ 40 min',cn:'BTS+船 ≈ 40分钟',kr:'BTS+보트 ≈ 40분'}, rating:4.8, cost:{th:'ฟรี (คนไทย)',en:'Free (Thai) / ฿500',cn:'免费(泰) / ฿500',kr:'무료(태) / ฿500'} },
   { id:2, name:{th:'ตลาดจตุจักร',en:'Chatuchak Market',cn:'乍都乍市场',kr:'짜뚜짝 시장'}, lat:13.803, lng:100.554, type:{th:'ช้อปปิ้ง',en:'Shopping',cn:'购物',kr:'쇼핑'},
-    img:'https://images.unsplash.com/photo-1563806496660-e4c16a1334c9?auto=format&fit=crop&w=600&q=80',
+    img:'https://images.unsplash.com/photo-1569154941061-e231b4725ef1?auto=format&fit=crop&w=600&q=80',
     desc:{th:'ตลาดนัดสุดสัปดาห์ที่ใหญ่ที่สุดในโลก! กว่า 15,000 ร้าน อาหาร เสื้อผ้า ของฝาก',en:'World\'s largest weekend market! 15,000+ stalls with food, fashion & souvenirs',cn:'世界最大周末市场！15000+摊位 美食服饰纪念品',kr:'세계 최대 주말시장! 15,000+ 매장, 먹거리 & 기념품'},
     travel:{th:'MRT สวนจตุจักร ≈ 25 นาที',en:'MRT Chatuchak ≈ 25 min',cn:'MRT乍都乍 ≈ 25分钟',kr:'MRT 짜뚜짝 ≈ 25분'}, rating:4.5, cost:{th:'ฟรี (ไม่รวมซื้อของ)',en:'Free entry',cn:'免费入场',kr:'무료 입장'} },
   { id:3, name:{th:'สยามพารากอน',en:'Siam Paragon',cn:'暹罗百丽宫',kr:'시암 파라곤'}, lat:13.746, lng:100.535, type:{th:'ห้างสรรพสินค้า',en:'Mall',cn:'商场',kr:'쇼핑몰'},
-    img:'https://images.unsplash.com/photo-1559628233-eb1b1ee45dc6?auto=format&fit=crop&w=600&q=80',
+    img:'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=600&q=80',
     desc:{th:'ศูนย์การค้าระดับโลก มีทั้ง SEA LIFE Aquarium, Madame Tussauds และร้านแบรนด์เนม',en:'World-class mall with SEA LIFE Aquarium, Madame Tussauds & luxury brands',cn:'世界级商场 含SEA LIFE水族馆、杜莎夫人蜡像馆及奢侈品牌',kr:'세계적 쇼핑몰, SEA LIFE 아쿠아리움 & 명품 브랜드'},
     travel:{th:'BTS สยาม ≈ 20 นาที',en:'BTS Siam ≈ 20 min',cn:'BTS暹罗 ≈ 20分钟',kr:'BTS 시암 ≈ 20분'}, rating:4.6, cost:{th:'ฟรี',en:'Free entry',cn:'免费',kr:'무료'} },
   { id:4, name:{th:'วัดอรุณ',en:'Wat Arun',cn:'黎明寺',kr:'왓 아룬'}, lat:13.744, lng:100.489, type:{th:'วัด',en:'Temple',cn:'寺庙',kr:'사원'},
