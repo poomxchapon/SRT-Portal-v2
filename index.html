@@ -80,6 +80,8 @@ import {
 // ═══════════════════════════════════════════
 // 1. CONFIGURATION
 // ═══════════════════════════════════════════
+const APP_VERSION = "2.1.0";
+
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
 const GEMINI_API_KEY = ""; // disabled — ไม่ใช้ Gemini API
@@ -399,6 +401,7 @@ const KioskView = ({ shops, onAdmin }) => {
               <div className="text-[10px] text-cyan-300/60 font-medium flex items-center gap-1">
                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse inline-block"/>
                 KRUNG THEP APHIWAT
+                <span className="text-gray-600 ml-1">v{APP_VERSION}</span>
               </div>
             </div>
           </div>
