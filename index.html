@@ -80,7 +80,7 @@ import {
 // ═══════════════════════════════════════════
 // 1. CONFIGURATION
 // ═══════════════════════════════════════════
-const APP_VERSION = "2.4.0";
+const APP_VERSION = "2.4.1";
 
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
@@ -151,7 +151,7 @@ const T = {
 const BANNERS = [
   {
     id: 1,
-    img: 'https://images.unsplash.com/photo-1504214208698-ea1916a2195a?auto=format&fit=crop&w=600&q=80',
+    img: 'https://images.unsplash.com/photo-1612207768180-13415b8cd741?auto=format&fit=crop&w=600&q=80',
     tag: { th:'กิจกรรม', en:'EVENT', cn:'活动', kr:'이벤트' },
     title: { th:'Songkran Festival 2026', en:'Songkran Festival 2026', cn:'2026泼水节', kr:'2026 송크란 축제' },
     desc: { th:'สงกรานต์ปีนี้ จัดใหญ่! 13-15 เม.ย. ถนนข้าวสาร & สีลม', en:'Thailand\'s biggest water festival! Apr 13-15 at Khao San & Silom', cn:'泰国最大泼水节！4月13-15日 考山路&是隆', kr:'태국 최대 물축제! 4월 13-15일 카오산&실롬' },
@@ -168,7 +168,7 @@ const BANNERS = [
   },
   {
     id: 2,
-    img: 'https://images.unsplash.com/photo-1506665531195-3566af2b4dfa?auto=format&fit=crop&w=600&q=80',
+    img: 'https://images.unsplash.com/photo-1564862612416-3bb2de199124?auto=format&fit=crop&w=600&q=80',
     tag: { th:'ท่องเที่ยว', en:'TOURISM', cn:'旅游', kr:'관광' },
     title: { th:'เที่ยวอยุธยา ไป-กลับวันเดียว', en:'Ayutthaya Day Trip by Train', cn:'大城府一日游（火车）', kr:'아유타야 당일치기 기차여행' },
     desc: { th:'นั่งรถไฟจากสถานีนี้ แค่ 1.5 ชม. ตั๋วเริ่มต้น 20 บาท!', en:'Just 1.5hrs from this station! Tickets from ฿20', cn:'从本站出发仅1.5小时！票价20泰铢起', kr:'이 역에서 1.5시간! 티켓 20바트부터' },
@@ -185,7 +185,7 @@ const BANNERS = [
   },
   {
     id: 3,
-    img: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=600&q=80',
+    img: 'https://images.unsplash.com/photo-1679066363763-538d1faec011?auto=format&fit=crop&w=600&q=80',
     tag: { th:'โปรโมชั่น', en:'PROMO', cn:'优惠', kr:'프로모션' },
     title: { th:'SRT Pass ไม่จำกัดเที่ยว', en:'SRT Unlimited Pass', cn:'SRT无限次通票', kr:'SRT 무제한 패스' },
     desc: { th:'บัตรเดินทางไม่จำกัด 7 วัน เพียง 999 บาท เริ่ม 1 มี.ค.', en:'7-day unlimited travel pass only ฿999. Starting Mar 1', cn:'7天无限乘车仅999泰铢 3月1日起', kr:'7일 무제한 패스 999바트 3월 1일부터' },
@@ -202,7 +202,7 @@ const BANNERS = [
   },
   {
     id: 4,
-    img: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&w=600&q=80',
+    img: 'https://images.unsplash.com/photo-1756713545237-7c97075b71da?auto=format&fit=crop&w=600&q=80',
     tag: { th:'กิจกรรม', en:'EVENT', cn:'活动', kr:'이벤트' },
     title: { th:'Night Market @ สถานีกลาง', en:'Night Market @ Central Station', cn:'中央车站夜市', kr:'중앙역 야시장' },
     desc: { th:'ตลาดนัดกลางคืน ทุกศุกร์-เสาร์ 17:00-23:00 ชั้น G', en:'Every Fri-Sat 5PM-11PM at G Floor', cn:'每周五六 17:00-23:00 G层', kr:'매주 금토 17:00-23:00 G층' },
@@ -219,7 +219,7 @@ const BANNERS = [
   },
   {
     id: 5,
-    img: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=600&q=80',
+    img: 'https://images.unsplash.com/photo-1620841190334-01f487c81945?auto=format&fit=crop&w=600&q=80',
     tag: { th:'ท่องเที่ยว', en:'TOURISM', cn:'旅游', kr:'관광' },
     title: { th:'เชียงใหม่ รถไฟสายเหนือ', en:'Chiang Mai Northern Line', cn:'清迈北线列车', kr:'치앙마이 북부노선' },
     desc: { th:'นอนรถไฟ กรุงเทพ-เชียงใหม่ ตู้นอนปรับอากาศ เริ่ม 541 บาท', en:'Sleeper train BKK-CNX from ฿541. Overnight scenic route', cn:'曼谷-清迈卧铺列车 541泰铢起', kr:'방콕-치앙마이 침대열차 541바트부터' },
