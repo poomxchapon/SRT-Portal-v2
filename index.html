@@ -70,7 +70,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { createRoot } from 'react-dom/client';
 import {
   Map, Store, MessageSquare, Users, LogOut, Info, Coffee, ShoppingBag,
-  Utensils, Mic, MicOff, Send, BarChart3, Lock, User, Key, Wifi,
+  Utensils, Send, BarChart3, Lock, User, Key, Wifi,
   RefreshCw, UserPlus, Trash2, Shield, Save, Eye, EyeOff, Phone,
   Navigation, X, Ticket, Car, HelpCircle, Clock, Train, Keyboard,
   Search, ChevronDown, CreditCard, AlertTriangle, Layout, ZoomIn, ZoomOut,
@@ -82,7 +82,7 @@ import {
 // ═══════════════════════════════════════════
 // 1. CONFIGURATION
 // ═══════════════════════════════════════════
-const APP_VERSION = "2.7.0";
+const APP_VERSION = "2.8.1";
 
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
@@ -144,10 +144,10 @@ const LOCATIONS = [
 ];
 
 const T = {
-  th: { greeting:'สวัสดีค่ะ ยินดีต้อนรับสู่สถานีกลางกรุงเทพอภิวัฒน์ มีอะไรให้ช่วยไหมคะ?', faq:'คำถามยอดนิยม', voice:'กดเพื่อพูด', type:'พิมพ์ถาม', mobile:'มือถือ', schedule:'ตารางรถ', map:'แผนที่', station:'แผนผัง', shops:'ร้านค้า', emergency:'ฉุกเฉิน', close:'ปิด', listening:'กำลังฟัง...', thinking:'กำลังคิด...', send:'ส่ง', typeHere:'พิมพ์คำถามที่นี่...', scanChat:'สแกนเพื่อแชทในมือถือ', scanDesc:'สแกน QR Code เพื่อเปิดแชทบอทในมือถือของคุณ', searchPlace:'ค้นหาสถานที่...', youAreHere:'คุณอยู่ตรงนี้', navigate:'นำทาง', shopTitle:'ร้านค้าและบริการ', trainNo:'ขบวน', dest:'ปลายทาง', dep:'เวลาออก', plat:'ชานชาลา', stat:'สถานะ', onTime:'ตรงเวลา', departed:'ออกแล้ว', delayed:'ล่าช้า', boarding:'กำลังขึ้น', min:'นาที', shopOpen:'เปิด', shopClosed:'ปิด' },
-  en: { greeting:'Welcome to Krung Thep Aphiwat Central Terminal. How can I help you?', faq:'Popular Questions', voice:'Push to Talk', type:'Type', mobile:'Mobile', schedule:'Schedule', map:'Tourist Map', station:'Station Map', shops:'Shops', emergency:'Emergency', close:'Close', listening:'Listening...', thinking:'Thinking...', send:'Send', typeHere:'Type your question...', scanChat:'Scan to Chat on Mobile', scanDesc:'Scan the QR code to continue chatting on your phone', searchPlace:'Search places...', youAreHere:'You are here', navigate:'Navigate', shopTitle:'Shops & Services', trainNo:'Train', dest:'Destination', dep:'Departs', plat:'Platform', stat:'Status', onTime:'On Time', departed:'Departed', delayed:'Delayed', boarding:'Boarding', min:'min', shopOpen:'OPEN', shopClosed:'CLOSED' },
-  cn: { greeting:'欢迎来到曼谷中央车站。有什么可以帮您？', faq:'常见问题', voice:'按住说话', type:'输入', mobile:'手机', schedule:'时刻表', map:'旅游地图', station:'车站地图', shops:'商店', emergency:'紧急', close:'关闭', listening:'正在听...', thinking:'正在思考...', send:'发送', typeHere:'输入您的问题...', scanChat:'扫码手机聊天', scanDesc:'扫描二维码在手机上继续聊天', searchPlace:'搜索地点...', youAreHere:'你在这里', navigate:'导航', shopTitle:'商店和服务', trainNo:'车次', dest:'目的地', dep:'出发', plat:'站台', stat:'状态', onTime:'准点', departed:'已出发', delayed:'晚点', boarding:'登车', min:'分钟', shopOpen:'营业', shopClosed:'关闭' },
-  kr: { greeting:'아피왓 중앙역에 오신 것을 환영합니다. 무엇을 도와드릴까요?', faq:'자주 묻는 질문', voice:'눌러서 말하기', type:'입력', mobile:'모바일', schedule:'시간표', map:'관광지도', station:'역 지도', shops:'상점', emergency:'비상', close:'닫기', listening:'듣고 있어요...', thinking:'생각 중...', send:'보내기', typeHere:'질문을 입력하세요...', scanChat:'스캔하여 모바일 채팅', scanDesc:'QR 코드를 스캔하여 채팅을 계속하세요', searchPlace:'장소 검색...', youAreHere:'현재 위치', navigate:'길찾기', shopTitle:'상점 및 서비스', trainNo:'열차', dest:'목적지', dep:'출발', plat:'승강장', stat:'상태', onTime:'정시', departed:'출발', delayed:'지연', boarding:'탑승', min:'분', shopOpen:'영업중', shopClosed:'종료' }
+  th: { greeting:'สวัสดีค่ะ ยินดีต้อนรับสู่สถานีกลางกรุงเทพอภิวัฒน์ มีอะไรให้ช่วยไหมคะ?', faq:'คำถามยอดนิยม', type:'พิมพ์ถาม', mobile:'มือถือ', schedule:'ตารางรถ', map:'แผนที่', station:'แผนผัง', shops:'ร้านค้า', emergency:'ฉุกเฉิน', close:'ปิด', thinking:'กำลังคิด...', send:'ส่ง', typeHere:'พิมพ์คำถามที่นี่...', scanChat:'สแกนเพื่อแชทในมือถือ', scanDesc:'สแกน QR Code เพื่อเปิดแชทบอทในมือถือของคุณ', searchPlace:'ค้นหาสถานที่...', youAreHere:'คุณอยู่ตรงนี้', navigate:'นำทาง', shopTitle:'ร้านค้าและบริการ', trainNo:'ขบวน', dest:'ปลายทาง', dep:'เวลาออก', plat:'ชานชาลา', stat:'สถานะ', onTime:'ตรงเวลา', departed:'ออกแล้ว', delayed:'ล่าช้า', boarding:'กำลังขึ้น', min:'นาที', shopOpen:'เปิด', shopClosed:'ปิด' },
+  en: { greeting:'Welcome to Krung Thep Aphiwat Central Terminal. How can I help you?', faq:'Popular Questions', type:'Type', mobile:'Mobile', schedule:'Schedule', map:'Tourist Map', station:'Station Map', shops:'Shops', emergency:'Emergency', close:'Close', thinking:'Thinking...', send:'Send', typeHere:'Type your question...', scanChat:'Scan to Chat on Mobile', scanDesc:'Scan the QR code to continue chatting on your phone', searchPlace:'Search places...', youAreHere:'You are here', navigate:'Navigate', shopTitle:'Shops & Services', trainNo:'Train', dest:'Destination', dep:'Departs', plat:'Platform', stat:'Status', onTime:'On Time', departed:'Departed', delayed:'Delayed', boarding:'Boarding', min:'min', shopOpen:'OPEN', shopClosed:'CLOSED' },
+  cn: { greeting:'欢迎来到曼谷中央车站。有什么可以帮您？', faq:'常见问题', type:'输入', mobile:'手机', schedule:'时刻表', map:'旅游地图', station:'车站地图', shops:'商店', emergency:'紧急', close:'关闭', thinking:'正在思考...', send:'发送', typeHere:'输入您的问题...', scanChat:'扫码手机聊天', scanDesc:'扫描二维码在手机上继续聊天', searchPlace:'搜索地点...', youAreHere:'你在这里', navigate:'导航', shopTitle:'商店和服务', trainNo:'车次', dest:'目的地', dep:'出发', plat:'站台', stat:'状态', onTime:'准点', departed:'已出发', delayed:'晚点', boarding:'登车', min:'分钟', shopOpen:'营业', shopClosed:'关闭' },
+  kr: { greeting:'아피왓 중앙역에 오신 것을 환영합니다. 무엇을 도와드릴까요?', faq:'자주 묻는 질문', type:'입력', mobile:'모바일', schedule:'시간표', map:'관광지도', station:'역 지도', shops:'상점', emergency:'비상', close:'닫기', thinking:'생각 중...', send:'보내기', typeHere:'질문을 입력하세요...', scanChat:'스캔하여 모바일 채팅', scanDesc:'QR 코드를 스캔하여 채팅을 계속하세요', searchPlace:'장소 검색...', youAreHere:'현재 위치', navigate:'길찾기', shopTitle:'상점 및 서비스', trainNo:'열차', dest:'목적지', dep:'출발', plat:'승강장', stat:'상태', onTime:'정시', departed:'출발', delayed:'지연', boarding:'탑승', min:'분', shopOpen:'영업중', shopClosed:'종료' }
 };
 
 const BANNERS = [
@@ -375,7 +375,6 @@ const KioskView = ({ shops, onAdmin }) => {
   const [response, setResponse] = useState('');
   const [speaking, setSpeaking] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [listening, setListening] = useState(false);
   const [time, setTime] = useState(new Date());
   const [mapScale, setMapScale] = useState(1);
   const [muted, setMuted] = useState(false);
@@ -411,16 +410,31 @@ const KioskView = ({ shops, onAdmin }) => {
 
   useEffect(() => { const i = setInterval(()=>setTime(new Date()),1000); return ()=>clearInterval(i); }, []);
 
+  // Preload voices (Chrome loads them async)
+  const [voices, setVoices] = useState([]);
+  useEffect(() => {
+    if (!('speechSynthesis' in window)) return;
+    const load = () => setVoices(window.speechSynthesis.getVoices());
+    load();
+    window.speechSynthesis.onvoiceschanged = load;
+  }, []);
+
   const tts = (text) => {
-    if (muted) return;
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = lang==='th'?'th-TH':lang==='cn'?'zh-CN':lang==='kr'?'ko-KR':'en-US';
-      u.onend = ()=>setSpeaking(false);
-      setSpeaking(true);
-      window.speechSynthesis.speak(u);
-    }
+    if (muted || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    const langMap = { th:'th-TH', cn:'zh-CN', kr:'ko-KR', en:'en-US' };
+    const target = langMap[lang] || 'en-US';
+    u.lang = target;
+    // Try to find a matching voice explicitly
+    const v = voices.find(v => v.lang === target)
+           || voices.find(v => v.lang.startsWith(target.split('-')[0]))
+           || voices.find(v => v.lang === 'en-US');
+    if (v) u.voice = v;
+    u.onend = () => setSpeaking(false);
+    u.onerror = () => setSpeaking(false);
+    setSpeaking(true);
+    window.speechSynthesis.speak(u);
   };
 
   const ask = (text) => {
@@ -445,16 +459,6 @@ const KioskView = ({ shops, onAdmin }) => {
   const handleFAQ = (f) => { const a=f.a[lang]; setResponse(a); tts(a); };
   const handleType = (e) => { e.preventDefault(); setModal(null); ask(question); setQuestion(''); };
 
-  const listen = () => {
-    if (listening) { setListening(false); return; }
-    const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
-    if (!SR) return;
-    const rec = new SR(); rec.lang = lang==='th'?'th-TH':'en-US';
-    rec.onstart=()=>setListening(true);
-    rec.onresult=(e)=>{ setListening(false); ask(e.results[0][0].transcript); };
-    rec.onerror=()=>setListening(false);
-    rec.start();
-  };
 
   const stColor = (s) => s==='delayed'?'text-red-400':s==='boarding'?'text-yellow-400':s==='departed'?'text-gray-600':'text-emerald-400';
 
@@ -515,7 +519,6 @@ const KioskView = ({ shops, onAdmin }) => {
         <div className="w-full shrink-0 mb-3">
           <div className="glass glow-border rounded-2xl p-4 text-center min-h-[72px] flex items-center justify-center">
             {loading ? <Dots/> :
-             listening ? <div className="flex items-center gap-2 text-kiosk-accent animate-pulse"><Mic size={18}/>{t.listening}</div> :
              <p className="text-sm text-cyan-50 leading-relaxed">{response||t.greeting}</p>}
           </div>
           <div className="w-3 h-3 bg-kiosk-accent/10 rotate-45 mx-auto -mt-1.5 border-l border-t border-kiosk-accent/15"/>
@@ -616,14 +619,9 @@ const KioskView = ({ shops, onAdmin }) => {
               <Smartphone size={18} className="text-emerald-400"/>
               <span className="text-[9px] font-bold text-emerald-300">{t.mobile}</span>
             </button>
-            <button onClick={listen}
-              className={`flex-1 rounded-xl p-3 flex items-center justify-center gap-2.5 btn-press cursor-pointer transition-all ${listening ? 'bg-red-500 shadow-lg shadow-red-500/25' : 'bg-gradient-to-r from-cyan-600 to-blue-600 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30'}`}>
-              {listening ? <MicOff size={22}/> : <Mic size={22}/>}
-              <span className="text-base font-bold">{t.voice}</span>
-            </button>
-            <button onClick={()=>{setModal('chat');setQuestion('');}} className="w-16 bg-kiosk-card border border-kiosk-border p-2.5 rounded-xl flex flex-col items-center gap-1 btn-press cursor-pointer hover:border-gray-600 transition-colors">
-              <Keyboard size={18} className="text-gray-400"/>
-              <span className="text-[9px] font-bold text-gray-400">{t.type}</span>
+            <button onClick={()=>{setModal('chat');setQuestion('');}} className="flex-1 rounded-xl p-3 flex items-center justify-center gap-2.5 btn-press cursor-pointer transition-all bg-gradient-to-r from-cyan-600 to-blue-600 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/30">
+              <Keyboard size={22}/>
+              <span className="text-base font-bold">{t.type}</span>
             </button>
           </div>
         </div>
