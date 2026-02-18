@@ -84,7 +84,7 @@ import {
 // ═══════════════════════════════════════════
 // 1. CONFIGURATION
 // ═══════════════════════════════════════════
-const APP_VERSION = "3.5.0";
+const APP_VERSION = "3.5.1";
 
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
@@ -415,63 +415,65 @@ const KioskView = ({ shops, onAdmin }) => {
   const audioRef = useRef(null);
   const ttsIdRef = useRef(0);
 
-  // StreamElements TTS — Microsoft Azure Neural voices (free, consistent everywhere)
-  const SE_VOICES = {
-    th: 'th-TH-NiwatNeural',      // Thai male
-    en: 'en-US-GuyNeural',         // English male
-    cn: 'zh-CN-YunxiNeural',       // Chinese male
-    kr: 'ko-KR-InJoonNeural',      // Korean male
+  // Pre-generated audio map (key_lang -> mp3 path)
+  // Generated with edge-tts: Microsoft Azure Neural voices (NiwatNeural/GuyNeural/YunxiNeural/InJoonNeural)
+  const AUDIO_MAP = {
+    'greeting_th': 'audio/greeting_th.mp3', 'greeting_en': 'audio/greeting_en.mp3', 'greeting_cn': 'audio/greeting_cn.mp3', 'greeting_kr': 'audio/greeting_kr.mp3',
+    'toilet_th': 'audio/toilet_th.mp3', 'toilet_en': 'audio/toilet_en.mp3', 'toilet_cn': 'audio/toilet_cn.mp3', 'toilet_kr': 'audio/toilet_kr.mp3',
+    'ticket_th': 'audio/ticket_th.mp3', 'ticket_en': 'audio/ticket_en.mp3', 'ticket_cn': 'audio/ticket_cn.mp3', 'ticket_kr': 'audio/ticket_kr.mp3',
+    'food_th': 'audio/food_th.mp3', 'food_en': 'audio/food_en.mp3', 'food_cn': 'audio/food_cn.mp3', 'food_kr': 'audio/food_kr.mp3',
+    'wifi_th': 'audio/wifi_th.mp3', 'wifi_en': 'audio/wifi_en.mp3', 'wifi_cn': 'audio/wifi_cn.mp3', 'wifi_kr': 'audio/wifi_kr.mp3',
+    'taxi_th': 'audio/taxi_th.mp3', 'taxi_en': 'audio/taxi_en.mp3', 'taxi_cn': 'audio/taxi_cn.mp3', 'taxi_kr': 'audio/taxi_kr.mp3',
+    'lost_th': 'audio/lost_th.mp3', 'lost_en': 'audio/lost_en.mp3', 'lost_cn': 'audio/lost_cn.mp3', 'lost_kr': 'audio/lost_kr.mp3',
+    'fallback_th': 'audio/fallback_th.mp3', 'fallback_en': 'audio/fallback_en.mp3',
+    'train_th': 'audio/train_th.mp3', 'train_en': 'audio/train_en.mp3',
   };
+
+  // Reverse lookup: text content -> audio key
+  const TEXT_TO_KEY = useMemo(() => {
+    const map = {};
+    FAQS.forEach(f => { Object.entries(f.a).forEach(([l, txt]) => { map[txt] = `${f.id}_${l}`; }); });
+    Object.entries(T).forEach(([l, t]) => { map[t.greeting] = `greeting_${l}`; });
+    map["ขอโทษครับ ลองถามเรื่อง 'ห้องน้ำ' หรือ 'รถไฟ' ดูไหมครับ?"] = 'fallback_th';
+    map["Sorry, try asking about 'Restroom' or 'Train'."] = 'fallback_en';
+    map['รถไฟขบวนถัดไปจะออกในอีก 15 นาทีครับ ชานชาลาที่ 1'] = 'train_th';
+    map['Next train departs in 15 minutes, Platform 1.'] = 'train_en';
+    return map;
+  }, []);
 
   const tts = (text) => {
     if (muted || !text) return;
 
     const id = ++ttsIdRef.current;
 
-    // Stop ALL previous audio — single source only
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = '';
-      audioRef.current = null;
-    }
+    // Stop previous audio
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ''; audioRef.current = null; }
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-
-    const voice = SE_VOICES[lang] || SE_VOICES.en;
-    const shortText = text.substring(0, 300); // API limit
 
     setSpeaking(true);
 
-    // StreamElements TTS (Azure Neural voices — same voice on every device)
-    const url = `https://api.streamelements.com/kappa/v2/speech?voice=${encodeURIComponent(voice)}&text=${encodeURIComponent(shortText)}`;
-    const audio = new Audio();
+    // Strategy 1: Pre-generated MP3 (100% consistent, offline-capable)
+    const audioKey = TEXT_TO_KEY[text];
+    const audioPath = audioKey ? AUDIO_MAP[audioKey] : null;
+
+    if (audioPath) {
+      const audio = new Audio(audioPath);
+      audioRef.current = audio;
+      audio.onended = () => { if (ttsIdRef.current === id) { setSpeaking(false); audioRef.current = null; } };
+      audio.onerror = () => { if (ttsIdRef.current === id) setSpeaking(false); };
+      audio.play().catch(() => { if (ttsIdRef.current === id) setSpeaking(false); });
+      return;
+    }
+
+    // Strategy 2: StreamElements API for unknown text (fallback)
+    const SE_VOICES = { th: 'th-TH-NiwatNeural', en: 'en-US-GuyNeural', cn: 'zh-CN-YunxiNeural', kr: 'ko-KR-InJoonNeural' };
+    const voice = SE_VOICES[lang] || SE_VOICES.en;
+    const url = `https://api.streamelements.com/kappa/v2/speech?voice=${encodeURIComponent(voice)}&text=${encodeURIComponent(text.substring(0, 300))}`;
+    const audio = new Audio(url);
     audioRef.current = audio;
-
-    audio.onended = () => {
-      if (ttsIdRef.current === id) { setSpeaking(false); audioRef.current = null; }
-    };
-    audio.onerror = () => {
-      if (ttsIdRef.current !== id) return;
-      audioRef.current = null;
-      // Fallback: Web Speech API (only if StreamElements fails)
-      if ('speechSynthesis' in window) {
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = { th: 'th-TH', cn: 'zh-CN', kr: 'ko-KR', en: 'en-US' }[lang] || 'en-US';
-        u.rate = 0.95;
-        u.onend = () => { if (ttsIdRef.current === id) setSpeaking(false); };
-        u.onerror = () => { if (ttsIdRef.current === id) setSpeaking(false); };
-        window.speechSynthesis.speak(u);
-      } else {
-        setSpeaking(false);
-      }
-    };
-
-    audio.src = url;
-    audio.play().catch(() => {
-      // play() rejected — only fallback if onerror hasn't already
-      if (ttsIdRef.current !== id || !audioRef.current) return;
-      audioRef.current = null;
-      audio.onerror?.();
-    });
+    audio.onended = () => { if (ttsIdRef.current === id) { setSpeaking(false); audioRef.current = null; } };
+    audio.onerror = () => { if (ttsIdRef.current === id) setSpeaking(false); };
+    audio.play().catch(() => { if (ttsIdRef.current === id) setSpeaking(false); });
   };
 
   const ask = (text) => {
