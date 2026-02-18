@@ -82,18 +82,11 @@ import {
 // ═══════════════════════════════════════════
 // 1. CONFIGURATION
 // ═══════════════════════════════════════════
-const APP_VERSION = "3.2.0";
+const APP_VERSION = "3.2.1";
 
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
 const GEMINI_API_KEY = ""; // disabled — ไม่ใช้ Gemini API
-const GOOGLE_TTS_KEY = ""; // Google Cloud Text-to-Speech API Key
-const GOOGLE_TTS_VOICES = {
-  th: { languageCode: 'th-TH', name: 'th-TH-Neural2-C' },    // Male Thai
-  en: { languageCode: 'en-US', name: 'en-US-Neural2-J' },     // Male English
-  cn: { languageCode: 'cmn-CN', name: 'cmn-CN-Neural2-C' },   // Male Chinese
-  kr: { languageCode: 'ko-KR', name: 'ko-KR-Neural2-C' },     // Male Korean
-};
 
 // ═══════════════════════════════════════════
 // 2. DATA
@@ -419,49 +412,51 @@ const KioskView = ({ shops, onAdmin }) => {
 
   const audioRef = useRef(null);
 
-  // Google Cloud TTS — with Web Speech API fallback
-  const tts = async (text) => {
+  const tts = (text) => {
     if (muted) return;
 
-    // Stop any currently playing audio
+    // Stop previous audio
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 
-    // Try Google Cloud TTS first
-    if (GOOGLE_TTS_KEY) {
-      try {
-        setSpeaking(true);
-        const voice = GOOGLE_TTS_VOICES[lang] || GOOGLE_TTS_VOICES.en;
-        const res = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_TTS_KEY}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            input: { text },
-            voice: { languageCode: voice.languageCode, name: voice.name },
-            audioConfig: { audioEncoding: 'MP3', speakingRate: 1.0, pitch: 0 }
-          })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          const audio = new Audio(`data:audio/mp3;base64,${data.audioContent}`);
-          audioRef.current = audio;
-          audio.onended = () => { setSpeaking(false); audioRef.current = null; };
-          audio.onerror = () => { setSpeaking(false); audioRef.current = null; };
-          audio.play();
-          return;
-        }
-      } catch (e) { console.warn('Google TTS failed, falling back:', e); }
-    }
+    const langMap = { th: 'th', en: 'en', cn: 'zh-CN', kr: 'ko' };
+    const tl = langMap[lang] || 'en';
 
-    // Fallback: Web Speech API
-    if ('speechSynthesis' in window) {
-      const u = new SpeechSynthesisUtterance(text);
-      const langMap = { th:'th-TH', cn:'zh-CN', kr:'ko-KR', en:'en-US' };
-      u.lang = langMap[lang] || 'en-US';
-      u.onend = () => setSpeaking(false);
-      u.onerror = () => setSpeaking(false);
+    // Strategy 1: Google Translate TTS (free, works everywhere, no API key)
+    try {
       setSpeaking(true);
-      window.speechSynthesis.speak(u);
+      const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${tl}&client=tw-ob&q=${encodeURIComponent(text)}`;
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => { setSpeaking(false); audioRef.current = null; };
+      audio.onerror = () => {
+        // Strategy 2: Web Speech API fallback
+        audioRef.current = null;
+        if ('speechSynthesis' in window) {
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = { th:'th-TH', cn:'zh-CN', kr:'ko-KR', en:'en-US' }[lang] || 'en-US';
+          u.onend = () => setSpeaking(false);
+          u.onerror = () => setSpeaking(false);
+          window.speechSynthesis.speak(u);
+        } else {
+          setSpeaking(false);
+        }
+      };
+      audio.play().catch(() => {
+        // play() rejected — try Web Speech API
+        audioRef.current = null;
+        if ('speechSynthesis' in window) {
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = { th:'th-TH', cn:'zh-CN', kr:'ko-KR', en:'en-US' }[lang] || 'en-US';
+          u.onend = () => setSpeaking(false);
+          u.onerror = () => setSpeaking(false);
+          window.speechSynthesis.speak(u);
+        } else {
+          setSpeaking(false);
+        }
+      });
+    } catch (e) {
+      setSpeaking(false);
     }
   };
 
