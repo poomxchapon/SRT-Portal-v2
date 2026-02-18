@@ -80,7 +80,7 @@ import {
 // ═══════════════════════════════════════════
 // 1. CONFIGURATION
 // ═══════════════════════════════════════════
-const APP_VERSION = "2.2.2";
+const APP_VERSION = "2.3.0";
 
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
@@ -155,7 +155,16 @@ const BANNERS = [
     tag: { th:'กิจกรรม', en:'EVENT', cn:'活动', kr:'이벤트' },
     title: { th:'Songkran Festival 2026', en:'Songkran Festival 2026', cn:'2026泼水节', kr:'2026 송크란 축제' },
     desc: { th:'สงกรานต์ปีนี้ จัดใหญ่! 13-15 เม.ย. ถนนข้าวสาร & สีลม', en:'Thailand\'s biggest water festival! Apr 13-15 at Khao San & Silom', cn:'泰国最大泼水节！4月13-15日 考山路&是隆', kr:'태국 최대 물축제! 4월 13-15일 카오산&실롬' },
-    color: 'from-orange-600/90 to-rose-600/90'
+    color: 'from-orange-600/90 to-rose-600/90',
+    date: { th:'13 - 15 เมษายน 2569', en:'April 13 - 15, 2026', cn:'2026年4月13-15日', kr:'2026년 4월 13-15일' },
+    location: { th:'ถนนข้าวสาร & ถนนสีลม, กรุงเทพฯ', en:'Khao San Road & Silom Road, Bangkok', cn:'考山路 & 是隆路，曼谷', kr:'카오산로드 & 실롬로드, 방콕' },
+    price: { th:'ฟรี', en:'Free', cn:'免费', kr:'무료' },
+    highlights: {
+      th:['สาดน้ำสุดมัน ถนนข้าวสาร','ขบวนแห่สงกรานต์ สีลม','เวทีคอนเสิร์ต & DJ','ซุ้มอาหาร-เครื่องดื่ม กว่า 200 ร้าน'],
+      en:['Epic water fights at Khao San','Songkran parade on Silom','Live concert stage & DJ','200+ food & drink stalls'],
+      cn:['考山路泼水大战','是隆宋干游行','现场音乐会和DJ','200+美食摊位'],
+      kr:['카오산 물싸움','실롬 송크란 퍼레이드','라이브 콘서트 & DJ','200+ 푸드존']
+    }
   },
   {
     id: 2,
@@ -163,7 +172,16 @@ const BANNERS = [
     tag: { th:'ท่องเที่ยว', en:'TOURISM', cn:'旅游', kr:'관광' },
     title: { th:'เที่ยวอยุธยา ไป-กลับวันเดียว', en:'Ayutthaya Day Trip by Train', cn:'大城府一日游（火车）', kr:'아유타야 당일치기 기차여행' },
     desc: { th:'นั่งรถไฟจากสถานีนี้ แค่ 1.5 ชม. ตั๋วเริ่มต้น 20 บาท!', en:'Just 1.5hrs from this station! Tickets from ฿20', cn:'从本站出发仅1.5小时！票价20泰铢起', kr:'이 역에서 1.5시간! 티켓 20바트부터' },
-    color: 'from-emerald-600/90 to-teal-600/90'
+    color: 'from-emerald-600/90 to-teal-600/90',
+    date: { th:'ทุกวัน (ขบวน 75 ออก 06:40)', en:'Daily (Train #75 departs 06:40)', cn:'每日（75次列车06:40发车）', kr:'매일 (75번 열차 06:40 출발)' },
+    location: { th:'สถานีกรุงเทพอภิวัฒน์ → สถานีอยุธยา', en:'Krung Thep Aphiwat → Ayutthaya Station', cn:'曼谷中央车站 → 大城府站', kr:'끄룽텝아피왓 → 아유타야역' },
+    price: { th:'20 - 345 บาท', en:'฿20 - ฿345', cn:'20-345泰铢', kr:'20-345바트' },
+    highlights: {
+      th:['วัดมหาธาตุ — หัวพระในรากไม้','วัดไชยวัฒนาราม ริมแม่น้ำ','ตลาดน้ำอยุธยา','ปั่นจักรยานรอบเกาะเมือง'],
+      en:['Wat Mahathat — Buddha head in tree roots','Wat Chaiwatthanaram riverside temple','Ayutthaya floating market','Cycle around the island'],
+      cn:['玛哈泰寺 — 树根佛头','柴瓦塔那兰寺 河畔','大城水上市场','环岛骑行'],
+      kr:['왓 마하탓 — 나무뿌리 속 불상','왓 차이왓타나람 강변 사원','아유타야 수상시장','섬 자전거 투어']
+    }
   },
   {
     id: 3,
@@ -171,7 +189,16 @@ const BANNERS = [
     tag: { th:'โปรโมชั่น', en:'PROMO', cn:'优惠', kr:'프로모션' },
     title: { th:'SRT Pass ไม่จำกัดเที่ยว', en:'SRT Unlimited Pass', cn:'SRT无限次通票', kr:'SRT 무제한 패스' },
     desc: { th:'บัตรเดินทางไม่จำกัด 7 วัน เพียง 999 บาท เริ่ม 1 มี.ค.', en:'7-day unlimited travel pass only ฿999. Starting Mar 1', cn:'7天无限乘车仅999泰铢 3月1日起', kr:'7일 무제한 패스 999바트 3월 1일부터' },
-    color: 'from-violet-600/90 to-indigo-600/90'
+    color: 'from-violet-600/90 to-indigo-600/90',
+    date: { th:'1 มีนาคม 2569 เป็นต้นไป', en:'From March 1, 2026', cn:'2026年3月1日起', kr:'2026년 3월 1일부터' },
+    location: { th:'ซื้อได้ที่เคาน์เตอร์จำหน่ายตั๋ว ชั้น 1', en:'Available at Ticket Counter, 1st Floor', cn:'1楼售票处有售', kr:'1층 매표소에서 구매 가능' },
+    price: { th:'999 บาท / 7 วัน', en:'฿999 / 7 days', cn:'999泰铢/7天', kr:'999바트 / 7일' },
+    highlights: {
+      th:['เดินทางไม่จำกัดเที่ยว 7 วัน','ครอบคลุมทุกเส้นทาง ทั่วประเทศ','ใช้ได้ทั้งรถนั่ง และรถนอน ชั้น 3','แลกรับส่วนลดร้านค้าในสถานี 10%'],
+      en:['Unlimited rides for 7 consecutive days','All routes nationwide coverage','Valid for 3rd class seats & sleepers','10% discount at station shops'],
+      cn:['7天无限次乘车','覆盖全国所有线路','适用三等座和卧铺','车站商店9折优惠'],
+      kr:['7일간 무제한 탑승','전국 모든 노선 이용 가능','3등석 & 침대칸 이용 가능','역내 매장 10% 할인']
+    }
   },
   {
     id: 4,
@@ -179,7 +206,16 @@ const BANNERS = [
     tag: { th:'กิจกรรม', en:'EVENT', cn:'活动', kr:'이벤트' },
     title: { th:'Night Market @ สถานีกลาง', en:'Night Market @ Central Station', cn:'中央车站夜市', kr:'중앙역 야시장' },
     desc: { th:'ตลาดนัดกลางคืน ทุกศุกร์-เสาร์ 17:00-23:00 ชั้น G', en:'Every Fri-Sat 5PM-11PM at G Floor', cn:'每周五六 17:00-23:00 G层', kr:'매주 금토 17:00-23:00 G층' },
-    color: 'from-amber-600/90 to-orange-600/90'
+    color: 'from-amber-600/90 to-orange-600/90',
+    date: { th:'ทุกศุกร์ - เสาร์ 17:00 - 23:00', en:'Every Friday - Saturday, 5PM - 11PM', cn:'每周五至周六 17:00-23:00', kr:'매주 금-토 17:00-23:00' },
+    location: { th:'ชั้น G สถานีกรุงเทพอภิวัฒน์', en:'G Floor, Krung Thep Aphiwat Station', cn:'曼谷中央车站G层', kr:'끄룽텝아피왓역 G층' },
+    price: { th:'ฟรี (ไม่รวมซื้อของ)', en:'Free entry', cn:'免费入场', kr:'무료 입장' },
+    highlights: {
+      th:['อาหาร Street Food กว่า 80 ร้าน','โซนงานฝีมือ & ของที่ระลึก','ดนตรีสดทุกคืนศุกร์','โซน Night Cafe บรรยากาศชิลล์'],
+      en:['80+ street food vendors','Handicraft & souvenir zone','Live music every Friday','Chill Night Cafe zone'],
+      cn:['80+街头美食摊位','手工艺品和纪念品区','每周五现场音乐','休闲夜间咖啡区'],
+      kr:['80+ 스트리트 푸드','수공예품 & 기념품존','매주 금요일 라이브 음악','나이트 카페존']
+    }
   },
   {
     id: 5,
@@ -187,7 +223,16 @@ const BANNERS = [
     tag: { th:'ท่องเที่ยว', en:'TOURISM', cn:'旅游', kr:'관광' },
     title: { th:'เชียงใหม่ รถไฟสายเหนือ', en:'Chiang Mai Northern Line', cn:'清迈北线列车', kr:'치앙마이 북부노선' },
     desc: { th:'นอนรถไฟ กรุงเทพ-เชียงใหม่ ตู้นอนปรับอากาศ เริ่ม 541 บาท', en:'Sleeper train BKK-CNX from ฿541. Overnight scenic route', cn:'曼谷-清迈卧铺列车 541泰铢起', kr:'방콕-치앙마이 침대열차 541바트부터' },
-    color: 'from-cyan-600/90 to-blue-600/90'
+    color: 'from-cyan-600/90 to-blue-600/90',
+    date: { th:'ทุกวัน (ขบวน 9 ออก 18:10)', en:'Daily (Train #9 departs 18:10)', cn:'每日（9次列车18:10发车）', kr:'매일 (9번 열차 18:10 출발)' },
+    location: { th:'สถานีกรุงเทพอภิวัฒน์ → สถานีเชียงใหม่', en:'Krung Thep Aphiwat → Chiang Mai Station', cn:'曼谷中央车站 → 清迈站', kr:'끄룽텝아피왓 → 치앙마이역' },
+    price: { th:'541 - 1,453 บาท', en:'฿541 - ฿1,453', cn:'541-1453泰铢', kr:'541-1,453바트' },
+    highlights: {
+      th:['ตู้นอนปรับอากาศ ชั้น 1-2','วิวทุ่งนาและภูเขาตอนเช้า','ถึงเชียงใหม่ 07:15 พร้อมเที่ยว','มีรถเข็นขายอาหารบนรถไฟ'],
+      en:['AC Sleeper 1st & 2nd class','Morning rice field & mountain views','Arrive Chiang Mai 07:15, ready to explore','Food cart service on board'],
+      cn:['一等和二等空调卧铺','清晨稻田和山景','07:15抵达清迈 即刻出发','车上有餐车服务'],
+      kr:['1-2등 에어컨 침대칸','아침 논밭 & 산 풍경','07:15 치앙마이 도착','차내 식당칸 운영']
+    }
   },
 ];
 
@@ -308,6 +353,7 @@ const KioskView = ({ shops, onAdmin }) => {
   const [muted, setMuted] = useState(false);
   const [search, setSearch] = useState('');
   const [question, setQuestion] = useState('');
+  const [selectedBanner, setSelectedBanner] = useState(null);
   const bannerRef = useRef(null);
   const bannerIdx = useRef(0);
 
@@ -451,7 +497,7 @@ const KioskView = ({ shops, onAdmin }) => {
         <div className="w-full shrink-0 mb-2">
           <div className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-1" ref={bannerRef}>
             {BANNERS.map(b => (
-              <div key={b.id} className="snap-start shrink-0 w-[85%] rounded-xl overflow-hidden relative cursor-pointer btn-press group" style={{minHeight:'100px'}}>
+              <div key={b.id} onClick={()=>setSelectedBanner(b)} className="snap-start shrink-0 w-[85%] rounded-xl overflow-hidden relative cursor-pointer btn-press group" style={{minHeight:'100px'}}>
                 <img src={b.img} alt="" className="absolute inset-0 w-full h-full object-cover"/>
                 <div className={`absolute inset-0 bg-gradient-to-r ${b.color}`}/>
                 <div className="relative z-10 p-3.5 flex flex-col justify-between h-full">
@@ -465,6 +511,55 @@ const KioskView = ({ shops, onAdmin }) => {
             ))}
           </div>
         </div>
+
+        {/* Banner Detail Overlay */}
+        {selectedBanner && (
+          <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/70 animate-fade-in" onClick={()=>setSelectedBanner(null)}>
+            <div className="w-full max-w-lg bg-kiosk-surface rounded-t-2xl overflow-hidden animate-slide-up max-h-[85vh] flex flex-col" onClick={e=>e.stopPropagation()}>
+              {/* Hero image */}
+              <div className="relative h-44 shrink-0">
+                <img src={selectedBanner.img} alt="" className="w-full h-full object-cover"/>
+                <div className={`absolute inset-0 bg-gradient-to-t ${selectedBanner.color.replace('to-r','to-t')}`} style={{opacity:0.7}}/>
+                <button onClick={()=>setSelectedBanner(null)} className="absolute top-3 right-3 p-2 rounded-full bg-black/50 text-white btn-press cursor-pointer"><X size={16}/></button>
+                <div className="absolute bottom-3 left-4 right-4">
+                  <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/25 text-[10px] font-bold uppercase tracking-wider text-white mb-1.5">{selectedBanner.tag[lang]}</span>
+                  <h2 className="text-lg font-bold text-white drop-shadow leading-tight">{selectedBanner.title[lang]}</h2>
+                </div>
+              </div>
+              {/* Detail content */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
+                <p className="text-sm text-gray-300 leading-relaxed">{selectedBanner.desc[lang]}</p>
+                {/* Info pills */}
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2.5 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-kiosk-accent/15 flex items-center justify-center shrink-0"><Calendar size={14} className="text-kiosk-accent"/></div>
+                    <div><div className="text-[10px] text-gray-500 uppercase font-bold">{ {th:'วันที่',en:'Date',cn:'日期',kr:'날짜'}[lang] }</div><div className="text-gray-200 font-medium">{selectedBanner.date[lang]}</div></div>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-kiosk-accent/15 flex items-center justify-center shrink-0"><MapPin size={14} className="text-kiosk-accent"/></div>
+                    <div><div className="text-[10px] text-gray-500 uppercase font-bold">{ {th:'สถานที่',en:'Location',cn:'地点',kr:'장소'}[lang] }</div><div className="text-gray-200 font-medium">{selectedBanner.location[lang]}</div></div>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0"><Ticket size={14} className="text-emerald-400"/></div>
+                    <div><div className="text-[10px] text-gray-500 uppercase font-bold">{ {th:'ราคา',en:'Price',cn:'价格',kr:'가격'}[lang] }</div><div className="text-emerald-400 font-bold">{selectedBanner.price[lang]}</div></div>
+                  </div>
+                </div>
+                {/* Highlights */}
+                <div>
+                  <h4 className="text-[10px] text-gray-500 uppercase font-bold mb-1.5">{ {th:'ไฮไลท์',en:'Highlights',cn:'亮点',kr:'하이라이트'}[lang] }</h4>
+                  <ul className="space-y-1.5">
+                    {selectedBanner.highlights[lang].map((h,i) => (
+                      <li key={i} className="flex items-start gap-2 text-xs text-gray-300">
+                        <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-kiosk-accent shrink-0"/>
+                        <span>{h}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* FAQ Grid */}
         <div className="w-full flex-1 min-h-0 flex flex-col gap-2">
