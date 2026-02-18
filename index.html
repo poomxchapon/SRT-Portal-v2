@@ -2197,24 +2197,36 @@ const AdminView = ({ onLogout }) => {
               </div>
 
               <div className={`${t.card} rounded-2xl border overflow-hidden`}>
-                <div className={`p-5 border-b ${t.borderSubtle}`}>
-                  <h3 className={`font-bold ${t.text} flex items-center gap-2`}><TrendingUp size={18} className="text-indigo-500"/> Visited Hours</h3>
-                  <p className={`text-xs ${t.textMuted} mt-0.5`}>Unique Device รายชั่วโมง (4.6)</p>
+                <div className={`p-5 border-b ${t.borderSubtle} flex justify-between items-start`}>
+                  <div>
+                    <h3 className={`font-bold ${t.text} flex items-center gap-2`}><TrendingUp size={18} className="text-indigo-500"/> Visited Hours</h3>
+                    <p className={`text-xs ${t.textMuted} mt-0.5`}>Unique Device รายชั่วโมง (4.6)</p>
+                  </div>
+                  <span className={`text-lg font-bold font-inter ${t.text}`}>{VISITED_HOURS.reduce((s,v)=>s+v,0).toLocaleString()}</span>
                 </div>
                 <div className="p-5">
                   <div className="flex items-end justify-between h-40 gap-0.5">
-                    {Array.from({length:18},(_, i) => i+6).map(h => {
-                      const val = h>=9&&h<=17 ? 70+Math.floor(Math.random()*30) : h>=6&&h<=20 ? 30+Math.floor(Math.random()*25) : 5+Math.floor(Math.random()*15);
+                    {VISITED_HOURS.map((v, h) => {
+                      const maxV = Math.max(...VISITED_HOURS);
+                      const pct = (v / maxV * 100);
+                      const isPeak = v === maxV;
                       return (
-                        <div key={h} className="flex flex-col items-center flex-1 gap-1 group cursor-default">
-                          <div className="w-full rounded-t transition-colors" style={{height:`${val}%`, backgroundColor: val>80?'#EF4444':val>50?'#F59E0B':'#06B6D4', opacity: 0.7}}/>
-                          {h%3===0 && <span className={`text-[8px] ${t.textMuted} font-inter`}>{h}</span>}
+                        <div key={h} className="flex flex-col items-center flex-1 gap-1 group cursor-default relative">
+                          <div className={`absolute -top-10 left-1/2 -translate-x-1/2 ${dk ? 'bg-gray-700' : 'bg-gray-800'} text-white text-[9px] px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10 font-inter font-bold`}>
+                            {String(h).padStart(2,'0')}:00 — {v.toLocaleString()}
+                          </div>
+                          <div className={`w-full rounded-t transition-all group-hover:opacity-100 group-hover:scale-x-110 ${isPeak ? 'ring-1 ring-red-400' : ''}`} style={{height:`${pct}%`, backgroundColor: pct>80?'#EF4444':pct>50?'#F59E0B':'#06B6D4', opacity: isPeak ? 1 : 0.7}}/>
+                          {h%4===0 && <span className={`text-[8px] ${t.textMuted} font-inter`}>{String(h).padStart(2,'0')}</span>}
                         </div>
                       );
                     })}
                   </div>
                   <div className={`flex justify-between mt-1 text-[9px] ${t.textMuted} font-inter`}>
-                    <span>06:00</span><span>12:00</span><span>18:00</span><span>23:00</span>
+                    <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:00</span>
+                  </div>
+                  <div className={`mt-3 flex items-center gap-4 text-[10px] ${t.textSec} font-inter`}>
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"/>Peak: 17:00 ({Math.max(...VISITED_HOURS).toLocaleString()})</span>
+                    <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-cyan-500"/>Avg: {Math.round(VISITED_HOURS.reduce((s,v)=>s+v,0)/24).toLocaleString()}/hr</span>
                   </div>
                 </div>
               </div>
