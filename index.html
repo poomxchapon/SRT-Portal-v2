@@ -78,7 +78,7 @@ import {
 // ═══════════════════════════════════════════
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
-const GEMINI_API_KEY = "AIzaSyCfRlnH1lwG-kgxX2pn3NdaQ3WbvHVcl1E";
+const GEMINI_API_KEY = ""; // disabled — ไม่ใช้ Gemini API
 
 // ═══════════════════════════════════════════
 // 2. DATA
@@ -238,8 +238,6 @@ const KioskView = ({ shops, onAdmin }) => {
   const [muted, setMuted] = useState(false);
   const [search, setSearch] = useState('');
   const [question, setQuestion] = useState('');
-  const audioCtx = useRef(null);
-  const audioCache = useRef({});
 
   const t = T[lang];
   const locs = useMemo(() => !search ? LOCATIONS : LOCATIONS.filter(l => l.name[lang].toLowerCase().includes(search.toLowerCase())), [search,lang]);
@@ -255,21 +253,8 @@ const KioskView = ({ shops, onAdmin }) => {
 
   useEffect(() => { const i = setInterval(()=>setTime(new Date()),1000); return ()=>clearInterval(i); }, []);
 
-  // Audio
-  const playBuf = async (buf) => {
-    if (!audioCtx.current) audioCtx.current = new (window.AudioContext||window.webkitAudioContext)();
-    const ctx = audioCtx.current;
-    if (ctx.state==='suspended') await ctx.resume();
-    try {
-      const view = new DataView(buf); const len = buf.byteLength/2;
-      const ab = ctx.createBuffer(1,len,24000); const ch = ab.getChannelData(0);
-      for(let i=0;i<len;i++) ch[i]=view.getInt16(i*2,true)/32768.0;
-      const src = ctx.createBufferSource(); src.buffer=ab; src.connect(ctx.destination); src.start(0);
-      setSpeaking(true); src.onended=()=>setSpeaking(false);
-    } catch(e){ setSpeaking(false); }
-  };
-
-  const browserTTS = (text) => {
+  const tts = (text) => {
+    if (muted) return;
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
@@ -280,50 +265,23 @@ const KioskView = ({ shops, onAdmin }) => {
     }
   };
 
-  const tts = async (text) => {
-    if (muted) return;
-    if (audioCache.current[text]) { playBuf(audioCache.current[text]); return; }
-
-    // Thai: use browser TTS (Gemini TTS voices don't support Thai well)
-    if (lang === 'th') { browserTTS(text); return; }
-
-    // EN/CN/KR: use Gemini TTS with language-appropriate voice
-    const voiceMap = { en:'Kore', cn:'Kore', kr:'Kore' };
-    try {
-      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${GEMINI_API_KEY}`, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ contents:[{parts:[{text}]}], generationConfig:{ responseModalities:['AUDIO'], speechConfig:{ voiceConfig:{ prebuiltVoiceConfig:{ voiceName: voiceMap[lang]||'Kore' }}}}})
-      });
-      if (!r.ok) throw new Error();
-      const d = await r.json(); const b64 = d.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-      if (b64) { const bs=atob(b64); const bytes=new Uint8Array(bs.length); for(let i=0;i<bs.length;i++) bytes[i]=bs.charCodeAt(i); const ab=bytes.buffer; audioCache.current[text]=ab; playBuf(ab); }
-    } catch(e) {
-      browserTTS(text);
-    }
-  };
-
-  const ask = async (text) => {
+  const ask = (text) => {
     if (!text.trim()) return;
     setLoading(true);
-    if (GEMINI_API_KEY) {
-      try {
-        const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_API_KEY}`, {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ contents:[{parts:[{text}]}], systemInstruction:{parts:[{text:`You are 'SRT Bot', a helpful AI assistant at Krung Thep Aphiwat Central Terminal (Bangkok's main train station). User language: ${lang}. Answer in ${lang}. Keep answers concise (max 2 sentences). Be friendly and helpful.`}]}})
-        });
-        const d = await r.json(); const reply = d.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (reply) { setResponse(reply); tts(reply); setLoading(false); return; }
-      } catch(e){}
-    }
     setTimeout(()=>{
       setLoading(false);
       let reply = lang==='th'?"ขอโทษค่ะ ลองถามเรื่อง 'ห้องน้ำ' หรือ 'รถไฟ' ดูไหมคะ?":"Sorry, try asking about 'Restroom' or 'Train'.";
       const l = text.toLowerCase();
-      if(l.includes('ห้องน้ำ')||l.includes('toilet')) reply=FAQS[0].a[lang];
+      if(l.includes('ห้องน้ำ')||l.includes('toilet')||l.includes('wc')) reply=FAQS[0].a[lang];
       else if(l.includes('ตั๋ว')||l.includes('ticket')) reply=FAQS[1].a[lang];
-      else if(l.includes('อาหาร')||l.includes('food')) reply=FAQS[2].a[lang];
+      else if(l.includes('อาหาร')||l.includes('กิน')||l.includes('food')) reply=FAQS[2].a[lang];
+      else if(l.includes('wifi')||l.includes('ไวไฟ')) reply=FAQS[3].a[lang];
+      else if(l.includes('แท็กซี่')||l.includes('taxi')||l.includes('grab')) reply=FAQS[4].a[lang];
+      else if(l.includes('หาย')||l.includes('lost')) reply=FAQS[5].a[lang];
+      else if(l.includes('รถไฟ')||l.includes('train')) reply=lang==='th'?'รถไฟขบวนถัดไปจะออกในอีก 15 นาทีค่ะ ชานชาลาที่ 1':'Next train departs in 15 minutes, Platform 1.';
+      else if(l.includes('สวัสดี')||l.includes('hello')||l.includes('hi')) reply=T[lang].greeting;
       setResponse(reply); tts(reply);
-    }, 800);
+    }, 600);
   };
 
   const handleFAQ = (f) => { const a=f.a[lang]; setResponse(a); tts(a); };
