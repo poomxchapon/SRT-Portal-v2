@@ -76,13 +76,13 @@ import {
   Search, ChevronDown, CreditCard, AlertTriangle, Layout, ZoomIn, ZoomOut,
   Volume2, VolumeX, Loader2, Smartphone, QrCode, ArrowLeft, Home, PieChart,
   Activity, Bell, Settings, Plus, CheckCircle, AlertOctagon, TrendingUp, Calendar,
-  Globe, ChevronRight, Zap, MapPin, ArrowRight
+  Globe, ChevronRight, Zap, MapPin, ArrowRight, Image
 } from 'lucide-react';
 
 // ═══════════════════════════════════════════
 // 1. CONFIGURATION
 // ═══════════════════════════════════════════
-const APP_VERSION = "2.8.1";
+const APP_VERSION = "3.0.0";
 
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
@@ -835,27 +835,58 @@ const KioskView = ({ shops, onAdmin }) => {
 // ═══════════════════════════════════════════
 // 6. ADMIN DASHBOARD
 // ═══════════════════════════════════════════
-const AdminView = ({ shops, setShops, zones, setZones, users, setUsers, offline, onLogout }) => {
-  const [view, setView] = useState('dashboard');
-  const [newShop, setNewShop] = useState({name:'',category:'Food',zone:'Zone A'});
-  const [newUser, setNewUser] = useState({email:'',password:'',role:'Operation Staff'});
-  const [showPw, setShowPw] = useState(false);
+const AdminView = ({ onLogout }) => {
+  const [view, setView] = useState('kiosk');
+  const [kioskTab, setKioskTab] = useState('ads');
 
-  const toggleShop = async (id, cur) => { setShops(p=>p.map(s=>s.id===id?{...s,is_open:!cur}:s)); if(!offline) await api.patch('shops',id,{is_open:!cur}); };
-  const updateZone = async (id, val) => { const v=parseInt(val); setZones(p=>p.map(z=>z.id===id?{...z,people_count:v,status:v>80?'Crowded':'Normal'}:z)); if(!offline) await api.patch('live_stats',id,{people_count:v}); };
-  const addShop = async () => { if(!newShop.name) return; setShops(p=>[...p,{...newShop,id:Date.now(),is_open:true}]); setNewShop({name:'',category:'Food',zone:'Zone A'}); if(!offline) await api.post('shops',{...newShop,is_open:true}); };
-  const delShop = async (id) => { setShops(p=>p.filter(s=>s.id!==id)); if(!offline) await api.del('shops',id); };
-  const addUser = async () => { if(!newUser.email||!newUser.password) return; setUsers(p=>[...p,{...newUser,id:Date.now(),status:'Active'}]); setNewUser({email:'',password:'',role:'Operation Staff'}); if(!offline) await api.post('staff',{...newUser,status:'Active'}); };
-  const delUser = async (id) => { setUsers(p=>p.filter(u=>u.id!==id)); if(!offline) await api.del('staff',id); };
+  // Mock heat map data — 10x8 grid representing station zones
+  const [heatData] = useState(() => {
+    const grid = [];
+    for (let r = 0; r < 8; r++) {
+      const row = [];
+      for (let c = 0; c < 10; c++) {
+        // Higher traffic near center and entrances
+        const cx = Math.abs(c - 4.5), cy = Math.abs(r - 3.5);
+        const base = Math.max(0, 100 - (cx * 12 + cy * 10));
+        row.push(Math.min(100, base + Math.floor(Math.random() * 30)));
+      }
+      grid.push(row);
+    }
+    return grid;
+  });
 
-  const nav = [
-    {key:'dashboard',icon:Home,label:'Dashboard'},
-    {key:'analytics',icon:Activity,label:'Analytics'},
-    {key:'alerts',icon:Bell,label:'Alerts'},
-    {key:'settings',icon:Settings,label:'Settings'},
+  // Mock walk paths
+  const WALK_PATHS = [
+    { id: 1, label: 'Entrance A to Platform 1', color: '#06B6D4', points: [[5,95],[15,80],[25,65],[40,55],[55,50],[70,45],[85,40],[95,35]], count: 1240 },
+    { id: 2, label: 'Entrance B to Food Court', color: '#F59E0B', points: [[95,90],[80,78],[65,70],[55,65],[45,68],[35,72],[25,75]], count: 890 },
+    { id: 3, label: 'Platform 2 to Exit C', color: '#10B981', points: [[10,30],[20,35],[35,40],[50,45],[60,55],[70,65],[80,78],[90,90]], count: 670 },
+    { id: 4, label: 'Ticket Counter to Platform 3', color: '#8B5CF6', points: [[50,90],[48,75],[45,60],[42,48],[40,35],[38,25],[35,15]], count: 520 },
   ];
 
-  const Stat = ({icon:I,label,value,color}) => (
+  // Mock ads data
+  const ADS = [
+    { id: 1, name: 'Songkran Festival 2026', status: 'active', impressions: '45.2K', clicks: '3.1K', ctr: '6.9%' },
+    { id: 2, name: 'Ayutthaya Day Trip', status: 'active', impressions: '32.8K', clicks: '2.4K', ctr: '7.3%' },
+    { id: 3, name: 'SRT Pass Promo', status: 'paused', impressions: '18.5K', clicks: '980', ctr: '5.3%' },
+    { id: 4, name: 'Night Market Guide', status: 'active', impressions: '28.1K', clicks: '1.8K', ctr: '6.4%' },
+    { id: 5, name: 'Chiang Mai Express', status: 'scheduled', impressions: '-', clicks: '-', ctr: '-' },
+  ];
+
+  const nav = [
+    { key: 'kiosk', icon: Layout, label: 'Kiosk Management' },
+    { key: 'heatmap', icon: Activity, label: 'LiveWalk Heat Map' },
+    { key: 'walkpath', icon: MapPin, label: 'Walk Path Location' },
+  ];
+
+  const heatColor = (v) => {
+    if (v > 80) return 'bg-red-500';
+    if (v > 60) return 'bg-orange-400';
+    if (v > 40) return 'bg-yellow-400';
+    if (v > 20) return 'bg-emerald-400';
+    return 'bg-blue-300';
+  };
+
+  const Stat = ({ icon: I, label, value, color }) => (
     <div className="bg-white rounded-2xl p-5 border border-gray-100 flex items-center gap-4 hover:shadow-md transition-shadow cursor-default">
       <div className={`p-3 rounded-xl ${color}`}><I size={22}/></div>
       <div><p className="text-gray-500 text-xs font-medium">{label}</p><h4 className="text-xl font-bold text-gray-800 font-inter">{value}</h4></div>
@@ -865,19 +896,19 @@ const AdminView = ({ shops, setShops, zones, setZones, users, setUsers, offline,
   return (
     <div className="h-full flex bg-admin-bg font-prompt">
       {/* Sidebar */}
-      <aside className="w-56 bg-white border-r border-gray-200 flex flex-col shrink-0">
+      <aside className="w-60 bg-white border-r border-gray-200 flex flex-col shrink-0">
         <div className="p-5 border-b border-gray-100">
           <h1 className="text-lg font-extrabold text-gray-800 font-inter flex items-center gap-2">
             <Train size={20} className="text-admin-primary"/> SRT Admin
           </h1>
-          <p className="text-[11px] text-gray-400 mt-0.5">Management System</p>
+          <p className="text-[11px] text-gray-400 mt-0.5">Station Management System</p>
         </div>
         <nav className="flex-1 p-3 space-y-1">
           {nav.map(n => {
             const I = n.icon;
             return (
-              <button key={n.key} onClick={()=>setView(n.key)}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${view===n.key?'bg-cyan-50 text-admin-primary font-bold':'text-gray-500 hover:bg-gray-50 hover:text-gray-700'}`}>
+              <button key={n.key} onClick={() => setView(n.key)}
+                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${view === n.key ? 'bg-cyan-50 text-admin-primary font-bold' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'}`}>
                 <I size={18}/>{n.label}
               </button>
             );
@@ -890,187 +921,350 @@ const AdminView = ({ shops, setShops, zones, setZones, users, setUsers, offline,
         </div>
       </aside>
 
-      {/* Main */}
+      {/* Main Content */}
       <div className="flex-1 overflow-y-auto p-8">
-        {view === 'dashboard' && (
-          <div className="space-y-8 animate-fade-in max-w-6xl">
-            <h2 className="text-2xl font-bold text-gray-800">Dashboard</h2>
-            <div className="grid grid-cols-4 gap-4">
-              <Stat icon={Users} label="Total Visitors" value="12,450" color="bg-blue-50 text-blue-600"/>
-              <Stat icon={Store} label="Active Shops" value={`${shops.filter(s=>s.is_open).length}/${shops.length}`} color="bg-orange-50 text-orange-600"/>
-              <Stat icon={Shield} label="Staff Online" value={users.length} color="bg-purple-50 text-purple-600"/>
-              <Stat icon={Activity} label="Uptime" value="99.8%" color="bg-emerald-50 text-emerald-600"/>
+
+        {/* ═══ Kiosk Management ═══ */}
+        {view === 'kiosk' && (
+          <div className="space-y-6 animate-fade-in max-w-6xl">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800">Kiosk Management</h2>
+              <p className="text-sm text-gray-400 mt-1">Manage advertisements, popups, maintenance & analytics</p>
             </div>
 
-            {/* Zone Density */}
+            {/* Sub-tabs */}
+            <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+              {[
+                { key: 'ads', label: 'Advertisement', icon: Image },
+                { key: 'popup', label: 'Popup', icon: Bell },
+                { key: 'ma', label: 'Kiosk MA', icon: Settings },
+                { key: 'analytics', label: 'Analytics', icon: BarChart3 },
+              ].map(t => {
+                const I = t.icon;
+                return (
+                  <button key={t.key} onClick={() => setKioskTab(t.key)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${kioskTab === t.key ? 'bg-white text-admin-primary shadow-sm font-bold' : 'text-gray-500 hover:text-gray-700'}`}>
+                    <I size={15}/>{t.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Ads Tab */}
+            {kioskTab === 'ads' && (
+              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                <div className="p-5 border-b border-gray-50 flex justify-between items-center">
+                  <h3 className="font-bold text-gray-800 flex items-center gap-2"><Image size={18} className="text-blue-500"/> Banner Advertisements</h3>
+                  <button className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-2 rounded-xl btn-press cursor-pointer flex items-center gap-1.5 transition-colors text-sm"><Plus size={16}/>New Ad</button>
+                </div>
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+                    <tr><th className="px-5 py-3 text-left">Campaign</th><th className="px-5 py-3 text-center">Status</th><th className="px-5 py-3 text-right">Impressions</th><th className="px-5 py-3 text-right">Clicks</th><th className="px-5 py-3 text-right">CTR</th></tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {ADS.map(a => (
+                      <tr key={a.id} className="hover:bg-gray-50/50 cursor-default">
+                        <td className="px-5 py-3.5 font-medium text-gray-800">{a.name}</td>
+                        <td className="px-5 py-3.5 text-center">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${a.status === 'active' ? 'bg-emerald-100 text-emerald-700' : a.status === 'paused' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${a.status === 'active' ? 'bg-emerald-500' : a.status === 'paused' ? 'bg-yellow-500' : 'bg-blue-500'}`}/>{a.status}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3.5 text-right font-inter text-gray-600">{a.impressions}</td>
+                        <td className="px-5 py-3.5 text-right font-inter text-gray-600">{a.clicks}</td>
+                        <td className="px-5 py-3.5 text-right font-inter font-bold text-gray-800">{a.ctr}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Popup Tab */}
+            {kioskTab === 'popup' && (
+              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                <div className="p-5 border-b border-gray-50 flex justify-between items-center">
+                  <h3 className="font-bold text-gray-800 flex items-center gap-2"><Bell size={18} className="text-orange-500"/> Popup Messages</h3>
+                  <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-xl btn-press cursor-pointer flex items-center gap-1.5 transition-colors text-sm"><Plus size={16}/>New Popup</button>
+                </div>
+                <div className="p-6 space-y-4">
+                  {[
+                    { title: 'Welcome Message', trigger: 'On kiosk wake', status: true, lang: 'TH/EN/CN/KR' },
+                    { title: 'Train Delay Alert', trigger: 'When delay > 15 min', status: true, lang: 'TH/EN' },
+                    { title: 'Emergency Evacuation', trigger: 'Manual trigger', status: false, lang: 'TH/EN/CN/KR' },
+                  ].map((p, i) => (
+                    <div key={i} className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
+                      <div className="flex-1">
+                        <h4 className="font-bold text-gray-800 text-sm">{p.title}</h4>
+                        <p className="text-xs text-gray-400 mt-0.5">Trigger: {p.trigger} &middot; Languages: {p.lang}</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" defaultChecked={p.status} className="sr-only peer"/>
+                        <div className="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-cyan-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"/>
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* MA Tab */}
+            {kioskTab === 'ma' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-3 gap-4">
+                  <Stat icon={Layout} label="Kiosks Online" value="12/14" color="bg-emerald-50 text-emerald-600"/>
+                  <Stat icon={Activity} label="Avg Uptime" value="99.2%" color="bg-blue-50 text-blue-600"/>
+                  <Stat icon={AlertTriangle} label="Issues" value="2" color="bg-red-50 text-red-600"/>
+                </div>
+                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                  <div className="p-5 border-b border-gray-50"><h3 className="font-bold text-gray-800 flex items-center gap-2"><Settings size={18} className="text-gray-500"/> Kiosk Status</h3></div>
+                  <div className="p-5 grid grid-cols-2 gap-3">
+                    {Array.from({ length: 14 }, (_, i) => {
+                      const online = i !== 4 && i !== 11;
+                      return (
+                        <div key={i} className={`flex items-center justify-between p-3 rounded-xl border ${online ? 'border-gray-100 bg-gray-50/50' : 'border-red-200 bg-red-50'}`}>
+                          <div className="flex items-center gap-3">
+                            <div className={`w-2.5 h-2.5 rounded-full ${online ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`}/>
+                            <div>
+                              <p className="text-sm font-bold text-gray-700">Kiosk {String(i + 1).padStart(2, '0')}</p>
+                              <p className="text-[10px] text-gray-400">{['Platform 1','Platform 2','Main Hall','Ticket Area','Platform 3','Food Court','Exit A','Exit B','Entrance A','Entrance B','Waiting Area','Platform 4','Info Center','Parking'][i]}</p>
+                            </div>
+                          </div>
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${online ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>{online ? 'Online' : 'Offline'}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Analytics Tab */}
+            {kioskTab === 'analytics' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-4 gap-4">
+                  <Stat icon={Users} label="Daily Visitors" value="12,450" color="bg-blue-50 text-blue-600"/>
+                  <Stat icon={Layout} label="Kiosk Sessions" value="8,230" color="bg-cyan-50 text-cyan-600"/>
+                  <Stat icon={Clock} label="Avg Session" value="2m 45s" color="bg-purple-50 text-purple-600"/>
+                  <Stat icon={Activity} label="Satisfaction" value="94.2%" color="bg-emerald-50 text-emerald-600"/>
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="bg-white p-6 rounded-2xl border border-gray-100">
+                    <h3 className="font-bold text-gray-700 mb-6">Weekly Kiosk Sessions</h3>
+                    <div className="flex items-end justify-between h-48 gap-2">
+                      {[65, 45, 78, 52, 90, 30, 70].map((v, i) => (
+                        <div key={i} className="flex flex-col items-center flex-1 gap-2 group cursor-default">
+                          <div className="w-full rounded-t-lg relative overflow-hidden bg-cyan-50 group-hover:bg-cyan-100 transition-colors" style={{ height: `${v}%` }}>
+                            <div className="absolute inset-0 bg-cyan-500 opacity-80 group-hover:opacity-100 transition-opacity"/>
+                          </div>
+                          <span className="text-[10px] text-gray-400 font-bold font-inter">{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i]}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl border border-gray-100">
+                    <h3 className="font-bold text-gray-700 mb-6">Top Queries</h3>
+                    <div className="space-y-3">
+                      {[
+                        { q: 'Train schedule', pct: 85 },
+                        { q: 'Restroom location', pct: 72 },
+                        { q: 'Ticket purchase', pct: 58 },
+                        { q: 'Food & restaurants', pct: 45 },
+                        { q: 'Taxi / Grab', pct: 32 },
+                      ].map((item, i) => (
+                        <div key={i}>
+                          <div className="flex justify-between mb-1"><span className="text-sm text-gray-600">{item.q}</span><span className="text-sm font-bold text-gray-800 font-inter">{item.pct}%</span></div>
+                          <div className="w-full bg-gray-100 rounded-full h-2"><div className="h-2 rounded-full bg-cyan-500 transition-all" style={{ width: `${item.pct}%` }}/></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ═══ LiveWalk Heat Map ═══ */}
+        {view === 'heatmap' && (
+          <div className="space-y-6 animate-fade-in max-w-6xl">
+            <div className="flex justify-between items-start">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2"><Activity className="text-red-500"/> LiveWalk Heat Map</h2>
+                <p className="text-sm text-gray-400 mt-1">Real-time foot traffic density from IoT sensors</p>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-400">
+                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"/>LIVE
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <Stat icon={Users} label="Current Visitors" value="2,847" color="bg-blue-50 text-blue-600"/>
+              <Stat icon={Activity} label="Peak Today" value="4,120" color="bg-red-50 text-red-600"/>
+              <Stat icon={Clock} label="Avg Dwell Time" value="18 min" color="bg-purple-50 text-purple-600"/>
+            </div>
+
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
               <div className="p-5 border-b border-gray-50 flex justify-between items-center">
-                <h3 className="font-bold text-gray-800 flex items-center gap-2"><BarChart3 size={18} className="text-blue-500"/> Live Density</h3>
+                <h3 className="font-bold text-gray-800">Station Floor — Ground Level</h3>
+                <div className="flex items-center gap-3 text-[10px] font-bold text-gray-400">
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-blue-300"/>Low</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-emerald-400"/>Medium</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-yellow-400"/>High</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-orange-400"/>Very High</span>
+                  <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-red-500"/>Critical</span>
+                </div>
               </div>
-              <div className="p-5 space-y-5">
-                {zones.map(z => (
-                  <div key={z.id}>
-                    <div className="flex justify-between mb-1.5">
-                      <span className="text-sm font-bold text-gray-700">{z.zone_name}</span>
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${z.people_count>80?'bg-red-100 text-red-600':z.people_count>50?'bg-yellow-100 text-yellow-600':'bg-emerald-100 text-emerald-600'}`}>
-                        {z.people_count}%
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className={`h-full rounded-full transition-all duration-500 ${z.people_count>80?'bg-red-500':z.people_count>50?'bg-yellow-500':'bg-emerald-500'}`} style={{width:`${z.people_count}%`}}/>
+              <div className="p-6">
+                {/* Station layout grid */}
+                <div className="relative bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  {/* Zone labels */}
+                  <div className="absolute top-2 left-4 text-[10px] font-bold text-gray-400 uppercase">Entrance A</div>
+                  <div className="absolute top-2 right-4 text-[10px] font-bold text-gray-400 uppercase">Entrance B</div>
+                  <div className="absolute bottom-2 left-4 text-[10px] font-bold text-gray-400 uppercase">Platform 1-3</div>
+                  <div className="absolute bottom-2 right-4 text-[10px] font-bold text-gray-400 uppercase">Platform 4-6</div>
+                  <div className="grid gap-1 mt-4 mb-4" style={{ gridTemplateColumns: 'repeat(10, 1fr)' }}>
+                    {heatData.map((row, r) => row.map((val, c) => (
+                      <div key={`${r}-${c}`} className={`aspect-square rounded-md ${heatColor(val)} transition-colors cursor-default group relative`} style={{ opacity: 0.3 + val * 0.007 }}>
+                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10 font-inter">
+                          {val}% density
+                        </div>
                       </div>
-                      <input type="range" min="0" max="100" value={z.people_count} onChange={e=>updateZone(z.id,e.target.value)}
-                        className="w-20 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600 opacity-40 hover:opacity-100 transition-opacity"/>
+                    )))}
+                  </div>
+                  {/* Overlay labels */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[11px] font-bold text-gray-500 bg-white/80 px-2 py-0.5 rounded pointer-events-none">Main Hall</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Zone breakdown */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-5">
+              <h3 className="font-bold text-gray-800 mb-4">Zone Density Breakdown</h3>
+              <div className="space-y-4">
+                {[
+                  { zone: 'Main Hall', pct: 78, status: 'High' },
+                  { zone: 'Platform 1-3', pct: 62, status: 'Medium' },
+                  { zone: 'Ticket Counter', pct: 85, status: 'Critical' },
+                  { zone: 'Food Court', pct: 45, status: 'Normal' },
+                  { zone: 'Exit Gates', pct: 33, status: 'Low' },
+                ].map((z, i) => (
+                  <div key={i}>
+                    <div className="flex justify-between mb-1.5">
+                      <span className="text-sm font-bold text-gray-700">{z.zone}</span>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${z.pct > 80 ? 'bg-red-100 text-red-600' : z.pct > 60 ? 'bg-yellow-100 text-yellow-600' : 'bg-emerald-100 text-emerald-600'}`}>{z.pct}% &middot; {z.status}</span>
+                    </div>
+                    <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-500 ${z.pct > 80 ? 'bg-red-500' : z.pct > 60 ? 'bg-yellow-500' : 'bg-emerald-500'}`} style={{ width: `${z.pct}%` }}/>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+          </div>
+        )}
 
-            {/* Shop Management */}
+        {/* ═══ Walk Path Location ═══ */}
+        {view === 'walkpath' && (
+          <div className="space-y-6 animate-fade-in max-w-6xl">
+            <div className="flex justify-between items-start">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2"><MapPin className="text-indigo-500"/> Walk Path Location</h2>
+                <p className="text-sm text-gray-400 mt-1">Visitor movement patterns tracked by IoT sensors</p>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-400">
+                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"/>LIVE
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 gap-4">
+              {WALK_PATHS.map(p => (
+                <div key={p.id} className="bg-white rounded-2xl p-4 border border-gray-100 hover:shadow-md transition-shadow cursor-default">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: p.color }}/>
+                    <span className="text-xs font-bold text-gray-500">Path {p.id}</span>
+                  </div>
+                  <p className="text-sm font-bold text-gray-800 leading-tight">{p.label}</p>
+                  <p className="text-lg font-extrabold font-inter mt-2" style={{ color: p.color }}>{p.count.toLocaleString()}</p>
+                  <p className="text-[10px] text-gray-400">visitors today</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Path visualization */}
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-              <div className="p-5 border-b border-gray-50"><h3 className="font-bold text-gray-800 flex items-center gap-2"><Store size={18} className="text-orange-500"/> Store Management</h3></div>
-              <div className="p-5 border-b border-gray-50 bg-gray-50/50">
-                <div className="flex gap-2">
-                  <input type="text" value={newShop.name} onChange={e=>setNewShop({...newShop,name:e.target.value})} placeholder="Shop name" className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"/>
-                  <select value={newShop.category} onChange={e=>setNewShop({...newShop,category:e.target.value})} className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer">
-                    <option>Food</option><option>Beverage</option><option>Souvenir</option><option>Convenience</option>
-                  </select>
-                  <select value={newShop.zone} onChange={e=>setNewShop({...newShop,zone:e.target.value})} className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 cursor-pointer">
-                    <option>Zone A</option><option>Zone B</option><option>Zone C</option>
-                  </select>
-                  <button onClick={addShop} className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-xl btn-press cursor-pointer flex items-center gap-1.5 transition-colors"><Plus size={16}/>Add</button>
+              <div className="p-5 border-b border-gray-50">
+                <h3 className="font-bold text-gray-800">Station Walk Paths — Top Routes</h3>
+              </div>
+              <div className="p-6">
+                <div className="relative bg-gray-50 rounded-xl border border-gray-200" style={{ height: '400px' }}>
+                  {/* Station outline labels */}
+                  <div className="absolute top-3 left-4 text-[10px] font-bold text-gray-400 uppercase">Entrance A</div>
+                  <div className="absolute top-3 right-4 text-[10px] font-bold text-gray-400 uppercase">Entrance B</div>
+                  <div className="absolute bottom-3 left-4 text-[10px] font-bold text-gray-400 uppercase">Platforms</div>
+                  <div className="absolute bottom-3 right-4 text-[10px] font-bold text-gray-400 uppercase">Exit C</div>
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs font-bold text-gray-300 uppercase">Main Hall</div>
+
+                  {/* SVG paths */}
+                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    {WALK_PATHS.map(p => {
+                      const d = p.points.map((pt, i) => `${i === 0 ? 'M' : 'L'}${pt[0]},${pt[1]}`).join(' ');
+                      return (
+                        <g key={p.id}>
+                          <path d={d} fill="none" stroke={p.color} strokeWidth="0.8" opacity="0.3"/>
+                          <path d={d} fill="none" stroke={p.color} strokeWidth="0.4" opacity="0.8" strokeDasharray="2,1"/>
+                          {/* Start dot */}
+                          <circle cx={p.points[0][0]} cy={p.points[0][1]} r="1.2" fill={p.color} opacity="0.8"/>
+                          {/* End dot */}
+                          <circle cx={p.points[p.points.length - 1][0]} cy={p.points[p.points.length - 1][1]} r="1.2" fill={p.color} opacity="0.8"/>
+                        </g>
+                      );
+                    })}
+                  </svg>
+
+                  {/* Landmark points */}
+                  {[
+                    { x: '50%', y: '88%', label: 'Ticket Counter' },
+                    { x: '42%', y: '68%', label: 'Food Court' },
+                    { x: '65%', y: '42%', label: 'Waiting Area' },
+                    { x: '25%', y: '50%', label: 'Info Kiosk' },
+                  ].map((lm, i) => (
+                    <div key={i} className="absolute flex flex-col items-center" style={{ left: lm.x, top: lm.y, transform: 'translate(-50%, -50%)' }}>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full"/>
+                      <span className="text-[9px] text-gray-400 font-bold mt-0.5 whitespace-nowrap">{lm.label}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
+            </div>
+
+            {/* Path details table */}
+            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              <div className="p-5 border-b border-gray-50"><h3 className="font-bold text-gray-800">Route Analytics</h3></div>
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 text-gray-500 text-xs uppercase"><tr><th className="px-5 py-3 text-left">Store</th><th className="px-5 py-3 text-left">Category</th><th className="px-5 py-3 text-left">Zone</th><th className="px-5 py-3 text-center">Status</th><th className="px-5 py-3 text-right">Action</th></tr></thead>
+                <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+                  <tr><th className="px-5 py-3 text-left">Route</th><th className="px-5 py-3 text-right">Visitors</th><th className="px-5 py-3 text-right">Avg Time</th><th className="px-5 py-3 text-right">Peak Hour</th></tr>
+                </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {shops.map(s => (
-                    <tr key={s.id} className="hover:bg-gray-50/50 group">
-                      <td className="px-5 py-3 font-medium text-gray-800">{s.name}</td>
-                      <td className="px-5 py-3 text-gray-500">{s.category}</td>
-                      <td className="px-5 py-3 text-gray-500">{s.zone}</td>
-                      <td className="px-5 py-3 text-center">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${s.is_open?'bg-emerald-100 text-emerald-700':'bg-gray-100 text-gray-500'}`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${s.is_open?'bg-emerald-500':'bg-gray-400'}`}/>{s.is_open?'Open':'Closed'}
-                        </span>
+                  {WALK_PATHS.map(p => (
+                    <tr key={p.id} className="hover:bg-gray-50/50 cursor-default">
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: p.color }}/>
+                          <span className="font-medium text-gray-800">{p.label}</span>
+                        </div>
                       </td>
-                      <td className="px-5 py-3 text-right flex items-center justify-end gap-2">
-                        <button onClick={()=>toggleShop(s.id,s.is_open)} className={`text-xs font-bold px-3 py-1.5 rounded-lg border btn-press cursor-pointer ${s.is_open?'border-red-200 text-red-600 hover:bg-red-50':'border-emerald-200 text-emerald-600 hover:bg-emerald-50'} transition-colors`}>
-                          {s.is_open?'Close':'Open'}
-                        </button>
-                        <button onClick={()=>delShop(s.id)} className="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all cursor-pointer p-1"><Trash2 size={15}/></button>
-                      </td>
+                      <td className="px-5 py-3.5 text-right font-inter font-bold text-gray-800">{p.count.toLocaleString()}</td>
+                      <td className="px-5 py-3.5 text-right font-inter text-gray-600">{[3, 5, 4, 6][p.id - 1]}m {[20, 45, 10, 30][p.id - 1]}s</td>
+                      <td className="px-5 py-3.5 text-right font-inter text-gray-600">{['08:00', '12:30', '17:00', '09:15'][p.id - 1]}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-
-            {/* Staff */}
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-              <div className="p-5 border-b border-gray-50"><h3 className="font-bold text-gray-800 flex items-center gap-2"><UserPlus size={18} className="text-purple-500"/> Staff Management</h3></div>
-              <div className="p-5 border-b border-gray-50 bg-gray-50/50">
-                <div className="flex gap-2">
-                  <input type="text" value={newUser.email} onChange={e=>setNewUser({...newUser,email:e.target.value})} placeholder="Email" className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"/>
-                  <div className="relative">
-                    <input type={showPw?"text":"password"} value={newUser.password} onChange={e=>setNewUser({...newUser,password:e.target.value})} placeholder="Password" className="bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 w-40"/>
-                    <button onClick={()=>setShowPw(!showPw)} className="absolute right-3 top-2.5 text-gray-400 hover:text-purple-600 cursor-pointer">{showPw?<EyeOff size={14}/>:<Eye size={14}/>}</button>
-                  </div>
-                  <select value={newUser.role} onChange={e=>setNewUser({...newUser,role:e.target.value})} className="bg-white border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer">
-                    <option>Operation Staff</option><option>Shop Manager</option><option>Super Admin</option>
-                  </select>
-                  <button onClick={addUser} className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-xl btn-press cursor-pointer flex items-center gap-1.5 transition-colors"><Save size={16}/>Create</button>
-                </div>
-              </div>
-              <div className="divide-y divide-gray-50">
-                {users.map(u => (
-                  <div key={u.id} className="px-5 py-3 flex justify-between items-center group hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center text-xs font-bold text-gray-600">{u.email.charAt(0).toUpperCase()}</div>
-                      <div><p className="text-sm font-bold text-gray-700">{u.email}</p><p className="text-[10px] text-gray-400">{u.role}</p></div>
-                    </div>
-                    <button onClick={()=>delUser(u.id)} className="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"><Trash2 size={15}/></button>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         )}
 
-        {view === 'analytics' && (
-          <div className="space-y-8 animate-fade-in max-w-6xl">
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2"><Activity className="text-blue-500"/> Analytics</h2>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-white p-6 rounded-2xl border border-gray-100">
-                <h3 className="font-bold text-gray-700 mb-6">Weekly Traffic</h3>
-                <div className="flex items-end justify-between h-52 gap-2">
-                  {[65,45,78,52,90,30,70].map((v,i) => (
-                    <div key={i} className="flex flex-col items-center flex-1 gap-2 group cursor-default">
-                      <div className="w-full rounded-t-lg relative overflow-hidden bg-blue-50 group-hover:bg-blue-100 transition-colors" style={{height:`${v}%`}}>
-                        <div className="absolute inset-0 bg-blue-500 opacity-80 group-hover:opacity-100 transition-opacity"/>
-                      </div>
-                      <span className="text-[10px] text-gray-400 font-bold font-inter">{['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][i]}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="bg-white p-6 rounded-2xl border border-gray-100">
-                <h3 className="font-bold text-gray-700 mb-6">Zone Popularity</h3>
-                <div className="space-y-4">
-                  {zones.map((z,i) => (
-                    <div key={z.id}>
-                      <div className="flex justify-between mb-1"><span className="text-sm text-gray-600">{z.zone_name}</span><span className="text-sm font-bold text-gray-800 font-inter">{z.people_count*12}</span></div>
-                      <div className="w-full bg-gray-100 rounded-full h-2"><div className={`h-2 rounded-full ${['bg-purple-500','bg-pink-500','bg-orange-500'][i]}`} style={{width:`${z.people_count}%`}}/></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {view === 'alerts' && (
-          <div className="space-y-6 animate-fade-in max-w-4xl">
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2"><Bell className="text-orange-500"/> Notifications</h2>
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden divide-y divide-gray-50">
-              {[
-                {title:'High Traffic Alert',msg:'Platform 1-2 exceeded 80% capacity.',time:'10m ago',type:'warning'},
-                {title:'System Update',msg:'Kiosk software v2.1 deployed.',time:'2h ago',type:'info'},
-                {title:'Shop Closed',msg:'OTOP Thailand closed early.',time:'5h ago',type:'alert'},
-              ].map((n,i) => (
-                <div key={i} className="p-4 flex gap-4 hover:bg-gray-50 transition-colors cursor-default">
-                  <div className={`mt-0.5 p-2 rounded-full h-fit ${n.type==='warning'?'bg-red-100 text-red-600':n.type==='alert'?'bg-orange-100 text-orange-600':'bg-blue-100 text-blue-600'}`}>
-                    {n.type==='warning'?<AlertTriangle size={16}/>:n.type==='alert'?<AlertOctagon size={16}/>:<Info size={16}/>}
-                  </div>
-                  <div className="flex-1"><div className="flex justify-between"><h4 className="font-bold text-gray-800 text-sm">{n.title}</h4><span className="text-[11px] text-gray-400">{n.time}</span></div><p className="text-sm text-gray-500 mt-0.5">{n.msg}</p></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {view === 'settings' && (
-          <div className="space-y-6 animate-fade-in max-w-4xl">
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2"><Settings className="text-gray-600"/> Settings</h2>
-            <div className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-50">
-              {[
-                {title:'Maintenance Mode',desc:'Disable kiosk access temporarily'},
-                {title:'Auto-refresh Data',desc:'Sync with Supabase every 5 seconds'},
-                {title:'Enable TTS',desc:'Text-to-Speech via Gemini API'},
-              ].map((s,i) => (
-                <div key={i} className="p-5 flex items-center justify-between">
-                  <div><h4 className="font-bold text-gray-800 text-sm">{s.title}</h4><p className="text-xs text-gray-500">{s.desc}</p></div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" defaultChecked={i>0} className="sr-only peer"/>
-                    <div className="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-cyan-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"/>
-                  </label>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -1136,7 +1330,7 @@ function App() {
     </div>
   );
 
-  if (view === 'admin' && logged) return <AdminView shops={shops} setShops={setShops} zones={zones} setZones={setZones} users={users} setUsers={setUsers} offline={offline} onLogout={logout}/>;
+  if (view === 'admin' && logged) return <AdminView onLogout={logout}/>;
 
   return null;
 }
