@@ -109,9 +109,30 @@ const FAQS = [
 ];
 
 const LOCATIONS = [
-  { id: 1, name: { th: 'วัดพระแก้ว', en: 'Wat Phra Kaew', cn: '玉佛寺', kr: '왓 프라깨우' }, lat: 13.751, lng: 100.492, type: 'Temple', img: 'https://images.unsplash.com/photo-1599525419934-8b63428d0111?auto=format&fit=crop&w=400&q=80', desc: { th: 'วัดคู่บ้านคู่เมืองของประเทศไทย', en: 'The Temple of the Emerald Buddha.', cn: '泰国最神圣的佛寺', kr: '에메랄드 불상' } },
-  { id: 2, name: { th: 'ตลาดจตุจักร', en: 'Chatuchak Market', cn: '乍都乍市场', kr: '짜뚜짝 시장' }, lat: 13.803, lng: 100.554, type: 'Shopping', img: 'https://images.unsplash.com/photo-1563806496660-e4c16a1334c9?auto=format&fit=crop&w=400&q=80', desc: { th: 'ตลาดนัดที่ใหญ่ที่สุดในโลก', en: 'One of the largest weekend markets.', cn: '世界上最大的周末市场', kr: '세계 최대 주말 시장' } },
-  { id: 3, name: { th: 'สยามพารากอน', en: 'Siam Paragon', cn: '暹罗百丽宫', kr: '시암 파라곤' }, lat: 13.746, lng: 100.535, type: 'Mall', img: 'https://images.unsplash.com/photo-1559628233-eb1b1ee45dc6?auto=format&fit=crop&w=400&q=80', desc: { th: 'ศูนย์การค้าระดับโลก', en: 'A world-class shopping destination.', cn: '世界级购物目的地', kr: '세계적인 쇼핑 명소' } },
+  { id:1, name:{th:'วัดพระแก้ว',en:'Wat Phra Kaew',cn:'玉佛寺',kr:'왓 프라깨우'}, lat:13.751, lng:100.492, type:{th:'วัด',en:'Temple',cn:'寺庙',kr:'사원'},
+    img:'https://images.unsplash.com/photo-1599525419934-8b63428d0111?auto=format&fit=crop&w=600&q=80',
+    desc:{th:'วัดคู่บ้านคู่เมือง ประดิษฐานพระแก้วมรกต สถาปัตยกรรมล้ำค่าที่สุดในไทย',en:'Home of the sacred Emerald Buddha. Thailand\'s most magnificent temple complex',cn:'供奉翡翠佛像 泰国最壮丽的寺庙建筑群',kr:'에메랄드 불상이 모셔진 태국 최고의 사원'},
+    travel:{th:'BTS สนามกีฬา + เรือ ≈ 40 นาที',en:'BTS + boat ≈ 40 min',cn:'BTS+船 ≈ 40分钟',kr:'BTS+보트 ≈ 40분'}, rating:4.8, cost:{th:'ฟรี (คนไทย)',en:'Free (Thai) / ฿500',cn:'免费(泰) / ฿500',kr:'무료(태) / ฿500'} },
+  { id:2, name:{th:'ตลาดจตุจักร',en:'Chatuchak Market',cn:'乍都乍市场',kr:'짜뚜짝 시장'}, lat:13.803, lng:100.554, type:{th:'ช้อปปิ้ง',en:'Shopping',cn:'购物',kr:'쇼핑'},
+    img:'https://images.unsplash.com/photo-1563806496660-e4c16a1334c9?auto=format&fit=crop&w=600&q=80',
+    desc:{th:'ตลาดนัดสุดสัปดาห์ที่ใหญ่ที่สุดในโลก! กว่า 15,000 ร้าน อาหาร เสื้อผ้า ของฝาก',en:'World\'s largest weekend market! 15,000+ stalls with food, fashion & souvenirs',cn:'世界最大周末市场！15000+摊位 美食服饰纪念品',kr:'세계 최대 주말시장! 15,000+ 매장, 먹거리 & 기념품'},
+    travel:{th:'MRT สวนจตุจักร ≈ 25 นาที',en:'MRT Chatuchak ≈ 25 min',cn:'MRT乍都乍 ≈ 25分钟',kr:'MRT 짜뚜짝 ≈ 25분'}, rating:4.5, cost:{th:'ฟรี (ไม่รวมซื้อของ)',en:'Free entry',cn:'免费入场',kr:'무료 입장'} },
+  { id:3, name:{th:'สยามพารากอน',en:'Siam Paragon',cn:'暹罗百丽宫',kr:'시암 파라곤'}, lat:13.746, lng:100.535, type:{th:'ห้างสรรพสินค้า',en:'Mall',cn:'商场',kr:'쇼핑몰'},
+    img:'https://images.unsplash.com/photo-1559628233-eb1b1ee45dc6?auto=format&fit=crop&w=600&q=80',
+    desc:{th:'ศูนย์การค้าระดับโลก มีทั้ง SEA LIFE Aquarium, Madame Tussauds และร้านแบรนด์เนม',en:'World-class mall with SEA LIFE Aquarium, Madame Tussauds & luxury brands',cn:'世界级商场 含SEA LIFE水族馆、杜莎夫人蜡像馆及奢侈品牌',kr:'세계적 쇼핑몰, SEA LIFE 아쿠아리움 & 명품 브랜드'},
+    travel:{th:'BTS สยาม ≈ 20 นาที',en:'BTS Siam ≈ 20 min',cn:'BTS暹罗 ≈ 20分钟',kr:'BTS 시암 ≈ 20분'}, rating:4.6, cost:{th:'ฟรี',en:'Free entry',cn:'免费',kr:'무료'} },
+  { id:4, name:{th:'วัดอรุณ',en:'Wat Arun',cn:'黎明寺',kr:'왓 아룬'}, lat:13.744, lng:100.489, type:{th:'วัด',en:'Temple',cn:'寺庙',kr:'사원'},
+    img:'https://images.unsplash.com/photo-1563492065599-3520f775eeed?auto=format&fit=crop&w=600&q=80',
+    desc:{th:'วัดแจ้ง ริมแม่น้ำเจ้าพระยา ไฮไลท์ยามพระอาทิตย์ตก สวยจนต้องมา!',en:'Iconic riverside temple. Stunning at sunset — a must-see Bangkok landmark!',cn:'湄南河畔标志性寺庙 日落时分美不胜收！',kr:'차오프라야 강변의 상징적 사원. 일몰이 아름다운 필수 명소!'},
+    travel:{th:'BTS + เรือข้ามฟาก ≈ 45 นาที',en:'BTS + ferry ≈ 45 min',cn:'BTS+渡船 ≈ 45分钟',kr:'BTS+페리 ≈ 45분'}, rating:4.7, cost:{th:'฿100',en:'฿100',cn:'฿100',kr:'฿100'} },
+  { id:5, name:{th:'คาเฟ่ย่านเจริญกรุง',en:'Charoen Krung Cafes',cn:'石龙军路咖啡区',kr:'차런끄룽 카페거리'}, lat:13.724, lng:100.514, type:{th:'คาเฟ่',en:'Cafe',cn:'咖啡',kr:'카페'},
+    img:'https://images.unsplash.com/photo-1559305616-3f99cd43e353?auto=format&fit=crop&w=600&q=80',
+    desc:{th:'ย่านสุดฮิปของกรุงเทพ! คาเฟ่สวย สตรีทอาร์ต แกลเลอรี่ ถ่ายรูปสวยทุกมุม',en:'Bangkok\'s hippest neighborhood! Trendy cafes, street art & galleries everywhere',cn:'曼谷最潮街区！网红咖啡馆、街头艺术和画廊',kr:'방콕에서 가장 힙한 동네! 카페, 스트릿아트 & 갤러리'},
+    travel:{th:'MRT วัดมังกร ≈ 15 นาที',en:'MRT Wat Mangkon ≈ 15 min',cn:'MRT龙莲寺 ≈ 15分钟',kr:'MRT 왓망곤 ≈ 15분'}, rating:4.4, cost:{th:'ฟรี',en:'Free',cn:'免费',kr:'무료'} },
+  { id:6, name:{th:'เยาวราช (ไชน่าทาวน์)',en:'Yaowarat (Chinatown)',cn:'耀华力路(唐人街)',kr:'야오와랏 (차이나타운)'}, lat:13.740, lng:100.510, type:{th:'อาหาร',en:'Food',cn:'美食',kr:'음식'},
+    img:'https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&w=600&q=80',
+    desc:{th:'สตรีทฟู้ดระดับโลก! หอยทอด ข้าวหมูแดง กุ้งเผา ป้ายไฟนีออนสุดคลาสสิก',en:'World-famous street food! Oyster omelette, roast pork, grilled shrimp & neon lights',cn:'世界闻名的街头美食！蚝煎、叉烧、烤虾和经典霓虹灯',kr:'세계적인 길거리 음식! 굴전, 바비큐 & 네온사인 거리'},
+    travel:{th:'MRT วัดมังกร ≈ 15 นาที',en:'MRT Wat Mangkon ≈ 15 min',cn:'MRT龙莲寺 ≈ 15分钟',kr:'MRT 왓망곤 ≈ 15분'}, rating:4.6, cost:{th:'เริ่มต้น ฿50',en:'From ฿50',cn:'฿50起',kr:'฿50부터'} },
 ];
 
 const T = {
@@ -533,28 +554,74 @@ const KioskView = ({ shops, onAdmin }) => {
 
       {/* Tourist Map */}
       <Modal open={modal==='map'} onClose={()=>{setModal(null);setSelectedLoc(null);setSearch('');}} title={t.map} icon={MapPin} color="text-indigo-400">
-        <div className="p-4 space-y-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 text-gray-600" size={16}/>
-            <input type="text" placeholder={t.searchPlace} value={search} onChange={e=>setSearch(e.target.value)}
-              className="w-full bg-kiosk-card border border-kiosk-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-kiosk-accent/50 transition-colors"/>
+        <div className="flex flex-col h-full">
+          {/* Search */}
+          <div className="px-4 pt-3 pb-2 shrink-0">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 text-gray-600" size={16}/>
+              <input type="text" placeholder={t.searchPlace} value={search} onChange={e=>setSearch(e.target.value)}
+                className="w-full bg-kiosk-card border border-kiosk-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-kiosk-accent/50 transition-colors"/>
+            </div>
           </div>
-          <div className="h-44 rounded-xl overflow-hidden border border-kiosk-border">
-            <iframe title="Map" width="100%" height="100%" frameBorder="0" style={{border:0,filter:'invert(90%) hue-rotate(180deg)'}}
-              src={`https://maps.google.com/maps?q=${selectedLoc?`${selectedLoc.lat},${selectedLoc.lng}`:'13.7563,100.5018'}&z=${selectedLoc?16:12}&ie=UTF8&output=embed`} allowFullScreen/>
-          </div>
-          <div className="space-y-2">
-            {locs.map(loc => (
-              <button key={loc.id} onClick={()=>setSelectedLoc(loc)}
-                className={`w-full p-3 rounded-xl flex items-center gap-3 transition-all btn-press cursor-pointer border ${selectedLoc?.id===loc.id?'bg-kiosk-accent/10 border-kiosk-accent/40':'bg-kiosk-card border-kiosk-border hover:border-gray-600'}`}>
-                <img src={loc.img} alt={loc.name[lang]} className="w-12 h-12 rounded-lg object-cover shrink-0"/>
-                <div className="flex-1 text-left">
-                  <div className="font-bold text-white text-sm">{loc.name[lang]}</div>
-                  <div className="text-[11px] text-gray-500">{loc.type} — {loc.desc[lang]}</div>
+
+          {/* Selected Place Detail */}
+          {selectedLoc && (
+            <div className="px-4 pb-3 shrink-0 animate-fade-in">
+              <div className="rounded-xl overflow-hidden border border-kiosk-accent/30 bg-kiosk-card">
+                <div className="h-36 relative">
+                  <img src={selectedLoc.img} alt={selectedLoc.name[lang]} className="w-full h-full object-cover"/>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"/>
+                  <button onClick={()=>setSelectedLoc(null)} className="absolute top-2 right-2 p-1.5 rounded-full bg-black/50 text-white btn-press cursor-pointer"><X size={14}/></button>
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <h3 className="text-base font-bold text-white drop-shadow">{selectedLoc.name[lang]}</h3>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-kiosk-accent/30 text-kiosk-glow font-bold">{selectedLoc.type[lang]}</span>
+                      <span className="text-[10px] text-yellow-400 font-bold">{'★'.repeat(Math.floor(selectedLoc.rating))} {selectedLoc.rating}</span>
+                    </div>
+                  </div>
                 </div>
-                <MapPin size={16} className={selectedLoc?.id===loc.id?'text-kiosk-accent':'text-gray-600'}/>
-              </button>
-            ))}
+                <div className="p-3 space-y-2">
+                  <p className="text-xs text-gray-300 leading-relaxed">{selectedLoc.desc[lang]}</p>
+                  <div className="flex items-center gap-4 text-[11px]">
+                    <div className="flex items-center gap-1.5 text-cyan-400"><Train size={12}/><span>{selectedLoc.travel[lang]}</span></div>
+                    <div className="flex items-center gap-1.5 text-emerald-400"><Ticket size={12}/><span>{selectedLoc.cost[lang]}</span></div>
+                  </div>
+                  <div className="h-28 rounded-lg overflow-hidden border border-kiosk-border">
+                    <iframe title="Map" width="100%" height="100%" frameBorder="0" style={{border:0,filter:'invert(90%) hue-rotate(180deg)'}}
+                      src={`https://maps.google.com/maps?q=${selectedLoc.lat},${selectedLoc.lng}&z=16&ie=UTF8&output=embed`} allowFullScreen/>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Place Cards */}
+          <div className="flex-1 overflow-y-auto no-scrollbar px-4 pb-4">
+            <div className="grid grid-cols-2 gap-2.5">
+              {locs.map(loc => (
+                <button key={loc.id} onClick={()=>setSelectedLoc(loc)}
+                  className={`rounded-xl overflow-hidden text-left transition-all btn-press cursor-pointer border ${selectedLoc?.id===loc.id ? 'border-kiosk-accent/50 ring-1 ring-kiosk-accent/30' : 'border-kiosk-border hover:border-gray-600'}`}>
+                  <div className="relative h-24">
+                    <img src={loc.img} alt={loc.name[lang]} className="w-full h-full object-cover"/>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"/>
+                    <span className="absolute top-1.5 left-1.5 text-[8px] px-1.5 py-0.5 rounded-full bg-black/50 text-white font-bold uppercase">{loc.type[lang]}</span>
+                    <div className="absolute bottom-1.5 left-2 right-2">
+                      <h4 className="text-xs font-bold text-white drop-shadow leading-tight truncate">{loc.name[lang]}</h4>
+                      <div className="flex items-center justify-between mt-0.5">
+                        <span className="text-[9px] text-yellow-400 font-bold">{'★'.repeat(Math.floor(loc.rating))}</span>
+                        <span className="text-[9px] text-emerald-300 font-bold">{loc.cost[lang]}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-kiosk-card p-2">
+                    <p className="text-[10px] text-gray-400 leading-snug line-clamp-2">{loc.desc[lang]}</p>
+                    <div className="flex items-center gap-1 mt-1.5 text-[9px] text-cyan-500">
+                      <Train size={10}/><span>{loc.travel[lang]}</span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </Modal>
