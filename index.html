@@ -76,13 +76,14 @@ import {
   Search, ChevronDown, CreditCard, AlertTriangle, Layout, ZoomIn, ZoomOut,
   Volume2, VolumeX, Loader2, Smartphone, QrCode, ArrowLeft, Home, PieChart,
   Activity, Bell, Settings, Plus, CheckCircle, AlertOctagon, TrendingUp, Calendar,
-  Globe, ChevronRight, Zap, MapPin, ArrowRight, Image
+  Globe, ChevronRight, Zap, MapPin, ArrowRight, Image,
+  Power, RotateCw, Edit2, Copy, Languages, Monitor, Trash, ToggleLeft, ToggleRight, Upload
 } from 'lucide-react';
 
 // ═══════════════════════════════════════════
 // 1. CONFIGURATION
 // ═══════════════════════════════════════════
-const APP_VERSION = "3.2.1";
+const APP_VERSION = "3.3.0";
 
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
@@ -568,28 +569,28 @@ const KioskView = ({ shops, onAdmin }) => {
 
         {/* Banner Detail Overlay */}
         {selectedBanner && (
-          <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/80 animate-fade-in" onClick={()=>setSelectedBanner(null)}>
-            <div className="w-full max-w-lg rounded-t-2xl overflow-hidden animate-slide-up max-h-[85vh] flex flex-col" style={{backgroundColor:'#0F172A'}} onClick={e=>e.stopPropagation()}>
+          <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black animate-fade-in" onClick={()=>setSelectedBanner(null)}>
+            <div className="w-full max-w-lg rounded-t-2xl overflow-hidden animate-slide-up max-h-[85vh] flex flex-col bg-[#0A0F1A]" onClick={e=>e.stopPropagation()}>
               {/* Hero image */}
               <div className="relative h-48 shrink-0">
                 <img src={selectedBanner.img} alt="" className="w-full h-full object-cover"/>
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-black/40 to-transparent"/>
-                <button onClick={()=>setSelectedBanner(null)} className="absolute top-3 right-3 p-2.5 rounded-full bg-black/60 text-white btn-press cursor-pointer"><X size={16}/></button>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0A0F1A] via-black/50 to-transparent"/>
+                <button onClick={()=>setSelectedBanner(null)} className="absolute top-3 right-3 p-2.5 rounded-full bg-black/80 text-white btn-press cursor-pointer"><X size={16}/></button>
                 <div className="absolute bottom-3 left-4 right-4">
                   <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/25 text-[10px] font-bold uppercase tracking-wider text-white mb-1.5">{selectedBanner.tag[lang]}</span>
                   <h2 className="text-lg font-bold text-white drop-shadow leading-tight">{selectedBanner.title[lang]}</h2>
                 </div>
               </div>
               {/* Detail content */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{backgroundColor:'#0F172A'}}>
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#0A0F1A]">
                 <p className="text-sm text-gray-300 leading-relaxed">{selectedBanner.desc[lang]}</p>
                 {/* Info cards */}
                 <div className="flex flex-col gap-2.5">
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-800/80 border border-gray-700/50">
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-800 border border-gray-700/60">
                     <div className="w-9 h-9 rounded-lg bg-kiosk-accent/20 flex items-center justify-center shrink-0"><Calendar size={16} className="text-kiosk-accent"/></div>
                     <div><div className="text-[10px] text-gray-500 uppercase font-bold tracking-wide">{ {th:'วันที่',en:'Date',cn:'日期',kr:'날짜'}[lang] }</div><div className="text-sm text-white font-medium mt-0.5">{selectedBanner.date[lang]}</div></div>
                   </div>
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-800/80 border border-gray-700/50">
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-800 border border-gray-700/60">
                     <div className="w-9 h-9 rounded-lg bg-kiosk-accent/20 flex items-center justify-center shrink-0"><MapPin size={16} className="text-kiosk-accent"/></div>
                     <div><div className="text-[10px] text-gray-500 uppercase font-bold tracking-wide">{ {th:'สถานที่',en:'Location',cn:'地点',kr:'장소'}[lang] }</div><div className="text-sm text-white font-medium mt-0.5">{selectedBanner.location[lang]}</div></div>
                   </div>
@@ -599,7 +600,7 @@ const KioskView = ({ shops, onAdmin }) => {
                   </div>
                 </div>
                 {/* Highlights */}
-                <div className="p-3 rounded-xl bg-gray-800/60 border border-gray-700/40">
+                <div className="p-3 rounded-xl bg-gray-800 border border-gray-700/60">
                   <h4 className="text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-2.5">{ {th:'ไฮไลท์',en:'Highlights',cn:'亮点',kr:'하이라이트'}[lang] }</h4>
                   <ul className="space-y-2">
                     {selectedBanner.highlights[lang].map((h,i) => (
@@ -864,6 +865,60 @@ const AdminView = ({ onLogout }) => {
   const [heatHour, setHeatHour] = useState(14);
   const [flowSlot, setFlowSlot] = useState(2);
 
+  // ═══ Popup state ═══
+  const [popups, setPopups] = useState([
+    { id: 1, title: 'Welcome Message', trigger: 'on-wake', active: true, texts: { th: 'ยินดีต้อนรับสู่สถานีกลางกรุงเทพอภิวัฒน์', en: 'Welcome to Krung Thep Aphiwat Central Terminal', cn: '欢迎来到曼谷阿披瓦中央车站', kr: '끄룽텝 아피왓 중앙역에 오신 것을 환영합니다' }, langs: { th: true, en: true, cn: true, kr: true } },
+    { id: 2, title: 'Train Delay Alert', trigger: 'delay-15', active: true, texts: { th: 'ขออภัย รถไฟมีความล่าช้าประมาณ 15 นาที', en: 'Sorry, the train is delayed approximately 15 minutes', cn: '抱歉，火车延误约15分钟', kr: '죄송합니다, 열차가 약 15분 지연됩니다' }, langs: { th: true, en: true, cn: false, kr: false } },
+    { id: 3, title: 'Emergency Evacuation', trigger: 'manual', active: false, texts: { th: 'กรุณาอพยพไปยังทางออกฉุกเฉินที่ใกล้ที่สุด', en: 'Please evacuate to the nearest emergency exit', cn: '请撤离到最近的紧急出口', kr: '가장 가까운 비상구로 대피하십시오' }, langs: { th: true, en: true, cn: true, kr: true } },
+  ]);
+  const [showPopupForm, setShowPopupForm] = useState(false);
+  const [editPopup, setEditPopup] = useState(null);
+  const [popupForm, setPopupForm] = useState({ title: '', trigger: 'manual', texts: { th: '', en: '', cn: '', kr: '' }, langs: { th: true, en: false, cn: false, kr: false } });
+  const [translating, setTranslating] = useState(false);
+
+  // ═══ Ads state ═══
+  const [ads, setAds] = useState([
+    { id: 1, name: 'Songkran Festival 2026', status: 'active', type: 'banner', start: '2026-04-01', end: '2026-04-30', impressions: '45.2K', clicks: '3.1K', ctr: '6.9%' },
+    { id: 2, name: 'Ayutthaya Day Trip', status: 'active', type: 'banner', start: '2026-01-15', end: '2026-06-30', impressions: '32.8K', clicks: '2.4K', ctr: '7.3%' },
+    { id: 3, name: 'SRT Pass Promo', status: 'paused', type: 'popup', start: '2026-02-01', end: '2026-03-31', impressions: '18.5K', clicks: '980', ctr: '5.3%' },
+    { id: 4, name: 'Night Market Guide', status: 'active', type: 'banner', start: '2026-01-01', end: '2026-12-31', impressions: '28.1K', clicks: '1.8K', ctr: '6.4%' },
+    { id: 5, name: 'Chiang Mai Express', status: 'scheduled', type: 'banner', start: '2026-03-01', end: '2026-05-31', impressions: '-', clicks: '-', ctr: '-' },
+  ]);
+  const [showAdForm, setShowAdForm] = useState(false);
+  const [adForm, setAdForm] = useState({ name: '', type: 'banner', status: 'scheduled', start: '', end: '', imageUrl: '' });
+
+  // ═══ Kiosk MA state ═══
+  const KIOSK_LOCATIONS = ['Platform 1','Platform 2','Main Hall','Ticket Area','Platform 3','Food Court','Exit A','Exit B','Entrance A','Entrance B','Waiting Area','Platform 4','Info Center','Parking'];
+  const [kiosks, setKiosks] = useState(Array.from({ length: 14 }, (_, i) => ({
+    id: i + 1, name: `Kiosk ${String(i+1).padStart(2,'0')}`, location: KIOSK_LOCATIONS[i],
+    status: i === 4 ? 'offline' : i === 11 ? 'offline' : 'online',
+    uptime: i === 4 ? '0%' : i === 11 ? '0%' : `${(97 + Math.random() * 3).toFixed(1)}%`,
+    lastRestart: `2026-02-${String(10 + Math.floor(Math.random()*8)).padStart(2,'0')} ${String(8+Math.floor(Math.random()*10)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`,
+    version: 'v3.3.0',
+  })));
+  const [showSchedule, setShowSchedule] = useState(null);
+  const [scheduleForm, setScheduleForm] = useState({ action: 'restart', date: '', time: '' });
+  const [selectedKiosk, setSelectedKiosk] = useState(null);
+
+  // ═══ Auto-translate helper ═══
+  const autoTranslate = async (thText) => {
+    if (!thText.trim()) return;
+    setTranslating(true);
+    const targets = { en: 'en', cn: 'zh-CN', kr: 'ko' };
+    const newTexts = { ...popupForm.texts, th: thText };
+    for (const [key, tl] of Object.entries(targets)) {
+      if (popupForm.langs[key]) {
+        try {
+          const r = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=th&tl=${tl}&dt=t&q=${encodeURIComponent(thText)}`);
+          const d = await r.json();
+          newTexts[key] = d?.[0]?.map(s => s[0]).join('') || '';
+        } catch { newTexts[key] = ''; }
+      }
+    }
+    setPopupForm(f => ({ ...f, texts: newTexts }));
+    setTranslating(false);
+  };
+
   // ═══ DeepTrack Sensor Nodes (mock) ═══
   const NODES = [
     { id: 'N01', name: 'Entrance A', type: 'outdoor', status: 'active', x: 10, y: 15, detected: 1842, occupancy: 45 },
@@ -876,7 +931,6 @@ const AdminView = ({ onLogout }) => {
     { id: 'N08', name: 'Exit C', type: 'outdoor', status: 'active', x: 50, y: 92, detected: 1420, occupancy: 30 },
   ];
 
-  // Detection Summary by 6 time slots (DeepTrack 4.8)
   const DETECTION_SLOTS = [
     { label: 'เช้า', time: '06-09', count: 1820, pct: 45 },
     { label: 'สาย', time: '09-12', count: 3450, pct: 85 },
@@ -886,7 +940,6 @@ const AdminView = ({ onLogout }) => {
     { label: 'กลางคืน', time: '21-00', count: 980, pct: 24 },
   ];
 
-  // Hourly heatmap data per node (DeepTrack 4.2)
   const HOURLY_DATA = useMemo(() => {
     const data = {};
     NODES.forEach(n => {
@@ -898,7 +951,6 @@ const AdminView = ({ onLogout }) => {
     return data;
   }, []);
 
-  // Device Flow: Node→Node (DeepTrack 4.4)
   const FLOWS = [
     { from: 'N01', to: 'N03', count: 1240, color: '#06B6D4' },
     { from: 'N02', to: 'N03', count: 980, color: '#3B82F6' },
@@ -911,17 +963,24 @@ const AdminView = ({ onLogout }) => {
     { from: 'N07', to: 'N08', count: 520, color: '#F97316' },
   ];
 
-  // Flow by 3-hour blocks (DeepTrack 4.4 Sankey)
   const FLOW_SLOTS = ['06-09', '09-12', '12-15', '15-18', '18-21', '21-00'];
 
-  // Mock ads data
-  const ADS = [
-    { id: 1, name: 'Songkran Festival 2026', status: 'active', impressions: '45.2K', clicks: '3.1K', ctr: '6.9%' },
-    { id: 2, name: 'Ayutthaya Day Trip', status: 'active', impressions: '32.8K', clicks: '2.4K', ctr: '7.3%' },
-    { id: 3, name: 'SRT Pass Promo', status: 'paused', impressions: '18.5K', clicks: '980', ctr: '5.3%' },
-    { id: 4, name: 'Night Market Guide', status: 'active', impressions: '28.1K', clicks: '1.8K', ctr: '6.4%' },
-    { id: 5, name: 'Chiang Mai Express', status: 'scheduled', impressions: '-', clicks: '-', ctr: '-' },
-  ];
+  // ═══ Weekly sessions mock data (consistent) ═══
+  const WEEKLY_SESSIONS = useMemo(() => [
+    { day: 'Mon', sessions: 1180, visitors: 1820 },
+    { day: 'Tue', sessions: 820, visitors: 1240 },
+    { day: 'Wed', sessions: 1420, visitors: 2050 },
+    { day: 'Thu', sessions: 950, visitors: 1480 },
+    { day: 'Fri', sessions: 1640, visitors: 2380 },
+    { day: 'Sat', sessions: 540, visitors: 880 },
+    { day: 'Sun', sessions: 1280, visitors: 1900 },
+  ], []);
+
+  // ═══ Visited hours mock data (consistent) ═══
+  const VISITED_HOURS = useMemo(() => [
+    420, 280, 180, 120, 80, 350, 980, 1650, 2180, 2850, 3200, 3450,
+    3680, 3520, 3100, 2780, 2450, 2180, 1850, 1420, 980, 720, 580, 450
+  ], []);
 
   const nav = [
     { key: 'kiosk', icon: Layout, label: 'Kiosk Management' },
@@ -938,6 +997,62 @@ const AdminView = ({ onLogout }) => {
       <div><p className="text-gray-500 text-xs font-medium">{label}</p><h4 className="text-xl font-bold text-gray-800 font-inter">{value}</h4></div>
     </div>
   );
+
+  const LANG_LABELS = { th: 'TH', en: 'EN', cn: 'CN', kr: 'KR' };
+  const LANG_COLORS = { th: 'bg-blue-100 text-blue-700', en: 'bg-emerald-100 text-emerald-700', cn: 'bg-red-100 text-red-700', kr: 'bg-purple-100 text-purple-700' };
+  const TRIGGER_LABELS = { 'on-wake': 'On kiosk wake', 'delay-15': 'When delay > 15 min', 'manual': 'Manual trigger', 'scheduled': 'Scheduled time' };
+
+  // ═══ Popup form helpers ═══
+  const openNewPopup = () => {
+    setEditPopup(null);
+    setPopupForm({ title: '', trigger: 'manual', texts: { th: '', en: '', cn: '', kr: '' }, langs: { th: true, en: false, cn: false, kr: false } });
+    setShowPopupForm(true);
+  };
+  const openEditPopup = (p) => {
+    setEditPopup(p.id);
+    setPopupForm({ title: p.title, trigger: p.trigger, texts: { ...p.texts }, langs: { ...p.langs } });
+    setShowPopupForm(true);
+  };
+  const savePopup = () => {
+    if (!popupForm.title.trim() || !popupForm.texts.th.trim()) return;
+    if (editPopup) {
+      setPopups(ps => ps.map(p => p.id === editPopup ? { ...p, ...popupForm } : p));
+    } else {
+      setPopups(ps => [...ps, { id: Date.now(), ...popupForm, active: true }]);
+    }
+    setShowPopupForm(false);
+  };
+  const deletePopup = (id) => setPopups(ps => ps.filter(p => p.id !== id));
+  const togglePopup = (id) => setPopups(ps => ps.map(p => p.id === id ? { ...p, active: !p.active } : p));
+
+  // ═══ Ad form helpers ═══
+  const openNewAd = () => { setAdForm({ name: '', type: 'banner', status: 'scheduled', start: '', end: '', imageUrl: '' }); setShowAdForm(true); };
+  const saveAd = () => {
+    if (!adForm.name.trim()) return;
+    setAds(a => [...a, { id: Date.now(), ...adForm, impressions: '-', clicks: '-', ctr: '-' }]);
+    setShowAdForm(false);
+  };
+  const toggleAd = (id) => setAds(a => a.map(ad => ad.id === id ? { ...ad, status: ad.status === 'active' ? 'paused' : 'active' } : ad));
+  const deleteAd = (id) => setAds(a => a.filter(ad => ad.id !== id));
+
+  // ═══ Kiosk MA helpers ═══
+  const kioskAction = (id, action) => {
+    setKiosks(ks => ks.map(k => {
+      if (k.id !== id) return k;
+      if (action === 'restart') return { ...k, status: 'restarting', lastRestart: new Date().toLocaleString('sv') };
+      if (action === 'shutdown') return { ...k, status: 'offline' };
+      if (action === 'start') return { ...k, status: 'online' };
+      return k;
+    }));
+    if (action === 'restart') {
+      setTimeout(() => setKiosks(ks => ks.map(k => k.id === id && k.status === 'restarting' ? { ...k, status: 'online' } : k)), 3000);
+    }
+  };
+  const saveSchedule = (kioskId) => {
+    if (!scheduleForm.date || !scheduleForm.time) return;
+    setShowSchedule(null);
+    setScheduleForm({ action: 'restart', date: '', time: '' });
+  };
 
   return (
     <div className="h-full flex bg-admin-bg font-prompt">
@@ -996,96 +1111,387 @@ const AdminView = ({ onLogout }) => {
               })}
             </div>
 
-            {/* Ads Tab */}
+            {/* ═══ Ads Tab ═══ */}
             {kioskTab === 'ads' && (
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <div className="p-5 border-b border-gray-50 flex justify-between items-center">
-                  <h3 className="font-bold text-gray-800 flex items-center gap-2"><Image size={18} className="text-blue-500"/> Banner Advertisements</h3>
-                  <button className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-2 rounded-xl btn-press cursor-pointer flex items-center gap-1.5 transition-colors text-sm"><Plus size={16}/>New Ad</button>
+              <div className="space-y-4">
+                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                  <div className="p-5 border-b border-gray-50 flex justify-between items-center">
+                    <h3 className="font-bold text-gray-800 flex items-center gap-2"><Image size={18} className="text-blue-500"/> Banner Advertisements</h3>
+                    <button onClick={openNewAd} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-2 rounded-xl btn-press cursor-pointer flex items-center gap-1.5 transition-colors text-sm"><Plus size={16}/>New Ad</button>
+                  </div>
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+                      <tr><th className="px-5 py-3 text-left">Campaign</th><th className="px-5 py-3 text-center">Type</th><th className="px-5 py-3 text-center">Status</th><th className="px-5 py-3 text-center">Period</th><th className="px-5 py-3 text-right">Impressions</th><th className="px-5 py-3 text-right">CTR</th><th className="px-5 py-3 text-center">Actions</th></tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {ads.map(a => (
+                        <tr key={a.id} className="hover:bg-gray-50/50 cursor-default">
+                          <td className="px-5 py-3.5 font-medium text-gray-800">{a.name}</td>
+                          <td className="px-5 py-3.5 text-center"><span className="text-xs font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">{a.type}</span></td>
+                          <td className="px-5 py-3.5 text-center">
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${a.status === 'active' ? 'bg-emerald-100 text-emerald-700' : a.status === 'paused' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${a.status === 'active' ? 'bg-emerald-500' : a.status === 'paused' ? 'bg-yellow-500' : 'bg-blue-500'}`}/>{a.status}
+                            </span>
+                          </td>
+                          <td className="px-5 py-3.5 text-center text-xs text-gray-500 font-inter">{a.start ? `${a.start} ~ ${a.end}` : '-'}</td>
+                          <td className="px-5 py-3.5 text-right font-inter text-gray-600">{a.impressions}</td>
+                          <td className="px-5 py-3.5 text-right font-inter font-bold text-gray-800">{a.ctr}</td>
+                          <td className="px-5 py-3.5 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <button onClick={() => toggleAd(a.id)} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" title={a.status === 'active' ? 'Pause' : 'Activate'}>
+                                {a.status === 'active' ? <Eye size={14} className="text-gray-400"/> : <EyeOff size={14} className="text-gray-400"/>}
+                              </button>
+                              <button onClick={() => deleteAd(a.id)} className="p-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer" title="Delete">
+                                <Trash size={14} className="text-red-400"/>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
-                    <tr><th className="px-5 py-3 text-left">Campaign</th><th className="px-5 py-3 text-center">Status</th><th className="px-5 py-3 text-right">Impressions</th><th className="px-5 py-3 text-right">Clicks</th><th className="px-5 py-3 text-right">CTR</th></tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {ADS.map(a => (
-                      <tr key={a.id} className="hover:bg-gray-50/50 cursor-default">
-                        <td className="px-5 py-3.5 font-medium text-gray-800">{a.name}</td>
-                        <td className="px-5 py-3.5 text-center">
-                          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${a.status === 'active' ? 'bg-emerald-100 text-emerald-700' : a.status === 'paused' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${a.status === 'active' ? 'bg-emerald-500' : a.status === 'paused' ? 'bg-yellow-500' : 'bg-blue-500'}`}/>{a.status}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3.5 text-right font-inter text-gray-600">{a.impressions}</td>
-                        <td className="px-5 py-3.5 text-right font-inter text-gray-600">{a.clicks}</td>
-                        <td className="px-5 py-3.5 text-right font-inter font-bold text-gray-800">{a.ctr}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
 
-            {/* Popup Tab */}
-            {kioskTab === 'popup' && (
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <div className="p-5 border-b border-gray-50 flex justify-between items-center">
-                  <h3 className="font-bold text-gray-800 flex items-center gap-2"><Bell size={18} className="text-orange-500"/> Popup Messages</h3>
-                  <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-xl btn-press cursor-pointer flex items-center gap-1.5 transition-colors text-sm"><Plus size={16}/>New Popup</button>
-                </div>
-                <div className="p-6 space-y-4">
-                  {[
-                    { title: 'Welcome Message', trigger: 'On kiosk wake', status: true, lang: 'TH/EN/CN/KR' },
-                    { title: 'Train Delay Alert', trigger: 'When delay > 15 min', status: true, lang: 'TH/EN' },
-                    { title: 'Emergency Evacuation', trigger: 'Manual trigger', status: false, lang: 'TH/EN/CN/KR' },
-                  ].map((p, i) => (
-                    <div key={i} className="flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
-                      <div className="flex-1">
-                        <h4 className="font-bold text-gray-800 text-sm">{p.title}</h4>
-                        <p className="text-xs text-gray-400 mt-0.5">Trigger: {p.trigger} &middot; Languages: {p.lang}</p>
+                {/* New Ad Modal */}
+                {showAdForm && (
+                  <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setShowAdForm(false)}>
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 animate-fade-in" onClick={e => e.stopPropagation()}>
+                      <div className="flex justify-between items-center mb-5">
+                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2"><Image size={20} className="text-blue-500"/> New Advertisement</h3>
+                        <button onClick={() => setShowAdForm(false)} className="p-1 rounded-full hover:bg-gray-100 cursor-pointer"><X size={18} className="text-gray-400"/></button>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" defaultChecked={p.status} className="sr-only peer"/>
-                        <div className="w-10 h-5 bg-gray-200 rounded-full peer peer-checked:bg-cyan-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5"/>
-                      </label>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-xs font-bold text-gray-500 uppercase">Campaign Name</label>
+                          <input value={adForm.name} onChange={e => setAdForm(f => ({...f, name: e.target.value}))}
+                            className="w-full border border-gray-200 rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-cyan-400 transition-colors" placeholder="e.g. Summer Travel Promo"/>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase">Type</label>
+                            <select value={adForm.type} onChange={e => setAdForm(f => ({...f, type: e.target.value}))}
+                              className="w-full border border-gray-200 rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-cyan-400 cursor-pointer">
+                              <option value="banner">Banner</option>
+                              <option value="popup">Popup</option>
+                              <option value="video">Video</option>
+                              <option value="interstitial">Interstitial</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase">Status</label>
+                            <select value={adForm.status} onChange={e => setAdForm(f => ({...f, status: e.target.value}))}
+                              className="w-full border border-gray-200 rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-cyan-400 cursor-pointer">
+                              <option value="scheduled">Scheduled</option>
+                              <option value="active">Active</option>
+                              <option value="paused">Paused</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase">Start Date</label>
+                            <input type="date" value={adForm.start} onChange={e => setAdForm(f => ({...f, start: e.target.value}))}
+                              className="w-full border border-gray-200 rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-cyan-400 cursor-pointer"/>
+                          </div>
+                          <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase">End Date</label>
+                            <input type="date" value={adForm.end} onChange={e => setAdForm(f => ({...f, end: e.target.value}))}
+                              className="w-full border border-gray-200 rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-cyan-400 cursor-pointer"/>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold text-gray-500 uppercase">Image URL (optional)</label>
+                          <input value={adForm.imageUrl} onChange={e => setAdForm(f => ({...f, imageUrl: e.target.value}))}
+                            className="w-full border border-gray-200 rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-cyan-400 transition-colors" placeholder="https://example.com/ad-banner.jpg"/>
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-3 mt-6">
+                        <button onClick={() => setShowAdForm(false)} className="px-4 py-2 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer">Cancel</button>
+                        <button onClick={saveAd} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-2 rounded-xl btn-press cursor-pointer transition-colors text-sm">Create Ad</button>
+                      </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
               </div>
             )}
 
-            {/* MA Tab */}
+            {/* ═══ Popup Tab ═══ */}
+            {kioskTab === 'popup' && (
+              <div className="space-y-4">
+                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                  <div className="p-5 border-b border-gray-50 flex justify-between items-center">
+                    <h3 className="font-bold text-gray-800 flex items-center gap-2"><Bell size={18} className="text-orange-500"/> Popup Messages</h3>
+                    <button onClick={openNewPopup} className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-xl btn-press cursor-pointer flex items-center gap-1.5 transition-colors text-sm"><Plus size={16}/>New Popup</button>
+                  </div>
+                  <div className="p-5 space-y-3">
+                    {popups.map(p => (
+                      <div key={p.id} className={`p-4 rounded-xl border transition-colors ${p.active ? 'border-gray-100 hover:border-gray-200' : 'border-gray-100 bg-gray-50 opacity-60'}`}>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-bold text-gray-800 text-sm">{p.title}</h4>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">{TRIGGER_LABELS[p.trigger] || p.trigger}</span>
+                            </div>
+                            <p className="text-xs text-gray-500 mb-2 truncate">{p.texts.th}</p>
+                            <div className="flex gap-1">
+                              {Object.entries(p.langs).filter(([,v]) => v).map(([k]) => (
+                                <span key={k} className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${LANG_COLORS[k]}`}>{LANG_LABELS[k]}</span>
+                              ))}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 ml-3 shrink-0">
+                            <button onClick={() => openEditPopup(p)} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" title="Edit"><Edit2 size={14} className="text-gray-400"/></button>
+                            <button onClick={() => deletePopup(p.id)} className="p-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer" title="Delete"><Trash size={14} className="text-red-400"/></button>
+                            <button onClick={() => togglePopup(p.id)} className="cursor-pointer" title={p.active ? 'Disable' : 'Enable'}>
+                              {p.active
+                                ? <div className="w-10 h-5 bg-cyan-600 rounded-full relative"><div className="absolute top-[2px] right-[2px] w-4 h-4 bg-white rounded-full"/></div>
+                                : <div className="w-10 h-5 bg-gray-200 rounded-full relative"><div className="absolute top-[2px] left-[2px] w-4 h-4 bg-white rounded-full"/></div>
+                              }
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {popups.length === 0 && <p className="text-center text-gray-400 text-sm py-8">No popups yet. Click "New Popup" to create one.</p>}
+                  </div>
+                </div>
+
+                {/* Popup Create/Edit Modal */}
+                {showPopupForm && (
+                  <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setShowPopupForm(false)}>
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl p-6 animate-fade-in max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                      <div className="flex justify-between items-center mb-5">
+                        <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2"><Bell size={20} className="text-orange-500"/> {editPopup ? 'Edit Popup' : 'New Popup'}</h3>
+                        <button onClick={() => setShowPopupForm(false)} className="p-1 rounded-full hover:bg-gray-100 cursor-pointer"><X size={18} className="text-gray-400"/></button>
+                      </div>
+                      <div className="space-y-4">
+                        {/* Title */}
+                        <div>
+                          <label className="text-xs font-bold text-gray-500 uppercase">Popup Title</label>
+                          <input value={popupForm.title} onChange={e => setPopupForm(f => ({...f, title: e.target.value}))}
+                            className="w-full border border-gray-200 rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-orange-400 transition-colors" placeholder="e.g. Welcome Message"/>
+                        </div>
+                        {/* Trigger */}
+                        <div>
+                          <label className="text-xs font-bold text-gray-500 uppercase">Trigger</label>
+                          <select value={popupForm.trigger} onChange={e => setPopupForm(f => ({...f, trigger: e.target.value}))}
+                            className="w-full border border-gray-200 rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-orange-400 cursor-pointer">
+                            <option value="on-wake">On kiosk wake</option>
+                            <option value="delay-15">When delay &gt; 15 min</option>
+                            <option value="manual">Manual trigger</option>
+                            <option value="scheduled">Scheduled time</option>
+                          </select>
+                        </div>
+                        {/* Language checkboxes */}
+                        <div>
+                          <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Display Languages</label>
+                          <div className="flex gap-3">
+                            {Object.entries(LANG_LABELS).map(([k, label]) => (
+                              <label key={k} className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors ${popupForm.langs[k] ? 'border-cyan-300 bg-cyan-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                                <input type="checkbox" checked={popupForm.langs[k]} onChange={() => setPopupForm(f => ({...f, langs: {...f.langs, [k]: !f.langs[k]}}))} className="accent-cyan-600"/>
+                                <span className={`text-sm font-bold ${popupForm.langs[k] ? 'text-cyan-700' : 'text-gray-500'}`}>{label}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                        {/* Thai text + auto-translate */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1">
+                              <span className={`w-2 h-2 rounded-full bg-blue-500`}/> Thai (TH) — Primary
+                            </label>
+                            <button onClick={() => autoTranslate(popupForm.texts.th)} disabled={translating || !popupForm.texts.th.trim()}
+                              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer ${translating ? 'bg-gray-100 text-gray-400' : 'bg-cyan-50 text-cyan-700 hover:bg-cyan-100'}`}>
+                              {translating ? <Loader2 size={12} className="animate-spin"/> : <Languages size={12}/>}
+                              {translating ? 'Translating...' : 'Auto-Translate'}
+                            </button>
+                          </div>
+                          <textarea value={popupForm.texts.th} onChange={e => setPopupForm(f => ({...f, texts: {...f.texts, th: e.target.value}}))}
+                            className="w-full border border-gray-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-orange-400 resize-none h-20 transition-colors" placeholder="พิมพ์ข้อความภาษาไทยที่นี่..."/>
+                        </div>
+                        {/* Other languages (editable) */}
+                        {popupForm.langs.en && (
+                          <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1 mb-1"><span className="w-2 h-2 rounded-full bg-emerald-500"/> English (EN)</label>
+                            <textarea value={popupForm.texts.en} onChange={e => setPopupForm(f => ({...f, texts: {...f.texts, en: e.target.value}}))}
+                              className="w-full border border-gray-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-orange-400 resize-none h-16 transition-colors" placeholder="English translation..."/>
+                          </div>
+                        )}
+                        {popupForm.langs.cn && (
+                          <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1 mb-1"><span className="w-2 h-2 rounded-full bg-red-500"/> Chinese (CN)</label>
+                            <textarea value={popupForm.texts.cn} onChange={e => setPopupForm(f => ({...f, texts: {...f.texts, cn: e.target.value}}))}
+                              className="w-full border border-gray-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-orange-400 resize-none h-16 transition-colors" placeholder="Chinese translation..."/>
+                          </div>
+                        )}
+                        {popupForm.langs.kr && (
+                          <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase flex items-center gap-1 mb-1"><span className="w-2 h-2 rounded-full bg-purple-500"/> Korean (KR)</label>
+                            <textarea value={popupForm.texts.kr} onChange={e => setPopupForm(f => ({...f, texts: {...f.texts, kr: e.target.value}}))}
+                              className="w-full border border-gray-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-orange-400 resize-none h-16 transition-colors" placeholder="Korean translation..."/>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex justify-end gap-3 mt-6">
+                        <button onClick={() => setShowPopupForm(false)} className="px-4 py-2 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer">Cancel</button>
+                        <button onClick={savePopup} className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2 rounded-xl btn-press cursor-pointer transition-colors text-sm">{editPopup ? 'Save Changes' : 'Create Popup'}</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ═══ Kiosk MA Tab ═══ */}
             {kioskTab === 'ma' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-3 gap-4">
-                  <Stat icon={Layout} label="Kiosks Online" value="12/14" color="bg-emerald-50 text-emerald-600"/>
-                  <Stat icon={Activity} label="Avg Uptime" value="99.2%" color="bg-blue-50 text-blue-600"/>
-                  <Stat icon={AlertTriangle} label="Issues" value="2" color="bg-red-50 text-red-600"/>
+                  <Stat icon={Monitor} label="Kiosks Online" value={`${kiosks.filter(k=>k.status==='online').length}/${kiosks.length}`} color="bg-emerald-50 text-emerald-600"/>
+                  <Stat icon={Activity} label="Avg Uptime" value={`${(kiosks.filter(k=>k.status==='online').reduce((s,k)=>s+parseFloat(k.uptime),0)/Math.max(1,kiosks.filter(k=>k.status==='online').length)).toFixed(1)}%`} color="bg-blue-50 text-blue-600"/>
+                  <Stat icon={AlertTriangle} label="Issues" value={String(kiosks.filter(k=>k.status==='offline').length)} color="bg-red-50 text-red-600"/>
                 </div>
-                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                  <div className="p-5 border-b border-gray-50"><h3 className="font-bold text-gray-800 flex items-center gap-2"><Settings size={18} className="text-gray-500"/> Kiosk Status</h3></div>
-                  <div className="p-5 grid grid-cols-2 gap-3">
-                    {Array.from({ length: 14 }, (_, i) => {
-                      const online = i !== 4 && i !== 11;
-                      return (
-                        <div key={i} className={`flex items-center justify-between p-3 rounded-xl border ${online ? 'border-gray-100 bg-gray-50/50' : 'border-red-200 bg-red-50'}`}>
-                          <div className="flex items-center gap-3">
-                            <div className={`w-2.5 h-2.5 rounded-full ${online ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`}/>
-                            <div>
-                              <p className="text-sm font-bold text-gray-700">Kiosk {String(i + 1).padStart(2, '0')}</p>
-                              <p className="text-[10px] text-gray-400">{['Platform 1','Platform 2','Main Hall','Ticket Area','Platform 3','Food Court','Exit A','Exit B','Entrance A','Entrance B','Waiting Area','Platform 4','Info Center','Parking'][i]}</p>
-                            </div>
+
+                {/* Kiosk detail panel (when selected) */}
+                {selectedKiosk && (() => {
+                  const k = kiosks.find(k => k.id === selectedKiosk);
+                  if (!k) return null;
+                  return (
+                    <div className="bg-white rounded-2xl border border-cyan-200 overflow-hidden animate-fade-in">
+                      <div className="p-5 border-b border-gray-50 flex justify-between items-center bg-cyan-50/50">
+                        <h3 className="font-bold text-gray-800 flex items-center gap-2"><Monitor size={18} className="text-cyan-600"/> {k.name} — {k.location}</h3>
+                        <button onClick={() => setSelectedKiosk(null)} className="p-1 rounded-full hover:bg-gray-100 cursor-pointer"><X size={16} className="text-gray-400"/></button>
+                      </div>
+                      <div className="p-5">
+                        <div className="grid grid-cols-4 gap-4 mb-5">
+                          <div className="text-center p-3 rounded-xl bg-gray-50">
+                            <p className="text-[10px] text-gray-400 font-bold uppercase">Status</p>
+                            <p className={`text-sm font-bold mt-1 ${k.status==='online'?'text-emerald-600':k.status==='restarting'?'text-yellow-600':'text-red-600'}`}>{k.status === 'restarting' ? 'Restarting...' : k.status}</p>
                           </div>
-                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${online ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>{online ? 'Online' : 'Offline'}</span>
+                          <div className="text-center p-3 rounded-xl bg-gray-50">
+                            <p className="text-[10px] text-gray-400 font-bold uppercase">Uptime</p>
+                            <p className="text-sm font-bold mt-1 text-gray-800 font-inter">{k.uptime}</p>
+                          </div>
+                          <div className="text-center p-3 rounded-xl bg-gray-50">
+                            <p className="text-[10px] text-gray-400 font-bold uppercase">Last Restart</p>
+                            <p className="text-xs font-bold mt-1 text-gray-600 font-inter">{k.lastRestart}</p>
+                          </div>
+                          <div className="text-center p-3 rounded-xl bg-gray-50">
+                            <p className="text-[10px] text-gray-400 font-bold uppercase">Version</p>
+                            <p className="text-sm font-bold mt-1 text-gray-800 font-inter">{k.version}</p>
+                          </div>
                         </div>
-                      );
-                    })}
+                        <div className="flex gap-3">
+                          {k.status === 'offline' ? (
+                            <button onClick={() => kioskAction(k.id, 'start')} className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl btn-press cursor-pointer transition-colors text-sm">
+                              <Power size={16}/> Start
+                            </button>
+                          ) : (
+                            <button onClick={() => kioskAction(k.id, 'shutdown')} className="flex-1 flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-bold py-2.5 rounded-xl btn-press cursor-pointer transition-colors text-sm">
+                              <Power size={16}/> Shutdown
+                            </button>
+                          )}
+                          <button onClick={() => kioskAction(k.id, 'restart')} disabled={k.status==='restarting'} className={`flex-1 flex items-center justify-center gap-2 font-bold py-2.5 rounded-xl btn-press cursor-pointer transition-colors text-sm ${k.status==='restarting' ? 'bg-gray-200 text-gray-400' : 'bg-yellow-500 hover:bg-yellow-600 text-white'}`}>
+                            <RotateCw size={16} className={k.status==='restarting'?'animate-spin':''}/> Restart
+                          </button>
+                          <button onClick={() => { setShowSchedule(k.id); setScheduleForm({ action: 'restart', date: '', time: '' }); }} className="flex-1 flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2.5 rounded-xl btn-press cursor-pointer transition-colors text-sm">
+                            <Calendar size={16}/> Schedule
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Schedule modal */}
+                {showSchedule && (
+                  <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setShowSchedule(null)}>
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-fade-in" onClick={e => e.stopPropagation()}>
+                      <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-5"><Calendar size={20} className="text-indigo-500"/> Schedule Action</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-xs font-bold text-gray-500 uppercase">Action</label>
+                          <select value={scheduleForm.action} onChange={e => setScheduleForm(f => ({...f, action: e.target.value}))}
+                            className="w-full border border-gray-200 rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-indigo-400 cursor-pointer">
+                            <option value="restart">Restart</option>
+                            <option value="shutdown">Shutdown</option>
+                            <option value="start">Start</option>
+                          </select>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase">Date</label>
+                            <input type="date" value={scheduleForm.date} onChange={e => setScheduleForm(f => ({...f, date: e.target.value}))}
+                              className="w-full border border-gray-200 rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-indigo-400 cursor-pointer"/>
+                          </div>
+                          <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase">Time</label>
+                            <input type="time" value={scheduleForm.time} onChange={e => setScheduleForm(f => ({...f, time: e.target.value}))}
+                              className="w-full border border-gray-200 rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-indigo-400 cursor-pointer"/>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-3 mt-6">
+                        <button onClick={() => setShowSchedule(null)} className="px-4 py-2 rounded-xl text-sm font-medium text-gray-500 hover:bg-gray-100 transition-colors cursor-pointer">Cancel</button>
+                        <button onClick={() => saveSchedule(showSchedule)} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2 rounded-xl btn-press cursor-pointer transition-colors text-sm">Schedule</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Kiosk grid */}
+                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                  <div className="p-5 border-b border-gray-50 flex justify-between items-center">
+                    <h3 className="font-bold text-gray-800 flex items-center gap-2"><Settings size={18} className="text-gray-500"/> Kiosk Status</h3>
+                    <span className="text-xs text-gray-400">Click a kiosk to manage</span>
+                  </div>
+                  <div className="p-5 grid grid-cols-2 gap-3">
+                    {kiosks.map(k => (
+                      <div key={k.id} onClick={() => setSelectedKiosk(selectedKiosk === k.id ? null : k.id)}
+                        className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
+                          selectedKiosk === k.id ? 'border-cyan-400 bg-cyan-50 shadow-sm' :
+                          k.status === 'online' ? 'border-gray-100 bg-gray-50/50 hover:border-gray-200 hover:shadow-sm' :
+                          k.status === 'restarting' ? 'border-yellow-200 bg-yellow-50' :
+                          'border-red-200 bg-red-50 hover:border-red-300'
+                        }`}>
+                        <div className="flex items-center gap-3">
+                          <div className={`w-2.5 h-2.5 rounded-full ${k.status === 'online' ? 'bg-emerald-500' : k.status === 'restarting' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500 animate-pulse'}`}/>
+                          <div>
+                            <p className="text-sm font-bold text-gray-700">{k.name}</p>
+                            <p className="text-[10px] text-gray-400">{k.location}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                            k.status === 'online' ? 'bg-emerald-100 text-emerald-700' :
+                            k.status === 'restarting' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-red-100 text-red-600'
+                          }`}>{k.status === 'restarting' ? 'Restarting' : k.status === 'online' ? 'Online' : 'Offline'}</span>
+                          {/* Quick action buttons */}
+                          <div className="flex gap-0.5" onClick={e => e.stopPropagation()}>
+                            {k.status === 'offline' ? (
+                              <button onClick={() => kioskAction(k.id, 'start')} className="p-1.5 rounded-lg hover:bg-emerald-100 transition-colors cursor-pointer" title="Start">
+                                <Power size={13} className="text-emerald-600"/>
+                              </button>
+                            ) : (
+                              <>
+                                <button onClick={() => kioskAction(k.id, 'restart')} disabled={k.status==='restarting'} className="p-1.5 rounded-lg hover:bg-yellow-100 transition-colors cursor-pointer" title="Restart">
+                                  <RotateCw size={13} className={`text-yellow-600 ${k.status==='restarting'?'animate-spin':''}`}/>
+                                </button>
+                                <button onClick={() => kioskAction(k.id, 'shutdown')} className="p-1.5 rounded-lg hover:bg-red-100 transition-colors cursor-pointer" title="Shutdown">
+                                  <Power size={13} className="text-red-500"/>
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Analytics Tab */}
+            {/* ═══ Analytics Tab ═══ */}
             {kioskTab === 'analytics' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-4 gap-4">
@@ -1094,33 +1500,136 @@ const AdminView = ({ onLogout }) => {
                   <Stat icon={Clock} label="Avg Session" value="2m 45s" color="bg-purple-50 text-purple-600"/>
                   <Stat icon={Activity} label="Satisfaction" value="94.2%" color="bg-emerald-50 text-emerald-600"/>
                 </div>
+
+                {/* Weekly Kiosk Sessions */}
                 <div className="grid grid-cols-2 gap-6">
                   <div className="bg-white p-6 rounded-2xl border border-gray-100">
-                    <h3 className="font-bold text-gray-700 mb-6">Weekly Kiosk Sessions</h3>
+                    <h3 className="font-bold text-gray-700 mb-2">Weekly Kiosk Sessions</h3>
+                    <p className="text-xs text-gray-400 mb-4">Sessions per day this week</p>
                     <div className="flex items-end justify-between h-48 gap-2">
-                      {[65, 45, 78, 52, 90, 30, 70].map((v, i) => (
-                        <div key={i} className="flex flex-col items-center flex-1 gap-2 group cursor-default">
-                          <div className="w-full rounded-t-lg relative overflow-hidden bg-cyan-50 group-hover:bg-cyan-100 transition-colors" style={{ height: `${v}%` }}>
-                            <div className="absolute inset-0 bg-cyan-500 opacity-80 group-hover:opacity-100 transition-opacity"/>
+                      {WEEKLY_SESSIONS.map((d, i) => {
+                        const maxVal = Math.max(...WEEKLY_SESSIONS.map(s => s.sessions));
+                        const pct = (d.sessions / maxVal * 100);
+                        return (
+                          <div key={i} className="flex flex-col items-center flex-1 gap-1 group cursor-default">
+                            <span className="text-[10px] font-bold font-inter text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity">{d.sessions.toLocaleString()}</span>
+                            <div className="w-full rounded-t-lg relative overflow-hidden bg-cyan-50 group-hover:bg-cyan-100 transition-colors" style={{ height: `${pct}%` }}>
+                              <div className="absolute inset-0 bg-cyan-500 opacity-80 group-hover:opacity-100 transition-opacity"/>
+                            </div>
+                            <span className="text-[10px] text-gray-400 font-bold font-inter">{d.day}</span>
                           </div>
-                          <span className="text-[10px] text-gray-400 font-bold font-inter">{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i]}</span>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Top Queries */}
+                  <div className="bg-white p-6 rounded-2xl border border-gray-100">
+                    <h3 className="font-bold text-gray-700 mb-2">Top Queries</h3>
+                    <p className="text-xs text-gray-400 mb-4">Most asked questions this week</p>
+                    <div className="space-y-3">
+                      {[
+                        { q: 'Train schedule', count: 2840, pct: 85 },
+                        { q: 'Restroom location', count: 2410, pct: 72 },
+                        { q: 'Ticket purchase', count: 1940, pct: 58 },
+                        { q: 'Food & restaurants', count: 1500, pct: 45 },
+                        { q: 'Taxi / Grab', count: 1070, pct: 32 },
+                      ].map((item, i) => (
+                        <div key={i}>
+                          <div className="flex justify-between mb-1">
+                            <span className="text-sm text-gray-600">{item.q}</span>
+                            <span className="text-xs font-bold text-gray-500 font-inter">{item.count.toLocaleString()}</span>
+                          </div>
+                          <div className="w-full bg-gray-100 rounded-full h-2"><div className="h-2 rounded-full bg-cyan-500 transition-all" style={{ width: `${item.pct}%` }}/></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Detection Summary + Visited Hours */}
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Detection Summary */}
+                  <div className="bg-white p-6 rounded-2xl border border-gray-100">
+                    <h3 className="font-bold text-gray-700 mb-2 flex items-center gap-2"><BarChart3 size={16} className="text-blue-500"/> Detection Summary</h3>
+                    <p className="text-xs text-gray-400 mb-4">Unique devices by time slot (DeepTrack)</p>
+                    <div className="flex items-end justify-between h-44 gap-3">
+                      {DETECTION_SLOTS.map((s, i) => (
+                        <div key={i} className="flex flex-col items-center flex-1 gap-2 group cursor-default">
+                          <span className="text-xs font-bold font-inter text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity">{s.count.toLocaleString()}</span>
+                          <div className="w-full rounded-t-lg relative overflow-hidden transition-colors" style={{ height: `${s.pct}%`, backgroundColor: s.pct > 80 ? '#EF4444' : s.pct > 60 ? '#F59E0B' : s.pct > 30 ? '#06B6D4' : '#94A3B8' }}>
+                            <div className="absolute inset-0 bg-white/10 group-hover:bg-white/0 transition-colors"/>
+                          </div>
+                          <div className="text-center">
+                            <span className="text-[10px] font-bold text-gray-700 block">{s.label}</span>
+                            <span className="text-[9px] text-gray-400 font-inter">{s.time}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Visited Hours */}
+                  <div className="bg-white p-6 rounded-2xl border border-gray-100">
+                    <h3 className="font-bold text-gray-700 mb-2 flex items-center gap-2"><TrendingUp size={16} className="text-indigo-500"/> Visited Hours</h3>
+                    <p className="text-xs text-gray-400 mb-4">Unique devices per hour (24h)</p>
+                    <div className="flex items-end justify-between h-44 gap-0.5">
+                      {VISITED_HOURS.map((v, h) => {
+                        const maxV = Math.max(...VISITED_HOURS);
+                        const pct = (v / maxV * 100);
+                        return (
+                          <div key={h} className="flex flex-col items-center flex-1 gap-1 group cursor-default">
+                            <div className="w-full rounded-t transition-colors group-hover:opacity-100" style={{height:`${pct}%`, backgroundColor: pct>80?'#EF4444':pct>50?'#F59E0B':'#06B6D4', opacity: 0.7}}/>
+                            {h%4===0 && <span className="text-[8px] text-gray-400 font-inter">{String(h).padStart(2,'0')}</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="flex justify-between mt-1 text-[9px] text-gray-400 font-inter">
+                      <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>23:00</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Language Distribution + Kiosk Performance */}
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="bg-white p-6 rounded-2xl border border-gray-100">
+                    <h3 className="font-bold text-gray-700 mb-2 flex items-center gap-2"><Globe size={16} className="text-cyan-500"/> Language Distribution</h3>
+                    <p className="text-xs text-gray-400 mb-4">Kiosk language selection this week</p>
+                    <div className="space-y-3">
+                      {[
+                        { lang: 'Thai', pct: 52, count: 4280, color: 'bg-blue-500' },
+                        { lang: 'English', pct: 28, count: 2305, color: 'bg-emerald-500' },
+                        { lang: 'Chinese', pct: 14, count: 1152, color: 'bg-red-500' },
+                        { lang: 'Korean', pct: 6, count: 494, color: 'bg-purple-500' },
+                      ].map((l, i) => (
+                        <div key={i}>
+                          <div className="flex justify-between mb-1">
+                            <span className="text-sm font-medium text-gray-700">{l.lang}</span>
+                            <span className="text-xs text-gray-500 font-inter">{l.count.toLocaleString()} ({l.pct}%)</span>
+                          </div>
+                          <div className="w-full bg-gray-100 rounded-full h-2"><div className={`h-2 rounded-full ${l.color} transition-all`} style={{ width: `${l.pct}%` }}/></div>
                         </div>
                       ))}
                     </div>
                   </div>
                   <div className="bg-white p-6 rounded-2xl border border-gray-100">
-                    <h3 className="font-bold text-gray-700 mb-6">Top Queries</h3>
+                    <h3 className="font-bold text-gray-700 mb-2 flex items-center gap-2"><Monitor size={16} className="text-gray-500"/> Kiosk Performance</h3>
+                    <p className="text-xs text-gray-400 mb-4">Top performing kiosks by sessions</p>
                     <div className="space-y-3">
                       {[
-                        { q: 'Train schedule', pct: 85 },
-                        { q: 'Restroom location', pct: 72 },
-                        { q: 'Ticket purchase', pct: 58 },
-                        { q: 'Food & restaurants', pct: 45 },
-                        { q: 'Taxi / Grab', pct: 32 },
-                      ].map((item, i) => (
+                        { name: 'Kiosk 03 (Main Hall)', sessions: 1450, pct: 100 },
+                        { name: 'Kiosk 09 (Entrance A)', sessions: 1280, pct: 88 },
+                        { name: 'Kiosk 01 (Platform 1)', sessions: 1120, pct: 77 },
+                        { name: 'Kiosk 04 (Ticket Area)', sessions: 980, pct: 68 },
+                        { name: 'Kiosk 06 (Food Court)', sessions: 820, pct: 57 },
+                      ].map((k, i) => (
                         <div key={i}>
-                          <div className="flex justify-between mb-1"><span className="text-sm text-gray-600">{item.q}</span><span className="text-sm font-bold text-gray-800 font-inter">{item.pct}%</span></div>
-                          <div className="w-full bg-gray-100 rounded-full h-2"><div className="h-2 rounded-full bg-cyan-500 transition-all" style={{ width: `${item.pct}%` }}/></div>
+                          <div className="flex justify-between mb-1">
+                            <span className="text-sm text-gray-600">{k.name}</span>
+                            <span className="text-xs font-bold text-gray-500 font-inter">{k.sessions.toLocaleString()}</span>
+                          </div>
+                          <div className="w-full bg-gray-100 rounded-full h-2"><div className="h-2 rounded-full bg-indigo-500 transition-all" style={{ width: `${k.pct}%` }}/></div>
                         </div>
                       ))}
                     </div>
