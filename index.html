@@ -61,6 +61,7 @@
       } }
     </script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body class="bg-black text-white h-screen w-screen overflow-hidden">
 <div id="root" class="w-full h-full"></div>
@@ -83,7 +84,7 @@ import {
 // ═══════════════════════════════════════════
 // 1. CONFIGURATION
 // ═══════════════════════════════════════════
-const APP_VERSION = "3.3.0";
+const APP_VERSION = "3.4.0";
 
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
@@ -854,6 +855,259 @@ const KioskView = ({ shops, onAdmin }) => {
       )}
     </div>
   );
+};
+
+// ═══════════════════════════════════════════
+// 5.5. THREE.JS FLOW MAP
+// ═══════════════════════════════════════════
+const FlowMap3D = ({ nodes, flows }) => {
+  const containerRef = useRef(null);
+  const stateRef = useRef({});
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !window.THREE) return;
+    const T = window.THREE;
+
+    const W = el.clientWidth, H = el.clientHeight;
+
+    // Scene
+    const scene = new T.Scene();
+    scene.background = new T.Color(0x0f172a);
+    scene.fog = new T.FogExp2(0x0f172a, 0.015);
+
+    // Camera — slight tilt perspective
+    const camera = new T.PerspectiveCamera(50, W / H, 0.1, 1000);
+    camera.position.set(0, 55, 40);
+    camera.lookAt(0, 0, 0);
+
+    // Renderer
+    const renderer = new T.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setSize(W, H);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    el.appendChild(renderer.domElement);
+
+    // Ground plane (grid)
+    const gridHelper = new T.GridHelper(80, 20, 0x1e293b, 0x1e293b);
+    scene.add(gridHelper);
+
+    // Ambient ground plane
+    const groundGeo = new T.PlaneGeometry(100, 100);
+    const groundMat = new T.MeshBasicMaterial({ color: 0x0f172a, transparent: true, opacity: 0.95 });
+    const ground = new T.Mesh(groundGeo, groundMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -0.1;
+    scene.add(ground);
+
+    // Lights
+    scene.add(new T.AmbientLight(0x334155, 0.6));
+    const dirLight = new T.DirectionalLight(0x06b6d4, 0.4);
+    dirLight.position.set(10, 30, 20);
+    scene.add(dirLight);
+    const pLight = new T.PointLight(0x818cf8, 0.5, 80);
+    pLight.position.set(0, 15, 0);
+    scene.add(pLight);
+
+    // Map node positions (0-100%) → 3D (-40 to 40)
+    const toWorld = (x, y) => new T.Vector3((x / 100 - 0.5) * 80, 0, (y / 100 - 0.5) * 60);
+    const nodeMap = {};
+
+    // Create nodes
+    nodes.forEach(n => {
+      const pos = toWorld(n.x, n.y);
+      nodeMap[n.id] = pos;
+
+      // Glow ring (on ground)
+      const ringGeo = new T.RingGeometry(1.5, 2.2, 32);
+      const ringMat = new T.MeshBasicMaterial({ color: n.type === 'indoor' ? 0x818cf8 : 0x06b6d4, side: T.DoubleSide, transparent: true, opacity: 0.4 });
+      const ring = new T.Mesh(ringGeo, ringMat);
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.copy(pos);
+      ring.position.y = 0.05;
+      scene.add(ring);
+
+      // Sphere node
+      const sphereGeo = new T.SphereGeometry(1.2, 24, 24);
+      const sphereMat = new T.MeshPhongMaterial({
+        color: n.type === 'indoor' ? 0x6366f1 : 0x0891b2,
+        emissive: n.type === 'indoor' ? 0x4f46e5 : 0x0e7490,
+        emissiveIntensity: 0.6,
+        shininess: 100,
+      });
+      const sphere = new T.Mesh(sphereGeo, sphereMat);
+      sphere.position.copy(pos);
+      sphere.position.y = 1.5;
+      sphere.userData = { nodeId: n.id, name: n.name, detected: n.detected, baseY: 1.5 };
+      scene.add(sphere);
+
+      // Vertical pillar (faint line from ground to sphere)
+      const pillarGeo = new T.CylinderGeometry(0.08, 0.08, 1.5, 6);
+      const pillarMat = new T.MeshBasicMaterial({ color: n.type === 'indoor' ? 0x6366f1 : 0x0891b2, transparent: true, opacity: 0.3 });
+      const pillar = new T.Mesh(pillarGeo, pillarMat);
+      pillar.position.copy(pos);
+      pillar.position.y = 0.75;
+      scene.add(pillar);
+    });
+
+    // Create flow lines + particles
+    const particles = [];
+    flows.forEach(f => {
+      const from = nodeMap[f.from], to = nodeMap[f.to];
+      if (!from || !to) return;
+
+      // Curved line
+      const mid = new T.Vector3().addVectors(from, to).multiplyScalar(0.5);
+      mid.y = 2.5 + (f.count / 1650) * 3;
+      const curve = new T.QuadraticBezierCurve3(
+        new T.Vector3(from.x, 1.5, from.z),
+        mid,
+        new T.Vector3(to.x, 1.5, to.z)
+      );
+      const tubeGeo = new T.TubeGeometry(curve, 32, 0.06 + f.count / 8000, 6, false);
+      const tubeMat = new T.MeshBasicMaterial({ color: new T.Color(f.color), transparent: true, opacity: 0.35 });
+      const tube = new T.Mesh(tubeGeo, tubeMat);
+      scene.add(tube);
+
+      // Particles along the curve
+      const numP = Math.max(3, Math.floor(f.count / 300));
+      for (let i = 0; i < numP; i++) {
+        const pGeo = new T.SphereGeometry(0.18, 8, 8);
+        const pMat = new T.MeshBasicMaterial({ color: new T.Color(f.color) });
+        const pMesh = new T.Mesh(pGeo, pMat);
+        const t0 = i / numP;
+        const speed = 0.08 + Math.random() * 0.06;
+        pMesh.position.copy(curve.getPoint(t0));
+        scene.add(pMesh);
+        particles.push({ mesh: pMesh, curve, t: t0, speed });
+      }
+    });
+
+    // Mouse interaction
+    const mouse = new T.Vector2(-999, -999);
+    const raycaster = new T.Raycaster();
+    let hoveredNode = null;
+
+    const onMove = (e) => {
+      const rect = el.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / W) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / H) * 2 + 1;
+    };
+    el.addEventListener('mousemove', onMove);
+
+    // Auto-rotate angle
+    let angle = 0;
+    let autoRotate = true;
+    const onMouseDown = () => { autoRotate = false; };
+    const onMouseUp = () => { setTimeout(() => { autoRotate = true; }, 3000); };
+    el.addEventListener('mousedown', onMouseDown);
+    el.addEventListener('mouseup', onMouseUp);
+
+    // Simple drag rotation
+    let isDragging = false, prevX = 0, prevY = 0, rotY = 0, rotX = 0.7;
+    const onDragStart = (e) => { isDragging = true; prevX = e.clientX; prevY = e.clientY; };
+    const onDrag = (e) => {
+      if (!isDragging) return;
+      rotY += (e.clientX - prevX) * 0.005;
+      rotX = Math.max(0.3, Math.min(1.2, rotX - (e.clientY - prevY) * 0.003));
+      prevX = e.clientX; prevY = e.clientY;
+    };
+    const onDragEnd = () => { isDragging = false; };
+    el.addEventListener('mousedown', onDragStart);
+    el.addEventListener('mousemove', onDrag);
+    el.addEventListener('mouseup', onDragEnd);
+    el.addEventListener('mouseleave', onDragEnd);
+
+    // Tooltip div
+    const tooltip = document.createElement('div');
+    tooltip.style.cssText = 'position:absolute;pointer-events:none;background:#1e293b;color:white;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;opacity:0;transition:opacity 0.2s;z-index:10;white-space:nowrap;border:1px solid #334155;font-family:Inter,sans-serif;';
+    el.appendChild(tooltip);
+
+    // Animation
+    const clock = new T.Clock();
+    let animId;
+    const animate = () => {
+      animId = requestAnimationFrame(animate);
+      const dt = clock.getDelta();
+
+      // Camera orbit
+      if (autoRotate) angle += dt * 0.15;
+      const camAngle = angle + rotY;
+      const radius = 55;
+      camera.position.x = Math.sin(camAngle) * radius * 0.5;
+      camera.position.z = Math.cos(camAngle) * radius * rotX;
+      camera.position.y = 30 + radius * (1 - rotX) * 0.3;
+      camera.lookAt(0, 0, 0);
+
+      // Animate particles
+      particles.forEach(p => {
+        p.t = (p.t + p.speed * dt) % 1;
+        const pt = p.curve.getPoint(p.t);
+        p.mesh.position.copy(pt);
+        p.mesh.scale.setScalar(0.8 + Math.sin(p.t * Math.PI) * 0.5);
+      });
+
+      // Animate node bobbing
+      scene.children.forEach(child => {
+        if (child.userData?.nodeId) {
+          child.position.y = child.userData.baseY + Math.sin(clock.elapsedTime * 1.2 + child.position.x) * 0.15;
+        }
+      });
+
+      // Raycaster hover
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(scene.children.filter(c => c.userData?.nodeId));
+      if (intersects.length > 0) {
+        const obj = intersects[0].object;
+        if (hoveredNode !== obj) {
+          if (hoveredNode) hoveredNode.scale.setScalar(1);
+          hoveredNode = obj;
+          hoveredNode.scale.setScalar(1.3);
+        }
+        const d = obj.userData;
+        tooltip.textContent = `${d.nodeId}: ${d.name} — ${d.detected.toLocaleString()} devices`;
+        const screenPos = obj.position.clone().project(camera);
+        tooltip.style.left = `${(screenPos.x * 0.5 + 0.5) * W}px`;
+        tooltip.style.top = `${(-screenPos.y * 0.5 + 0.5) * H - 40}px`;
+        tooltip.style.transform = 'translateX(-50%)';
+        tooltip.style.opacity = '1';
+      } else {
+        if (hoveredNode) { hoveredNode.scale.setScalar(1); hoveredNode = null; }
+        tooltip.style.opacity = '0';
+      }
+
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    // Resize
+    const onResize = () => {
+      const w = el.clientWidth, h = el.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    };
+    const ro = new ResizeObserver(onResize);
+    ro.observe(el);
+
+    stateRef.current = { animId, renderer, ro, tooltip, el };
+
+    return () => {
+      cancelAnimationFrame(animId);
+      ro.disconnect();
+      el.removeEventListener('mousemove', onMove);
+      el.removeEventListener('mousedown', onDragStart);
+      el.removeEventListener('mousemove', onDrag);
+      el.removeEventListener('mouseup', onDragEnd);
+      el.removeEventListener('mouseleave', onDragEnd);
+      el.removeEventListener('mousedown', onMouseDown);
+      el.removeEventListener('mouseup', onMouseUp);
+      if (tooltip.parentNode) tooltip.parentNode.removeChild(tooltip);
+      renderer.dispose();
+      if (renderer.domElement.parentNode) renderer.domElement.parentNode.removeChild(renderer.domElement);
+    };
+  }, [nodes, flows]);
+
+  return <div ref={containerRef} className="relative w-full rounded-xl overflow-hidden" style={{ height: '420px' }}/>;
 };
 
 // ═══════════════════════════════════════════
@@ -1803,46 +2057,22 @@ const AdminView = ({ onLogout }) => {
               </div>
             </div>
 
-            {/* Flow visualization — Node map with flow arrows */}
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-              <div className="p-5 border-b border-gray-50 flex justify-between items-center">
-                <h3 className="font-bold text-gray-800">Node → Node Flow Map</h3>
-                <span className="text-xs text-gray-400 font-inter">ช่วง {FLOW_SLOTS[flowSlot]} น.</span>
-              </div>
-              <div className="p-6">
-                <div className="relative bg-gray-50 rounded-xl border border-gray-200" style={{ height: '380px' }}>
-                  {/* Flow lines (SVG) */}
-                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <defs>
-                      <marker id="arrow" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#94A3B8"/></marker>
-                    </defs>
-                    {FLOWS.map((f, i) => {
-                      const from = nodeById(f.from), to = nodeById(f.to);
-                      if (!from || !to) return null;
-                      const thickness = Math.max(0.3, f.count / 2000);
-                      return (
-                        <g key={i}>
-                          <line x1={from.x} y1={from.y} x2={to.x} y2={to.y} stroke={f.color} strokeWidth={thickness} opacity="0.5" markerEnd="url(#arrow)"/>
-                          <text x={(from.x+to.x)/2} y={(from.y+to.y)/2 - 1.5} textAnchor="middle" fill="#64748B" fontSize="2.5" fontWeight="bold">{f.count.toLocaleString()}</text>
-                        </g>
-                      );
-                    })}
-                  </svg>
-
-                  {/* Node dots */}
-                  {NODES.map(n => (
-                    <div key={n.id} className="absolute group cursor-default" style={{ left: `${n.x}%`, top: `${n.y}%`, transform: 'translate(-50%, -50%)' }}>
-                      <div className="w-8 h-8 rounded-full bg-indigo-600 border-2 border-white shadow-lg flex items-center justify-center">
-                        <span className="text-[7px] font-bold text-white">{n.id.replace('N','')}</span>
-                      </div>
-                      <span className="absolute top-9 left-1/2 -translate-x-1/2 text-[9px] font-bold text-gray-600 whitespace-nowrap bg-white/80 px-1 rounded">{n.name}</span>
-                      {/* Tooltip */}
-                      <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 shadow-lg">
-                        {n.id}: {n.name} — {n.detected.toLocaleString()} devices
-                      </div>
-                    </div>
-                  ))}
+            {/* Flow visualization — Three.js 3D Flow Map */}
+            <div className="bg-gray-900 rounded-2xl border border-gray-700/50 overflow-hidden shadow-xl">
+              <div className="p-5 border-b border-gray-800 flex justify-between items-center">
+                <h3 className="font-bold text-white flex items-center gap-2"><Zap size={16} className="text-cyan-400"/> Node → Node Flow Map <span className="text-[10px] font-medium text-gray-500 ml-1">3D</span></h3>
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] text-gray-500">Drag to rotate &middot; Hover nodes for details</span>
+                  <span className="text-xs text-gray-400 font-inter bg-gray-800 px-2 py-0.5 rounded-md">ช่วง {FLOW_SLOTS[flowSlot]} น.</span>
                 </div>
+              </div>
+              <FlowMap3D nodes={NODES} flows={FLOWS}/>
+              {/* Legend */}
+              <div className="px-5 py-3 border-t border-gray-800 flex items-center gap-4">
+                <span className="flex items-center gap-1.5 text-[10px] text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-indigo-500"/>Indoor Node</span>
+                <span className="flex items-center gap-1.5 text-[10px] text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-cyan-500"/>Outdoor Node</span>
+                <span className="flex items-center gap-1.5 text-[10px] text-gray-400"><span className="w-3 h-0.5 bg-gradient-to-r from-cyan-500 to-indigo-500 rounded"/>Device Flow</span>
+                <span className="ml-auto text-[10px] text-gray-500 font-inter">{FLOWS.reduce((s,f)=>s+f.count,0).toLocaleString()} total device movements</span>
               </div>
             </div>
 
