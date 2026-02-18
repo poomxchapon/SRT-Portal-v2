@@ -121,6 +121,49 @@ const T = {
   kr: { greeting:'아피왓 중앙역에 오신 것을 환영합니다. 무엇을 도와드릴까요?', faq:'자주 묻는 질문', voice:'눌러서 말하기', type:'입력', mobile:'모바일', schedule:'시간표', map:'관광지도', station:'역 지도', shops:'상점', emergency:'비상', close:'닫기', listening:'듣고 있어요...', thinking:'생각 중...', send:'보내기', typeHere:'질문을 입력하세요...', scanChat:'스캔하여 모바일 채팅', scanDesc:'QR 코드를 스캔하여 채팅을 계속하세요', searchPlace:'장소 검색...', youAreHere:'현재 위치', navigate:'길찾기', shopTitle:'상점 및 서비스', trainNo:'열차', dest:'목적지', dep:'출발', plat:'승강장', stat:'상태', onTime:'정시', departed:'출발', delayed:'지연', boarding:'탑승', min:'분', shopOpen:'영업중', shopClosed:'종료' }
 };
 
+const BANNERS = [
+  {
+    id: 1,
+    img: 'https://images.unsplash.com/photo-1504214208698-ea1916a2195a?auto=format&fit=crop&w=600&q=80',
+    tag: { th:'กิจกรรม', en:'EVENT', cn:'活动', kr:'이벤트' },
+    title: { th:'Songkran Festival 2026', en:'Songkran Festival 2026', cn:'2026泼水节', kr:'2026 송크란 축제' },
+    desc: { th:'สงกรานต์ปีนี้ จัดใหญ่! 13-15 เม.ย. ถนนข้าวสาร & สีลม', en:'Thailand\'s biggest water festival! Apr 13-15 at Khao San & Silom', cn:'泰国最大泼水节！4月13-15日 考山路&是隆', kr:'태국 최대 물축제! 4월 13-15일 카오산&실롬' },
+    color: 'from-orange-600/90 to-rose-600/90'
+  },
+  {
+    id: 2,
+    img: 'https://images.unsplash.com/photo-1506665531195-3566af2b4dfa?auto=format&fit=crop&w=600&q=80',
+    tag: { th:'ท่องเที่ยว', en:'TOURISM', cn:'旅游', kr:'관광' },
+    title: { th:'เที่ยวอยุธยา ไป-กลับวันเดียว', en:'Ayutthaya Day Trip by Train', cn:'大城府一日游（火车）', kr:'아유타야 당일치기 기차여행' },
+    desc: { th:'นั่งรถไฟจากสถานีนี้ แค่ 1.5 ชม. ตั๋วเริ่มต้น 20 บาท!', en:'Just 1.5hrs from this station! Tickets from ฿20', cn:'从本站出发仅1.5小时！票价20泰铢起', kr:'이 역에서 1.5시간! 티켓 20바트부터' },
+    color: 'from-emerald-600/90 to-teal-600/90'
+  },
+  {
+    id: 3,
+    img: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=600&q=80',
+    tag: { th:'โปรโมชั่น', en:'PROMO', cn:'优惠', kr:'프로모션' },
+    title: { th:'SRT Pass ไม่จำกัดเที่ยว', en:'SRT Unlimited Pass', cn:'SRT无限次通票', kr:'SRT 무제한 패스' },
+    desc: { th:'บัตรเดินทางไม่จำกัด 7 วัน เพียง 999 บาท เริ่ม 1 มี.ค.', en:'7-day unlimited travel pass only ฿999. Starting Mar 1', cn:'7天无限乘车仅999泰铢 3月1日起', kr:'7일 무제한 패스 999바트 3월 1일부터' },
+    color: 'from-violet-600/90 to-indigo-600/90'
+  },
+  {
+    id: 4,
+    img: 'https://images.unsplash.com/photo-1583417319070-4a69db38a482?auto=format&fit=crop&w=600&q=80',
+    tag: { th:'กิจกรรม', en:'EVENT', cn:'活动', kr:'이벤트' },
+    title: { th:'Night Market @ สถานีกลาง', en:'Night Market @ Central Station', cn:'中央车站夜市', kr:'중앙역 야시장' },
+    desc: { th:'ตลาดนัดกลางคืน ทุกศุกร์-เสาร์ 17:00-23:00 ชั้น G', en:'Every Fri-Sat 5PM-11PM at G Floor', cn:'每周五六 17:00-23:00 G层', kr:'매주 금토 17:00-23:00 G층' },
+    color: 'from-amber-600/90 to-orange-600/90'
+  },
+  {
+    id: 5,
+    img: 'https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?auto=format&fit=crop&w=600&q=80',
+    tag: { th:'ท่องเที่ยว', en:'TOURISM', cn:'旅游', kr:'관광' },
+    title: { th:'เชียงใหม่ รถไฟสายเหนือ', en:'Chiang Mai Northern Line', cn:'清迈北线列车', kr:'치앙마이 북부노선' },
+    desc: { th:'นอนรถไฟ กรุงเทพ-เชียงใหม่ ตู้นอนปรับอากาศ เริ่ม 541 บาท', en:'Sleeper train BKK-CNX from ฿541. Overnight scenic route', cn:'曼谷-清迈卧铺列车 541泰铢起', kr:'방콕-치앙마이 침대열차 541바트부터' },
+    color: 'from-cyan-600/90 to-blue-600/90'
+  },
+];
+
 const FALLBACK_SHOPS = [
   { id:1, name:'Cafe Amazon', category:'Beverage', zone:'Zone A', is_open:true },
   { id:2, name:'S&P Restaurant', category:'Food', zone:'Zone B', is_open:true },
@@ -238,6 +281,20 @@ const KioskView = ({ shops, onAdmin }) => {
   const [muted, setMuted] = useState(false);
   const [search, setSearch] = useState('');
   const [question, setQuestion] = useState('');
+  const bannerRef = useRef(null);
+  const bannerIdx = useRef(0);
+
+  // Auto-scroll banners
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!bannerRef.current) return;
+      const container = bannerRef.current;
+      const cardWidth = container.firstChild?.offsetWidth || 0;
+      bannerIdx.current = (bannerIdx.current + 1) % BANNERS.length;
+      container.scrollTo({ left: bannerIdx.current * (cardWidth + 12), behavior: 'smooth' });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   const t = T[lang];
   const locs = useMemo(() => !search ? LOCATIONS : LOCATIONS.filter(l => l.name[lang].toLowerCase().includes(search.toLowerCase())), [search,lang]);
@@ -360,6 +417,25 @@ const KioskView = ({ shops, onAdmin }) => {
              <p className="text-sm text-cyan-50 leading-relaxed">{response||t.greeting}</p>}
           </div>
           <div className="w-3 h-3 bg-kiosk-accent/10 rotate-45 mx-auto -mt-1.5 border-l border-t border-kiosk-accent/15"/>
+        </div>
+
+        {/* Tourism / Event Banners */}
+        <div className="w-full shrink-0 mb-2">
+          <div className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-1" ref={bannerRef}>
+            {BANNERS.map(b => (
+              <div key={b.id} className="snap-start shrink-0 w-[85%] rounded-xl overflow-hidden relative cursor-pointer btn-press group" style={{minHeight:'100px'}}>
+                <img src={b.img} alt="" className="absolute inset-0 w-full h-full object-cover"/>
+                <div className={`absolute inset-0 bg-gradient-to-r ${b.color}`}/>
+                <div className="relative z-10 p-3.5 flex flex-col justify-between h-full">
+                  <span className="self-start px-2 py-0.5 rounded-full bg-white/20 text-[9px] font-bold uppercase tracking-wider text-white/90">{b.tag[lang]}</span>
+                  <div className="mt-2">
+                    <h3 className="text-sm font-bold text-white leading-tight drop-shadow">{b.title[lang]}</h3>
+                    <p className="text-[10px] text-white/80 mt-0.5 leading-snug line-clamp-2">{b.desc[lang]}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* FAQ Grid */}
