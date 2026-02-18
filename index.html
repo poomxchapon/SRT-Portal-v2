@@ -1236,20 +1236,23 @@ const AdminView = ({ onLogout }) => {
   const FLOW_SLOTS = ['06-09', '09-12', '12-15', '15-18', '18-21', '21-00'];
 
   // ═══ Weekly sessions mock data (consistent) ═══
+  // Weekly: จันทร์-ศุกร์ commuter สูง, ศุกร์ peak สุด (คนเดินทางกลับต่างจังหวัด), เสาร์ต่ำสุด, อาทิตย์กลับกรุงเทพ
   const WEEKLY_SESSIONS = useMemo(() => [
-    { day: 'Mon', sessions: 1180, visitors: 1820 },
-    { day: 'Tue', sessions: 820, visitors: 1240 },
-    { day: 'Wed', sessions: 1420, visitors: 2050 },
-    { day: 'Thu', sessions: 950, visitors: 1480 },
-    { day: 'Fri', sessions: 1640, visitors: 2380 },
-    { day: 'Sat', sessions: 540, visitors: 880 },
-    { day: 'Sun', sessions: 1280, visitors: 1900 },
+    { day: 'Mon', sessions: 1340, visitors: 2180 },
+    { day: 'Tue', sessions: 1120, visitors: 1750 },
+    { day: 'Wed', sessions: 1080, visitors: 1680 },
+    { day: 'Thu', sessions: 1250, visitors: 1940 },
+    { day: 'Fri', sessions: 1820, visitors: 2860 },
+    { day: 'Sat', sessions: 680, visitors: 1050 },
+    { day: 'Sun', sessions: 1560, visitors: 2420 },
   ], []);
 
   // ═══ Visited hours mock data (consistent) ═══
+  // Hourly: 00-05 แทบไม่มีคน, 06 เริ่มมา, 07-08 rush hour เช้า, 09-11 ลดลง, 12 lunch bump,
+  // 13-15 บ่ายปกติ, 16-18 rush hour เย็น (17:00 peak สุด), 19-21 ค่อยๆ ลด, 22-23 รถไฟเที่ยวสุดท้าย
   const VISITED_HOURS = useMemo(() => [
-    420, 280, 180, 120, 80, 350, 980, 1650, 2180, 2850, 3200, 3450,
-    3680, 3520, 3100, 2780, 2450, 2180, 1850, 1420, 980, 720, 580, 450
+    85, 42, 28, 18, 15, 120, 680, 2450, 3180, 2640, 2280, 2050,
+    2480, 2150, 1980, 2320, 3050, 3680, 2890, 1820, 1240, 860, 520, 180
   ], []);
 
   const nav = [
