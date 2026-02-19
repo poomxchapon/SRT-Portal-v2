@@ -86,7 +86,7 @@ import {
 // ═══════════════════════════════════════════
 // 1. CONFIGURATION
 // ═══════════════════════════════════════════
-const APP_VERSION = "3.8.1";
+const APP_VERSION = "3.9.0";
 
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
@@ -1135,6 +1135,139 @@ const AdminView = ({ onLogout }) => {
   const [heatHour, setHeatHour] = useState(14);
   const [flowSlot, setFlowSlot] = useState(2);
   const [darkAdmin, setDarkAdmin] = useState(false);
+  const [adminLang, setAdminLang] = useState('th');
+
+  // ═══ Admin i18n ═══
+  const AL = {
+    th: {
+      // Sidebar
+      sysTitle: 'Station Management System',
+      navKiosk: 'จัดการ Kiosk', navHeatmap: 'Heat Map แบบ Live', navWalkpath: 'เส้นทางเดิน',
+      darkMode: 'โหมดมืด', lightMode: 'โหมดสว่าง', logout: 'ออกจากระบบ',
+      // Kiosk Management
+      kioskMgmt: 'จัดการ Kiosk', kioskMgmtDesc: 'จัดการโฆษณา, ป๊อปอัพ, ดูแลรักษา & วิเคราะห์',
+      tabAds: 'โฆษณา', tabPopup: 'ป๊อปอัพ', tabMA: 'ดูแล Kiosk', tabAnalytics: 'วิเคราะห์',
+      // Ads
+      bannerAds: 'โฆษณาแบนเนอร์', newAd: 'สร้างโฆษณา',
+      thCampaign: 'แคมเปญ', thType: 'ประเภท', thStatus: 'สถานะ', thPeriod: 'ระยะเวลา', thImpressions: 'การแสดงผล', thCTR: 'CTR', thActions: 'จัดการ',
+      newAdTitle: 'สร้างโฆษณาใหม่', campaignName: 'ชื่อแคมเปญ', campaignPlc: 'เช่น โปรโมชั่นเที่ยวหน้าร้อน',
+      type: 'ประเภท', status: 'สถานะ', startDate: 'วันเริ่มต้น', endDate: 'วันสิ้นสุด', imageUrl: 'URL รูปภาพ (ไม่บังคับ)',
+      cancel: 'ยกเลิก', createAd: 'สร้างโฆษณา',
+      // Popup
+      popupMessages: 'ข้อความป๊อปอัพ', newPopup: 'สร้างป๊อปอัพ', noPopups: 'ยังไม่มีป๊อปอัพ คลิก "สร้างป๊อปอัพ" เพื่อสร้างใหม่',
+      editPopup: 'แก้ไขป๊อปอัพ', newPopupTitle: 'สร้างป๊อปอัพใหม่',
+      popupTitle: 'ชื่อป๊อปอัพ', popupTitlePlc: 'เช่น ข้อความต้อนรับ',
+      trigger: 'ทริกเกอร์', displayLangs: 'ภาษาที่แสดง',
+      thPrimary: 'ไทย (TH) — หลัก', autoTranslate: 'แปลอัตโนมัติ', translating: 'กำลังแปล...',
+      thPlaceholder: 'พิมพ์ข้อความภาษาไทยที่นี่...', enTranslation: 'คำแปลภาษาอังกฤษ...',
+      cnTranslation: 'คำแปลภาษาจีน...', krTranslation: 'คำแปลภาษาเกาหลี...',
+      saveChanges: 'บันทึกการเปลี่ยนแปลง', createPopup: 'สร้างป๊อปอัพ',
+      triggerWake: 'เมื่อ kiosk เปิด', triggerDelay: 'เมื่อล่าช้า > 15 นาที', triggerManual: 'ทริกเกอร์เอง', triggerScheduled: 'ตั้งเวลา',
+      // Kiosk MA
+      kiosksOnline: 'Kiosk ออนไลน์', avgUptime: 'Uptime เฉลี่ย', issues: 'ปัญหา',
+      kioskStatus: 'สถานะ Kiosk', clickToManage: 'คลิก Kiosk เพื่อจัดการ',
+      start: 'เปิด', shutdown: 'ปิด', restart: 'รีสตาร์ท', schedule: 'ตั้งเวลา',
+      scheduleAction: 'ตั้งเวลาดำเนินการ', action: 'การดำเนินการ', date: 'วันที่', time: 'เวลา',
+      version: 'เวอร์ชัน', lastRestart: 'รีสตาร์ทล่าสุด', uptime: 'Uptime',
+      online: 'ออนไลน์', offline: 'ออฟไลน์', restarting: 'กำลังรีสตาร์ท...',
+      // Analytics
+      dailyVisitors: 'ผู้เข้าชมรายวัน', kioskSessions: 'เซสชัน Kiosk',
+      avgTimeSession: 'เวลาเฉลี่ย/เซสชัน', avgTimeVal: '3 นาที 12 วินาที', satisfaction: 'ความพึงพอใจ',
+      weeklyKioskSessions: 'เซสชัน Kiosk รายสัปดาห์', weeklyDesc: 'จำนวนเซสชันและผู้เข้าชมแยกตามวัน',
+      totalSessions: 'เซสชันทั้งหมด', sessions: 'เซสชัน', visitors: 'ผู้เข้าชม',
+      topQuestions: 'คำถามยอดนิยม', topQuestionsDesc: 'คำถามที่ถูกถามมากที่สุดในสัปดาห์นี้',
+      q1: 'ตารางเวลารถไฟ', q2: 'ตำแหน่งห้องน้ำ', q3: 'ซื้อตั๋วโดยสาร', q4: 'ร้านอาหาร / ศูนย์อาหาร', q5: 'แท็กซี่ / Grab',
+      detectionSummary: 'สรุปการตรวจจับ', detectionDesc: 'อุปกรณ์ที่ตรวจจับแยกตามช่วงเวลา (DeepTrack)', devices: 'อุปกรณ์',
+      hourlyDevices: 'จำนวนอุปกรณ์รายชั่วโมง — 24 ชม.', hourlyDesc: 'อุปกรณ์ที่ตรวจจับได้แยกเป็นรายชั่วโมง',
+      totalDevicesDay: 'อุปกรณ์ทั้งหมด/วัน',
+      morning: 'ช่วงเช้า', midday: 'ช่วงกลางวัน', evening: 'ช่วงเย็น', avgPerHr: 'เฉลี่ย/ชม.', h24: '24 ชม.',
+      langDistribution: 'สัดส่วนภาษาที่ใช้', langDistDesc: 'ภาษาที่ผู้ใช้เลือกใน Kiosk สัปดาห์นี้',
+      langTH: 'ไทย', langEN: 'อังกฤษ', langCN: 'จีน', langKR: 'เกาหลี',
+      kioskPerformance: 'ประสิทธิภาพ Kiosk', kioskPerfDesc: 'Kiosk ที่มีเซสชันสูงสุด',
+      // Heatmap
+      dailyHeatmap: 'รายงาน Heat Map รายวัน', heatmapDesc: 'DeepTrack — Heatmap ความหนาแน่นรายชั่วโมง (Distinct Device)',
+      activeSensors: 'เซ็นเซอร์ทำงาน', devicesDetected: 'อุปกรณ์ที่ตรวจจับ', peakDensity: 'ความหนาแน่นสูงสุด',
+      avgStationTime: 'เวลาเฉลี่ยที่อยู่ในสถานี', avgStationTimeVal: '48 นาที',
+      uniqueDeviceBySlot: 'จำนวน Unique Device ตามช่วงเวลา', devicesPerDay: 'อุปกรณ์/วัน',
+      stationNodeMap: 'แผนผัง Node สถานี — Heatmap รายชั่วโมง', selectHourDesc: 'เลือกชั่วโมงเพื่อดูความหนาแน่นของแต่ละ Node',
+      nodeDensity: 'ความหนาแน่น Node',
+      // Detection slots
+      slotMorning: 'เช้า', slotLate: 'สาย', slotNoon: 'เที่ยง', slotAfternoon: 'บ่าย', slotEvening: 'เย็น', slotNight: 'กลางคืน',
+      // Walk Path
+      deviceMovement: 'รายงานการเคลื่อนที่อุปกรณ์', walkPathDesc: 'DeepTrack — เส้นทางการเคลื่อนที่ Node → Node (Sankey Flow)',
+      selectTimeSlot: 'เลือกช่วงเวลา (Flow ราย 3 ชั่วโมง)',
+      indoorNode: 'Node ในอาคาร', outdoorNode: 'Node กลางแจ้ง', devicePath: 'เส้นทางอุปกรณ์', totalMovements: 'การเคลื่อนที่ทั้งหมด',
+      hubAnalysis: 'วิเคราะห์จุดศูนย์กลาง', hubDesc: 'จำนวนอุปกรณ์ที่ผ่านแต่ละ Node', detectedDevices: 'อุปกรณ์ตรวจจับ',
+      hourlyDeviceCount: 'จำนวนอุปกรณ์รายชั่วโมง', uniquePerHour: 'Unique Device ต่อชั่วโมง (DeepTrack 4.6)',
+      flowDetail: 'รายละเอียดการเคลื่อนที่อุปกรณ์ — Node → Node',
+      from: 'จาก', to: 'ไป', pctOfTotal: '% ของทั้งหมด', period: 'ช่วง',
+      // Node names
+      nodeEntA: 'ทางเข้า A', nodeEntB: 'ทางเข้า B', nodeMainHall: 'โถงกลาง', nodeTicket: 'จุดจำหน่ายตั๋ว',
+      nodeFoodCourt: 'ศูนย์อาหาร', nodePlat13: 'ชานชาลา 1-3', nodePlat46: 'ชานชาลา 4-6', nodeExitC: 'ทางออก C',
+      // Weekly days
+      mon: 'จ.', tue: 'อ.', wed: 'พ.', thu: 'พฤ.', fri: 'ศ.', sat: 'ส.', sun: 'อา.',
+      // Kiosk location names
+      mainHall: 'โถงกลาง', entranceA: 'ทางเข้า A', platform1: 'ชานชาลา 1', ticketArea: 'จุดจำหน่ายตั๋ว', foodCourt: 'ศูนย์อาหาร',
+    },
+    en: {
+      sysTitle: 'Station Management System',
+      navKiosk: 'Kiosk Management', navHeatmap: 'LiveWalk Heat Map', navWalkpath: 'Walk Path Location',
+      darkMode: 'Dark Mode', lightMode: 'Light Mode', logout: 'Logout',
+      kioskMgmt: 'Kiosk Management', kioskMgmtDesc: 'Manage advertisements, popups, maintenance & analytics',
+      tabAds: 'Advertisement', tabPopup: 'Popup', tabMA: 'Kiosk MA', tabAnalytics: 'Analytics',
+      bannerAds: 'Banner Advertisements', newAd: 'New Ad',
+      thCampaign: 'Campaign', thType: 'Type', thStatus: 'Status', thPeriod: 'Period', thImpressions: 'Impressions', thCTR: 'CTR', thActions: 'Actions',
+      newAdTitle: 'New Advertisement', campaignName: 'Campaign Name', campaignPlc: 'e.g. Summer Travel Promo',
+      type: 'Type', status: 'Status', startDate: 'Start Date', endDate: 'End Date', imageUrl: 'Image URL (optional)',
+      cancel: 'Cancel', createAd: 'Create Ad',
+      popupMessages: 'Popup Messages', newPopup: 'New Popup', noPopups: 'No popups yet. Click "New Popup" to create one.',
+      editPopup: 'Edit Popup', newPopupTitle: 'New Popup',
+      popupTitle: 'Popup Title', popupTitlePlc: 'e.g. Welcome Message',
+      trigger: 'Trigger', displayLangs: 'Display Languages',
+      thPrimary: 'Thai (TH) — Primary', autoTranslate: 'Auto-Translate', translating: 'Translating...',
+      thPlaceholder: 'Type Thai message here...', enTranslation: 'English translation...', cnTranslation: 'Chinese translation...', krTranslation: 'Korean translation...',
+      saveChanges: 'Save Changes', createPopup: 'Create Popup',
+      triggerWake: 'On kiosk wake', triggerDelay: 'When delay > 15 min', triggerManual: 'Manual trigger', triggerScheduled: 'Scheduled time',
+      kiosksOnline: 'Kiosks Online', avgUptime: 'Avg Uptime', issues: 'Issues',
+      kioskStatus: 'Kiosk Status', clickToManage: 'Click a kiosk to manage',
+      start: 'Start', shutdown: 'Shutdown', restart: 'Restart', schedule: 'Schedule',
+      scheduleAction: 'Schedule Action', action: 'Action', date: 'Date', time: 'Time',
+      version: 'Version', lastRestart: 'Last Restart', uptime: 'Uptime',
+      online: 'Online', offline: 'Offline', restarting: 'Restarting...',
+      dailyVisitors: 'Daily Visitors', kioskSessions: 'Kiosk Sessions',
+      avgTimeSession: 'Avg Time/Session', avgTimeVal: '3 min 12 sec', satisfaction: 'Satisfaction',
+      weeklyKioskSessions: 'Weekly Kiosk Sessions', weeklyDesc: 'Sessions and visitors by day',
+      totalSessions: 'Total Sessions', sessions: 'Sessions', visitors: 'Visitors',
+      topQuestions: 'Top Questions', topQuestionsDesc: 'Most asked questions this week',
+      q1: 'Train Schedule', q2: 'Restroom Location', q3: 'Buy Tickets', q4: 'Restaurant / Food Court', q5: 'Taxi / Grab',
+      detectionSummary: 'Detection Summary', detectionDesc: 'Devices detected by time slot (DeepTrack)', devices: 'Devices',
+      hourlyDevices: 'Hourly Device Count — 24h', hourlyDesc: 'Devices detected by hour',
+      totalDevicesDay: 'Total Devices/Day',
+      morning: 'Morning', midday: 'Midday', evening: 'Evening', avgPerHr: 'Avg/Hr', h24: '24h',
+      langDistribution: 'Language Distribution', langDistDesc: 'Languages selected by Kiosk users this week',
+      langTH: 'Thai', langEN: 'English', langCN: 'Chinese', langKR: 'Korean',
+      kioskPerformance: 'Kiosk Performance', kioskPerfDesc: 'Top Kiosks by sessions',
+      dailyHeatmap: 'Daily Heat Map Report', heatmapDesc: 'DeepTrack — Hourly Density Heatmap (Distinct Device)',
+      activeSensors: 'Active Sensors', devicesDetected: 'Devices Detected', peakDensity: 'Peak Density',
+      avgStationTime: 'Avg Station Time', avgStationTimeVal: '48 min',
+      uniqueDeviceBySlot: 'Unique Devices by time slot', devicesPerDay: 'Devices/Day',
+      stationNodeMap: 'Station Node Map — Hourly Heatmap', selectHourDesc: 'Select hour to view density per node',
+      nodeDensity: 'Node Density',
+      slotMorning: 'Morning', slotLate: 'Late Morning', slotNoon: 'Noon', slotAfternoon: 'Afternoon', slotEvening: 'Evening', slotNight: 'Night',
+      deviceMovement: 'Device Movement Report', walkPathDesc: 'DeepTrack — Node to Node Movement Path (Sankey Flow)',
+      selectTimeSlot: 'Select time slot (3-hour flow)',
+      indoorNode: 'Indoor Node', outdoorNode: 'Outdoor Node', devicePath: 'Device Path', totalMovements: 'Total Movements',
+      hubAnalysis: 'Hub Analysis', hubDesc: 'Devices passing through each node', detectedDevices: 'Detected Devices',
+      hourlyDeviceCount: 'Hourly Device Count', uniquePerHour: 'Unique Devices per hour (DeepTrack 4.6)',
+      flowDetail: 'Device Movement Detail — Node → Node',
+      from: 'From', to: 'To', pctOfTotal: '% of Total', period: 'Period',
+      nodeEntA: 'Entrance A', nodeEntB: 'Entrance B', nodeMainHall: 'Main Hall', nodeTicket: 'Ticket Counter',
+      nodeFoodCourt: 'Food Court', nodePlat13: 'Platform 1-3', nodePlat46: 'Platform 4-6', nodeExitC: 'Exit C',
+      mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
+      mainHall: 'Main Hall', entranceA: 'Entrance A', platform1: 'Platform 1', ticketArea: 'Ticket Counter', foodCourt: 'Food Court',
+    }
+  };
+  const al = AL[adminLang];
 
   // ═══ Popup state ═══
   const [popups, setPopups] = useState([
@@ -1261,13 +1394,15 @@ const AdminView = ({ onLogout }) => {
   ], []);
 
   const nav = [
-    { key: 'kiosk', icon: Layout, label: 'Kiosk Management' },
-    { key: 'heatmap', icon: Activity, label: 'LiveWalk Heat Map' },
-    { key: 'walkpath', icon: MapPin, label: 'Walk Path Location' },
+    { key: 'kiosk', icon: Layout, label: al.navKiosk },
+    { key: 'heatmap', icon: Activity, label: al.navHeatmap },
+    { key: 'walkpath', icon: MapPin, label: al.navWalkpath },
   ];
 
   const occLevel = (v) => v > 80 ? { label: 'Alert', bg: 'bg-red-100 text-red-600', bar: 'bg-red-500' } : v > 50 ? { label: 'Busy', bg: 'bg-yellow-100 text-yellow-600', bar: 'bg-yellow-500' } : { label: 'Comfort', bg: 'bg-emerald-100 text-emerald-600', bar: 'bg-emerald-500' };
   const nodeById = (id) => NODES.find(n => n.id === id);
+  const NODE_NAMES = { N01: 'nodeEntA', N02: 'nodeEntB', N03: 'nodeMainHall', N04: 'nodeTicket', N05: 'nodeFoodCourt', N06: 'nodePlat13', N07: 'nodePlat46', N08: 'nodeExitC' };
+  const nn = (id) => al[NODE_NAMES[id]] || id;
 
   // ═══ Dark theme helper ═══
   const dk = darkAdmin;
@@ -1327,7 +1462,7 @@ const AdminView = ({ onLogout }) => {
 
   const LANG_LABELS = { th: 'TH', en: 'EN', cn: 'CN', kr: 'KR' };
   const LANG_COLORS = { th: 'bg-blue-100 text-blue-700', en: 'bg-emerald-100 text-emerald-700', cn: 'bg-red-100 text-red-700', kr: 'bg-purple-100 text-purple-700' };
-  const TRIGGER_LABELS = { 'on-wake': 'On kiosk wake', 'delay-15': 'When delay > 15 min', 'manual': 'Manual trigger', 'scheduled': 'Scheduled time' };
+  const TRIGGER_LABELS = { 'on-wake': al.triggerWake, 'delay-15': al.triggerDelay, 'manual': al.triggerManual, 'scheduled': al.triggerScheduled };
 
   // ═══ Popup form helpers ═══
   const openNewPopup = () => {
@@ -1389,7 +1524,7 @@ const AdminView = ({ onLogout }) => {
           <h1 className={`text-lg font-extrabold ${t.text} font-inter flex items-center gap-2`}>
             <Train size={20} className="text-admin-primary"/> SRT Admin
           </h1>
-          <p className={`text-[11px] ${t.textMuted} mt-0.5`}>Station Management System</p>
+          <p className={`text-[11px] ${t.textMuted} mt-0.5`}>{al.sysTitle}</p>
         </div>
         <nav className="flex-1 p-3 space-y-1">
           {nav.map(n => {
@@ -1403,11 +1538,15 @@ const AdminView = ({ onLogout }) => {
           })}
         </nav>
         <div className={`p-3 border-t ${t.borderLight} space-y-1`}>
+          <button onClick={() => setAdminLang(l => l === 'th' ? 'en' : 'th')} className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium ${t.textSec} ${t.hover} transition-colors cursor-pointer`}>
+            <Globe size={18}/> {adminLang === 'th' ? 'EN' : 'TH'}
+            <img src={adminLang === 'th' ? 'https://flagcdn.com/w20/gb.png' : 'https://flagcdn.com/w20/th.png'} alt="" className="w-5 h-auto rounded-sm ml-auto"/>
+          </button>
           <button onClick={() => setDarkAdmin(d => !d)} className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium ${t.textSec} ${t.hover} transition-colors cursor-pointer`}>
-            {darkAdmin ? <Sun size={18}/> : <Moon size={18}/>} {darkAdmin ? 'Light Mode' : 'Dark Mode'}
+            {darkAdmin ? <Sun size={18}/> : <Moon size={18}/>} {darkAdmin ? al.lightMode : al.darkMode}
           </button>
           <button onClick={onLogout} className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 ${dk ? 'hover:bg-red-950/30' : 'hover:bg-red-50'} transition-colors cursor-pointer`}>
-            <LogOut size={18}/> Logout
+            <LogOut size={18}/> {al.logout}
           </button>
         </div>
       </aside>
@@ -1419,17 +1558,17 @@ const AdminView = ({ onLogout }) => {
         {view === 'kiosk' && (
           <div className="space-y-6 animate-fade-in max-w-6xl">
             <div>
-              <h2 className={`text-2xl font-bold ${t.text}`}>Kiosk Management</h2>
-              <p className={`text-sm ${t.textMuted} mt-1`}>Manage advertisements, popups, maintenance & analytics</p>
+              <h2 className={`text-2xl font-bold ${t.text}`}>{al.kioskMgmt}</h2>
+              <p className={`text-sm ${t.textMuted} mt-1`}>{al.kioskMgmtDesc}</p>
             </div>
 
             {/* Sub-tabs */}
             <div className={`flex gap-1 ${t.subtab} p-1 rounded-xl w-fit`}>
               {[
-                { key: 'ads', label: 'Advertisement', icon: Image },
-                { key: 'popup', label: 'Popup', icon: Bell },
-                { key: 'ma', label: 'Kiosk MA', icon: Settings },
-                { key: 'analytics', label: 'Analytics', icon: BarChart3 },
+                { key: 'ads', label: al.tabAds, icon: Image },
+                { key: 'popup', label: al.tabPopup, icon: Bell },
+                { key: 'ma', label: al.tabMA, icon: Settings },
+                { key: 'analytics', label: al.tabAnalytics, icon: BarChart3 },
               ].map(tb => {
                 const I = tb.icon;
                 return (
@@ -1446,12 +1585,12 @@ const AdminView = ({ onLogout }) => {
               <div className="space-y-4">
                 <div className={`${t.card} rounded-2xl border overflow-hidden`}>
                   <div className={`p-5 border-b ${t.borderSubtle} flex justify-between items-center`}>
-                    <h3 className={`font-bold ${t.text} flex items-center gap-2`}><Image size={18} className="text-blue-500"/> Banner Advertisements</h3>
-                    <button onClick={openNewAd} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-2 rounded-xl btn-press cursor-pointer flex items-center gap-1.5 transition-colors text-sm"><Plus size={16}/>New Ad</button>
+                    <h3 className={`font-bold ${t.text} flex items-center gap-2`}><Image size={18} className="text-blue-500"/> {al.bannerAds}</h3>
+                    <button onClick={openNewAd} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-2 rounded-xl btn-press cursor-pointer flex items-center gap-1.5 transition-colors text-sm"><Plus size={16}/>{al.newAd}</button>
                   </div>
                   <table className="w-full text-sm">
                     <thead className={`${t.cardHead} ${t.textSec} text-xs uppercase`}>
-                      <tr><th className="px-5 py-3 text-left">Campaign</th><th className="px-5 py-3 text-center">Type</th><th className="px-5 py-3 text-center">Status</th><th className="px-5 py-3 text-center">Period</th><th className="px-5 py-3 text-right">Impressions</th><th className="px-5 py-3 text-right">CTR</th><th className="px-5 py-3 text-center">Actions</th></tr>
+                      <tr><th className="px-5 py-3 text-left">{al.thCampaign}</th><th className="px-5 py-3 text-center">{al.thType}</th><th className="px-5 py-3 text-center">{al.thStatus}</th><th className="px-5 py-3 text-center">{al.thPeriod}</th><th className="px-5 py-3 text-right">{al.thImpressions}</th><th className="px-5 py-3 text-right">{al.thCTR}</th><th className="px-5 py-3 text-center">{al.thActions}</th></tr>
                     </thead>
                     <tbody className={`${t.divider} divide-y`}>
                       {ads.map(a => (
@@ -1487,18 +1626,18 @@ const AdminView = ({ onLogout }) => {
                   <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setShowAdForm(false)}>
                     <div className={`${t.modal} rounded-2xl shadow-2xl w-full max-w-lg p-6 animate-fade-in`} onClick={e => e.stopPropagation()}>
                       <div className="flex justify-between items-center mb-5">
-                        <h3 className={`text-lg font-bold ${t.text} flex items-center gap-2`}><Image size={20} className="text-blue-500"/> New Advertisement</h3>
+                        <h3 className={`text-lg font-bold ${t.text} flex items-center gap-2`}><Image size={20} className="text-blue-500"/> {al.newAdTitle}</h3>
                         <button onClick={() => setShowAdForm(false)} className={`p-1 rounded-full ${t.hover} cursor-pointer`}><X size={18} className="text-gray-400"/></button>
                       </div>
                       <div className="space-y-4">
                         <div>
-                          <label className={`text-xs font-bold ${t.textSec} uppercase`}>Campaign Name</label>
+                          <label className={`text-xs font-bold ${t.textSec} uppercase`}>{al.campaignName}</label>
                           <input value={adForm.name} onChange={e => setAdForm(f => ({...f, name: e.target.value}))}
-                            className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-cyan-400 transition-colors`} placeholder="e.g. Summer Travel Promo"/>
+                            className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-cyan-400 transition-colors`} placeholder={al.campaignPlc}/>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className={`text-xs font-bold ${t.textSec} uppercase`}>Type</label>
+                            <label className={`text-xs font-bold ${t.textSec} uppercase`}>{al.type}</label>
                             <select value={adForm.type} onChange={e => setAdForm(f => ({...f, type: e.target.value}))}
                               className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-cyan-400 cursor-pointer`}>
                               <option value="banner">Banner</option>
@@ -1508,7 +1647,7 @@ const AdminView = ({ onLogout }) => {
                             </select>
                           </div>
                           <div>
-                            <label className={`text-xs font-bold ${t.textSec} uppercase`}>Status</label>
+                            <label className={`text-xs font-bold ${t.textSec} uppercase`}>{al.status}</label>
                             <select value={adForm.status} onChange={e => setAdForm(f => ({...f, status: e.target.value}))}
                               className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-cyan-400 cursor-pointer`}>
                               <option value="scheduled">Scheduled</option>
@@ -1519,25 +1658,25 @@ const AdminView = ({ onLogout }) => {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className={`text-xs font-bold ${t.textSec} uppercase`}>Start Date</label>
+                            <label className={`text-xs font-bold ${t.textSec} uppercase`}>{al.startDate}</label>
                             <input type="date" value={adForm.start} onChange={e => setAdForm(f => ({...f, start: e.target.value}))}
                               className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-cyan-400 cursor-pointer`}/>
                           </div>
                           <div>
-                            <label className={`text-xs font-bold ${t.textSec} uppercase`}>End Date</label>
+                            <label className={`text-xs font-bold ${t.textSec} uppercase`}>{al.endDate}</label>
                             <input type="date" value={adForm.end} onChange={e => setAdForm(f => ({...f, end: e.target.value}))}
                               className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-cyan-400 cursor-pointer`}/>
                           </div>
                         </div>
                         <div>
-                          <label className={`text-xs font-bold ${t.textSec} uppercase`}>Image URL (optional)</label>
+                          <label className={`text-xs font-bold ${t.textSec} uppercase`}>{al.imageUrl}</label>
                           <input value={adForm.imageUrl} onChange={e => setAdForm(f => ({...f, imageUrl: e.target.value}))}
                             className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-cyan-400 transition-colors`} placeholder="https://example.com/ad-banner.jpg"/>
                         </div>
                       </div>
                       <div className="flex justify-end gap-3 mt-6">
-                        <button onClick={() => setShowAdForm(false)} className={`px-4 py-2 rounded-xl text-sm font-medium ${t.textSec} ${t.hover} transition-colors cursor-pointer`}>Cancel</button>
-                        <button onClick={saveAd} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-2 rounded-xl btn-press cursor-pointer transition-colors text-sm">Create Ad</button>
+                        <button onClick={() => setShowAdForm(false)} className={`px-4 py-2 rounded-xl text-sm font-medium ${t.textSec} ${t.hover} transition-colors cursor-pointer`}>{al.cancel}</button>
+                        <button onClick={saveAd} className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-2 rounded-xl btn-press cursor-pointer transition-colors text-sm">{al.createAd}</button>
                       </div>
                     </div>
                   </div>
@@ -1550,8 +1689,8 @@ const AdminView = ({ onLogout }) => {
               <div className="space-y-4">
                 <div className={`${t.card} rounded-2xl border overflow-hidden`}>
                   <div className={`p-5 border-b ${t.borderSubtle} flex justify-between items-center`}>
-                    <h3 className={`font-bold ${t.text} flex items-center gap-2`}><Bell size={18} className="text-orange-500"/> Popup Messages</h3>
-                    <button onClick={openNewPopup} className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-xl btn-press cursor-pointer flex items-center gap-1.5 transition-colors text-sm"><Plus size={16}/>New Popup</button>
+                    <h3 className={`font-bold ${t.text} flex items-center gap-2`}><Bell size={18} className="text-orange-500"/> {al.popupMessages}</h3>
+                    <button onClick={openNewPopup} className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-4 py-2 rounded-xl btn-press cursor-pointer flex items-center gap-1.5 transition-colors text-sm"><Plus size={16}/>{al.newPopup}</button>
                   </div>
                   <div className="p-5 space-y-3">
                     {popups.map(p => (
@@ -1582,7 +1721,7 @@ const AdminView = ({ onLogout }) => {
                         </div>
                       </div>
                     ))}
-                    {popups.length === 0 && <p className={`text-center ${t.textMuted} text-sm py-8`}>No popups yet. Click "New Popup" to create one.</p>}
+                    {popups.length === 0 && <p className={`text-center ${t.textMuted} text-sm py-8`}>{al.noPopups}</p>}
                   </div>
                 </div>
 
@@ -1591,30 +1730,30 @@ const AdminView = ({ onLogout }) => {
                   <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setShowPopupForm(false)}>
                     <div className={`${t.modal} rounded-2xl shadow-2xl w-full max-w-xl p-6 animate-fade-in max-h-[90vh] overflow-y-auto`} onClick={e => e.stopPropagation()}>
                       <div className="flex justify-between items-center mb-5">
-                        <h3 className={`text-lg font-bold ${t.text} flex items-center gap-2`}><Bell size={20} className="text-orange-500"/> {editPopup ? 'Edit Popup' : 'New Popup'}</h3>
+                        <h3 className={`text-lg font-bold ${t.text} flex items-center gap-2`}><Bell size={20} className="text-orange-500"/> {editPopup ? al.editPopup : al.newPopupTitle}</h3>
                         <button onClick={() => setShowPopupForm(false)} className={`p-1 rounded-full ${t.hover} cursor-pointer`}><X size={18} className="text-gray-400"/></button>
                       </div>
                       <div className="space-y-4">
                         {/* Title */}
                         <div>
-                          <label className={`text-xs font-bold ${t.textSec} uppercase`}>Popup Title</label>
+                          <label className={`text-xs font-bold ${t.textSec} uppercase`}>{al.popupTitle}</label>
                           <input value={popupForm.title} onChange={e => setPopupForm(f => ({...f, title: e.target.value}))}
-                            className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-orange-400 transition-colors`} placeholder="e.g. Welcome Message"/>
+                            className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-orange-400 transition-colors`} placeholder={al.popupTitlePlc}/>
                         </div>
                         {/* Trigger */}
                         <div>
-                          <label className={`text-xs font-bold ${t.textSec} uppercase`}>Trigger</label>
+                          <label className={`text-xs font-bold ${t.textSec} uppercase`}>{al.trigger}</label>
                           <select value={popupForm.trigger} onChange={e => setPopupForm(f => ({...f, trigger: e.target.value}))}
                             className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-orange-400 cursor-pointer`}>
-                            <option value="on-wake">On kiosk wake</option>
-                            <option value="delay-15">When delay &gt; 15 min</option>
-                            <option value="manual">Manual trigger</option>
-                            <option value="scheduled">Scheduled time</option>
+                            <option value="on-wake">{al.triggerWake}</option>
+                            <option value="delay-15">{al.triggerDelay}</option>
+                            <option value="manual">{al.triggerManual}</option>
+                            <option value="scheduled">{al.triggerScheduled}</option>
                           </select>
                         </div>
                         {/* Language checkboxes */}
                         <div>
-                          <label className={`text-xs font-bold ${t.textSec} uppercase mb-2 block`}>Display Languages</label>
+                          <label className={`text-xs font-bold ${t.textSec} uppercase mb-2 block`}>{al.displayLangs}</label>
                           <div className="flex gap-3">
                             {Object.entries(LANG_LABELS).map(([k, label]) => (
                               <label key={k} className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-colors ${popupForm.langs[k] ? (dk ? 'border-cyan-600 bg-cyan-950/30' : 'border-cyan-300 bg-cyan-50') : `${t.border} ${dk ? 'hover:border-gray-600' : 'hover:border-gray-300'}`}`}>
@@ -1628,43 +1767,43 @@ const AdminView = ({ onLogout }) => {
                         <div>
                           <div className="flex items-center justify-between mb-1">
                             <label className={`text-xs font-bold ${t.textSec} uppercase flex items-center gap-1`}>
-                              <span className={`w-2 h-2 rounded-full bg-blue-500`}/> Thai (TH) — Primary
+                              <span className={`w-2 h-2 rounded-full bg-blue-500`}/> {al.thPrimary}
                             </label>
                             <button onClick={() => autoTranslate(popupForm.texts.th)} disabled={translating || !popupForm.texts.th.trim()}
                               className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer ${translating ? `${t.statBg} text-gray-400` : (dk ? 'bg-cyan-950/30 text-cyan-400 hover:bg-cyan-900/40' : 'bg-cyan-50 text-cyan-700 hover:bg-cyan-100')}`}>
                               {translating ? <Loader2 size={12} className="animate-spin"/> : <Languages size={12}/>}
-                              {translating ? 'Translating...' : 'Auto-Translate'}
+                              {translating ? al.translating : al.autoTranslate}
                             </button>
                           </div>
                           <textarea value={popupForm.texts.th} onChange={e => setPopupForm(f => ({...f, texts: {...f.texts, th: e.target.value}}))}
-                            className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-orange-400 resize-none h-20 transition-colors`} placeholder="พิมพ์ข้อความภาษาไทยที่นี่..."/>
+                            className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-orange-400 resize-none h-20 transition-colors`} placeholder={al.thPlaceholder}/>
                         </div>
                         {/* Other languages (editable) */}
                         {popupForm.langs.en && (
                           <div>
                             <label className={`text-xs font-bold ${t.textSec} uppercase flex items-center gap-1 mb-1`}><span className="w-2 h-2 rounded-full bg-emerald-500"/> English (EN)</label>
                             <textarea value={popupForm.texts.en} onChange={e => setPopupForm(f => ({...f, texts: {...f.texts, en: e.target.value}}))}
-                              className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-orange-400 resize-none h-16 transition-colors`} placeholder="English translation..."/>
+                              className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-orange-400 resize-none h-16 transition-colors`} placeholder={al.enTranslation}/>
                           </div>
                         )}
                         {popupForm.langs.cn && (
                           <div>
                             <label className={`text-xs font-bold ${t.textSec} uppercase flex items-center gap-1 mb-1`}><span className="w-2 h-2 rounded-full bg-red-500"/> Chinese (CN)</label>
                             <textarea value={popupForm.texts.cn} onChange={e => setPopupForm(f => ({...f, texts: {...f.texts, cn: e.target.value}}))}
-                              className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-orange-400 resize-none h-16 transition-colors`} placeholder="Chinese translation..."/>
+                              className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-orange-400 resize-none h-16 transition-colors`} placeholder={al.cnTranslation}/>
                           </div>
                         )}
                         {popupForm.langs.kr && (
                           <div>
                             <label className={`text-xs font-bold ${t.textSec} uppercase flex items-center gap-1 mb-1`}><span className="w-2 h-2 rounded-full bg-purple-500"/> Korean (KR)</label>
                             <textarea value={popupForm.texts.kr} onChange={e => setPopupForm(f => ({...f, texts: {...f.texts, kr: e.target.value}}))}
-                              className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-orange-400 resize-none h-16 transition-colors`} placeholder="Korean translation..."/>
+                              className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:border-orange-400 resize-none h-16 transition-colors`} placeholder={al.krTranslation}/>
                           </div>
                         )}
                       </div>
                       <div className="flex justify-end gap-3 mt-6">
-                        <button onClick={() => setShowPopupForm(false)} className={`px-4 py-2 rounded-xl text-sm font-medium ${t.textSec} ${t.hover} transition-colors cursor-pointer`}>Cancel</button>
-                        <button onClick={savePopup} className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2 rounded-xl btn-press cursor-pointer transition-colors text-sm">{editPopup ? 'Save Changes' : 'Create Popup'}</button>
+                        <button onClick={() => setShowPopupForm(false)} className={`px-4 py-2 rounded-xl text-sm font-medium ${t.textSec} ${t.hover} transition-colors cursor-pointer`}>{al.cancel}</button>
+                        <button onClick={savePopup} className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-2 rounded-xl btn-press cursor-pointer transition-colors text-sm">{editPopup ? al.saveChanges : al.createPopup}</button>
                       </div>
                     </div>
                   </div>
@@ -1676,9 +1815,9 @@ const AdminView = ({ onLogout }) => {
             {kioskTab === 'ma' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-3 gap-4">
-                  <Stat icon={Monitor} label="Kiosks Online" value={`${kiosks.filter(k=>k.status==='online').length}/${kiosks.length}`} color="bg-emerald-50 text-emerald-600"/>
-                  <Stat icon={Activity} label="Avg Uptime" value={`${(kiosks.filter(k=>k.status==='online').reduce((s,k)=>s+parseFloat(k.uptime),0)/Math.max(1,kiosks.filter(k=>k.status==='online').length)).toFixed(1)}%`} color="bg-blue-50 text-blue-600"/>
-                  <Stat icon={AlertTriangle} label="Issues" value={String(kiosks.filter(k=>k.status==='offline').length)} color="bg-red-50 text-red-600"/>
+                  <Stat icon={Monitor} label={al.kiosksOnline} value={`${kiosks.filter(k=>k.status==='online').length}/${kiosks.length}`} color="bg-emerald-50 text-emerald-600"/>
+                  <Stat icon={Activity} label={al.avgUptime} value={`${(kiosks.filter(k=>k.status==='online').reduce((s,k)=>s+parseFloat(k.uptime),0)/Math.max(1,kiosks.filter(k=>k.status==='online').length)).toFixed(1)}%`} color="bg-blue-50 text-blue-600"/>
+                  <Stat icon={AlertTriangle} label={al.issues} value={String(kiosks.filter(k=>k.status==='offline').length)} color="bg-red-50 text-red-600"/>
                 </div>
 
                 {/* Kiosk detail panel (when selected) */}
@@ -1694,37 +1833,37 @@ const AdminView = ({ onLogout }) => {
                       <div className="p-5">
                         <div className="grid grid-cols-4 gap-4 mb-5">
                           <div className={`text-center p-3 rounded-xl ${t.statBg}`}>
-                            <p className={`text-[10px] ${t.textMuted} font-bold uppercase`}>Status</p>
-                            <p className={`text-sm font-bold mt-1 ${k.status==='online'?'text-emerald-600':k.status==='restarting'?'text-yellow-600':'text-red-600'}`}>{k.status === 'restarting' ? 'Restarting...' : k.status}</p>
+                            <p className={`text-[10px] ${t.textMuted} font-bold uppercase`}>{al.status}</p>
+                            <p className={`text-sm font-bold mt-1 ${k.status==='online'?'text-emerald-600':k.status==='restarting'?'text-yellow-600':'text-red-600'}`}>{k.status === 'restarting' ? al.restarting : k.status === 'online' ? al.online : al.offline}</p>
                           </div>
                           <div className={`text-center p-3 rounded-xl ${t.statBg}`}>
-                            <p className={`text-[10px] ${t.textMuted} font-bold uppercase`}>Uptime</p>
+                            <p className={`text-[10px] ${t.textMuted} font-bold uppercase`}>{al.uptime}</p>
                             <p className={`text-sm font-bold mt-1 ${t.text} font-inter`}>{k.uptime}</p>
                           </div>
                           <div className={`text-center p-3 rounded-xl ${t.statBg}`}>
-                            <p className={`text-[10px] ${t.textMuted} font-bold uppercase`}>Last Restart</p>
+                            <p className={`text-[10px] ${t.textMuted} font-bold uppercase`}>{al.lastRestart}</p>
                             <p className={`text-xs font-bold mt-1 ${dk ? 'text-gray-300' : 'text-gray-600'} font-inter`}>{k.lastRestart}</p>
                           </div>
                           <div className={`text-center p-3 rounded-xl ${t.statBg}`}>
-                            <p className={`text-[10px] ${t.textMuted} font-bold uppercase`}>Version</p>
+                            <p className={`text-[10px] ${t.textMuted} font-bold uppercase`}>{al.version}</p>
                             <p className={`text-sm font-bold mt-1 ${t.text} font-inter`}>{k.version}</p>
                           </div>
                         </div>
                         <div className="flex gap-3">
                           {k.status === 'offline' ? (
                             <button onClick={() => kioskAction(k.id, 'start')} className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl btn-press cursor-pointer transition-colors text-sm">
-                              <Power size={16}/> Start
+                              <Power size={16}/> {al.start}
                             </button>
                           ) : (
                             <button onClick={() => kioskAction(k.id, 'shutdown')} className="flex-1 flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-bold py-2.5 rounded-xl btn-press cursor-pointer transition-colors text-sm">
-                              <Power size={16}/> Shutdown
+                              <Power size={16}/> {al.shutdown}
                             </button>
                           )}
                           <button onClick={() => kioskAction(k.id, 'restart')} disabled={k.status==='restarting'} className={`flex-1 flex items-center justify-center gap-2 font-bold py-2.5 rounded-xl btn-press cursor-pointer transition-colors text-sm ${k.status==='restarting' ? 'bg-gray-200 text-gray-400' : 'bg-yellow-500 hover:bg-yellow-600 text-white'}`}>
-                            <RotateCw size={16} className={k.status==='restarting'?'animate-spin':''}/> Restart
+                            <RotateCw size={16} className={k.status==='restarting'?'animate-spin':''}/> {al.restart}
                           </button>
                           <button onClick={() => { setShowSchedule(k.id); setScheduleForm({ action: 'restart', date: '', time: '' }); }} className="flex-1 flex items-center justify-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2.5 rounded-xl btn-press cursor-pointer transition-colors text-sm">
-                            <Calendar size={16}/> Schedule
+                            <Calendar size={16}/> {al.schedule}
                           </button>
                         </div>
                       </div>
@@ -1736,33 +1875,33 @@ const AdminView = ({ onLogout }) => {
                 {showSchedule && (
                   <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center" onClick={() => setShowSchedule(null)}>
                     <div className={`${t.modal} rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-fade-in`} onClick={e => e.stopPropagation()}>
-                      <h3 className={`text-lg font-bold ${t.text} flex items-center gap-2 mb-5`}><Calendar size={20} className="text-indigo-500"/> Schedule Action</h3>
+                      <h3 className={`text-lg font-bold ${t.text} flex items-center gap-2 mb-5`}><Calendar size={20} className="text-indigo-500"/> {al.scheduleAction}</h3>
                       <div className="space-y-4">
                         <div>
-                          <label className={`text-xs font-bold ${t.textSec} uppercase`}>Action</label>
+                          <label className={`text-xs font-bold ${t.textSec} uppercase`}>{al.action}</label>
                           <select value={scheduleForm.action} onChange={e => setScheduleForm(f => ({...f, action: e.target.value}))}
                             className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-indigo-400 cursor-pointer`}>
-                            <option value="restart">Restart</option>
-                            <option value="shutdown">Shutdown</option>
-                            <option value="start">Start</option>
+                            <option value="restart">{al.restart}</option>
+                            <option value="shutdown">{al.shutdown}</option>
+                            <option value="start">{al.start}</option>
                           </select>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                           <div>
-                            <label className={`text-xs font-bold ${t.textSec} uppercase`}>Date</label>
+                            <label className={`text-xs font-bold ${t.textSec} uppercase`}>{al.date}</label>
                             <input type="date" value={scheduleForm.date} onChange={e => setScheduleForm(f => ({...f, date: e.target.value}))}
                               className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-indigo-400 cursor-pointer`}/>
                           </div>
                           <div>
-                            <label className={`text-xs font-bold ${t.textSec} uppercase`}>Time</label>
+                            <label className={`text-xs font-bold ${t.textSec} uppercase`}>{al.time}</label>
                             <input type="time" value={scheduleForm.time} onChange={e => setScheduleForm(f => ({...f, time: e.target.value}))}
                               className={`w-full border ${t.input} rounded-xl py-2.5 px-4 text-sm mt-1 focus:outline-none focus:border-indigo-400 cursor-pointer`}/>
                           </div>
                         </div>
                       </div>
                       <div className="flex justify-end gap-3 mt-6">
-                        <button onClick={() => setShowSchedule(null)} className={`px-4 py-2 rounded-xl text-sm font-medium ${t.textSec} ${t.hover} transition-colors cursor-pointer`}>Cancel</button>
-                        <button onClick={() => saveSchedule(showSchedule)} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2 rounded-xl btn-press cursor-pointer transition-colors text-sm">Schedule</button>
+                        <button onClick={() => setShowSchedule(null)} className={`px-4 py-2 rounded-xl text-sm font-medium ${t.textSec} ${t.hover} transition-colors cursor-pointer`}>{al.cancel}</button>
+                        <button onClick={() => saveSchedule(showSchedule)} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2 rounded-xl btn-press cursor-pointer transition-colors text-sm">{al.schedule}</button>
                       </div>
                     </div>
                   </div>
@@ -1771,8 +1910,8 @@ const AdminView = ({ onLogout }) => {
                 {/* Kiosk grid */}
                 <div className={`${t.card} rounded-2xl border overflow-hidden`}>
                   <div className={`p-5 border-b ${t.borderSubtle} flex justify-between items-center`}>
-                    <h3 className={`font-bold ${t.text} flex items-center gap-2`}><Settings size={18} className="text-gray-500"/> Kiosk Status</h3>
-                    <span className={`text-xs ${t.textMuted}`}>Click a kiosk to manage</span>
+                    <h3 className={`font-bold ${t.text} flex items-center gap-2`}><Settings size={18} className="text-gray-500"/> {al.kioskStatus}</h3>
+                    <span className={`text-xs ${t.textMuted}`}>{al.clickToManage}</span>
                   </div>
                   <div className="p-5 grid grid-cols-2 gap-3">
                     {kiosks.map(k => (
@@ -1795,7 +1934,7 @@ const AdminView = ({ onLogout }) => {
                             k.status === 'online' ? 'bg-emerald-100 text-emerald-700' :
                             k.status === 'restarting' ? 'bg-yellow-100 text-yellow-700' :
                             'bg-red-100 text-red-600'
-                          }`}>{k.status === 'restarting' ? 'Restarting' : k.status === 'online' ? 'Online' : 'Offline'}</span>
+                          }`}>{k.status === 'restarting' ? al.restarting.replace('...','') : k.status === 'online' ? al.online : al.offline}</span>
                           {/* Quick action buttons */}
                           <div className="flex gap-0.5" onClick={e => e.stopPropagation()}>
                             {k.status === 'offline' ? (
@@ -1825,29 +1964,29 @@ const AdminView = ({ onLogout }) => {
             {kioskTab === 'analytics' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-4 gap-4">
-                  <Stat icon={Users} label="ผู้เข้าชมรายวัน" value="57,860" color="bg-blue-50 text-blue-600"/>
-                  <Stat icon={Layout} label="เซสชัน Kiosk" value="57,860" color="bg-cyan-50 text-cyan-600"/>
-                  <Stat icon={Clock} label="เวลาเฉลี่ย/เซสชัน" value="3 นาที 12 วินาที" color="bg-purple-50 text-purple-600"/>
-                  <Stat icon={Activity} label="ความพึงพอใจ" value="94.2%" color="bg-emerald-50 text-emerald-600"/>
+                  <Stat icon={Users} label={al.dailyVisitors} value="57,860" color="bg-blue-50 text-blue-600"/>
+                  <Stat icon={Layout} label={al.kioskSessions} value="57,860" color="bg-cyan-50 text-cyan-600"/>
+                  <Stat icon={Clock} label={al.avgTimeSession} value={al.avgTimeVal} color="bg-purple-50 text-purple-600"/>
+                  <Stat icon={Activity} label={al.satisfaction} value="94.2%" color="bg-emerald-50 text-emerald-600"/>
                 </div>
 
                 {/* ═══ เซสชัน Kiosk รายสัปดาห์ (Chart.js) ═══ */}
                 <div className={`${t.card} p-6 rounded-2xl border`}>
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className={`text-base font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} flex items-center gap-2`}><BarChart3 size={18} className="text-cyan-500"/> เซสชัน Kiosk รายสัปดาห์</h3>
-                      <p className={`text-sm ${t.textMuted} mt-0.5`}>จำนวนเซสชันและผู้เข้าชมแยกตามวัน</p>
+                      <h3 className={`text-base font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} flex items-center gap-2`}><BarChart3 size={18} className="text-cyan-500"/> {al.weeklyKioskSessions}</h3>
+                      <p className={`text-sm ${t.textMuted} mt-0.5`}>{al.weeklyDesc}</p>
                     </div>
                     <div className="text-right">
                       <span className={`text-2xl font-bold font-inter ${t.text}`}>{WEEKLY_SESSIONS.reduce((s,d)=>s+d.sessions,0).toLocaleString()}</span>
-                      <p className={`text-xs ${t.textMuted}`}>เซสชันทั้งหมด</p>
+                      <p className={`text-xs ${t.textMuted}`}>{al.totalSessions}</p>
                     </div>
                   </div>
                   <ChartCanvas height={280} data={{
-                    labels: WEEKLY_SESSIONS.map(d => d.day),
+                    labels: [al.mon, al.tue, al.wed, al.thu, al.fri, al.sat, al.sun],
                     datasets: [
-                      { label: 'เซสชัน', data: WEEKLY_SESSIONS.map(d => d.sessions), backgroundColor: '#06B6D4', borderRadius: 6, borderSkipped: false, barPercentage: 0.7, categoryPercentage: 0.7 },
-                      { label: 'ผู้เข้าชม', data: WEEKLY_SESSIONS.map(d => d.visitors), backgroundColor: dk ? 'rgba(96,165,250,0.3)' : 'rgba(96,165,250,0.25)', borderColor: '#60A5FA', borderWidth: 1.5, borderRadius: 6, borderSkipped: false, barPercentage: 0.7, categoryPercentage: 0.7 },
+                      { label: al.sessions, data: WEEKLY_SESSIONS.map(d => d.sessions), backgroundColor: '#06B6D4', borderRadius: 6, borderSkipped: false, barPercentage: 0.7, categoryPercentage: 0.7 },
+                      { label: al.visitors, data: WEEKLY_SESSIONS.map(d => d.visitors), backgroundColor: dk ? 'rgba(96,165,250,0.3)' : 'rgba(96,165,250,0.25)', borderColor: '#60A5FA', borderWidth: 1.5, borderRadius: 6, borderSkipped: false, barPercentage: 0.7, categoryPercentage: 0.7 },
                     ]
                   }} options={{
                     responsive: true, maintainAspectRatio: false,
@@ -1864,17 +2003,17 @@ const AdminView = ({ onLogout }) => {
                   {/* คำถามยอดนิยม — กราฟแท่งแนวนอน */}
                   <div className={`${t.card} p-6 rounded-2xl border`}>
                     <div className="flex justify-between items-start mb-1">
-                      <h3 className={`text-base font-bold ${dk ? 'text-gray-200' : 'text-gray-700'}`}>คำถามยอดนิยม</h3>
+                      <h3 className={`text-base font-bold ${dk ? 'text-gray-200' : 'text-gray-700'}`}>{al.topQuestions}</h3>
                       <span className={`text-lg font-bold font-inter ${t.text}`}>68,540</span>
                     </div>
-                    <p className={`text-sm ${t.textMuted} mb-5`}>คำถามที่ถูกถามมากที่สุดในสัปดาห์นี้</p>
+                    <p className={`text-sm ${t.textMuted} mb-5`}>{al.topQuestionsDesc}</p>
                     <div className="space-y-4">
                       {[
-                        { q: 'ตารางเวลารถไฟ', count: 19840, color: 'bg-cyan-500' },
-                        { q: 'ตำแหน่งห้องน้ำ', count: 16410, color: 'bg-blue-500' },
-                        { q: 'ซื้อตั๋วโดยสาร', count: 13940, color: 'bg-indigo-500' },
-                        { q: 'ร้านอาหาร / ศูนย์อาหาร', count: 10500, color: 'bg-purple-500' },
-                        { q: 'แท็กซี่ / Grab', count: 7850, color: 'bg-violet-500' },
+                        { q: al.q1, count: 19840, color: 'bg-cyan-500' },
+                        { q: al.q2, count: 16410, color: 'bg-blue-500' },
+                        { q: al.q3, count: 13940, color: 'bg-indigo-500' },
+                        { q: al.q4, count: 10500, color: 'bg-purple-500' },
+                        { q: al.q5, count: 7850, color: 'bg-violet-500' },
                       ].map((item, i) => {
                         const maxC = 19840;
                         const pct = (item.count / maxC * 100);
@@ -1901,14 +2040,14 @@ const AdminView = ({ onLogout }) => {
                   {/* สรุปการตรวจจับ — Chart.js */}
                   <div className={`${t.card} p-6 rounded-2xl border`}>
                     <div className="flex justify-between items-start mb-1">
-                      <h3 className={`text-base font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} flex items-center gap-2`}><BarChart3 size={18} className="text-blue-500"/> สรุปการตรวจจับ</h3>
+                      <h3 className={`text-base font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} flex items-center gap-2`}><BarChart3 size={18} className="text-blue-500"/> {al.detectionSummary}</h3>
                       <span className={`text-lg font-bold font-inter ${t.text}`}>{DETECTION_SLOTS.reduce((s,d)=>s+d.count,0).toLocaleString()}</span>
                     </div>
-                    <p className={`text-sm ${t.textMuted} mb-4`}>อุปกรณ์ที่ตรวจจับแยกตามช่วงเวลา (DeepTrack)</p>
+                    <p className={`text-sm ${t.textMuted} mb-4`}>{al.detectionDesc}</p>
                     <ChartCanvas height={220} data={{
-                      labels: DETECTION_SLOTS.map(s => `${s.label}\n${s.time}`),
+                      labels: [al.slotMorning, al.slotLate, al.slotNoon, al.slotAfternoon, al.slotEvening, al.slotNight].map((l,i) => `${l}\n${DETECTION_SLOTS[i].time}`),
                       datasets: [{
-                        label: 'อุปกรณ์',
+                        label: al.devices,
                         data: DETECTION_SLOTS.map(s => s.count),
                         backgroundColor: DETECTION_SLOTS.map(s => s.pct > 80 ? '#EF4444' : s.pct > 60 ? '#F59E0B' : s.pct > 30 ? '#06B6D4' : '#94A3B8'),
                         borderRadius: 6, borderSkipped: false,
@@ -1928,37 +2067,37 @@ const AdminView = ({ onLogout }) => {
                 <div className={`${t.card} p-6 rounded-2xl border`}>
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className={`text-base font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} flex items-center gap-2`}><TrendingUp size={18} className="text-indigo-500"/> จำนวนอุปกรณ์รายชั่วโมง — 24 ชม.</h3>
-                      <p className={`text-sm ${t.textMuted} mt-0.5`}>อุปกรณ์ที่ตรวจจับได้แยกเป็นรายชั่วโมง</p>
+                      <h3 className={`text-base font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} flex items-center gap-2`}><TrendingUp size={18} className="text-indigo-500"/> {al.hourlyDevices}</h3>
+                      <p className={`text-sm ${t.textMuted} mt-0.5`}>{al.hourlyDesc}</p>
                     </div>
                     <div className="text-right">
                       <span className={`text-2xl font-bold font-inter ${t.text}`}>{VISITED_HOURS.reduce((s,v)=>s+v,0).toLocaleString()}</span>
-                      <p className={`text-xs ${t.textMuted}`}>อุปกรณ์ทั้งหมด/วัน</p>
+                      <p className={`text-xs ${t.textMuted}`}>{al.totalDevicesDay}</p>
                     </div>
                   </div>
                   <ChartCanvas height={280} data={{
                     labels: Array.from({length:24}, (_, h) => `${String(h).padStart(2,'0')}:00`),
                     datasets: [{
-                      label: 'อุปกรณ์',
+                      label: al.devices,
                       data: VISITED_HOURS,
                       backgroundColor: VISITED_HOURS.map(v => { const maxV = Math.max(...VISITED_HOURS); const pct = v/maxV*100; return pct > 80 ? '#EF4444' : pct > 50 ? '#F59E0B' : '#06B6D4'; }),
                       borderRadius: 3, borderSkipped: false, barPercentage: 0.92, categoryPercentage: 0.92,
                     }]
                   }} options={{
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.parsed.y.toLocaleString()} อุปกรณ์` } } },
+                    plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.parsed.y.toLocaleString()} ${al.devices}` } } },
                     scales: {
                       x: { grid: { display: false }, ticks: { ...chartTick, maxRotation: 0, autoSkip: true, maxTicksLimit: 12 } },
                       y: { beginAtZero: true, grid: chartGrid, ticks: { ...chartTick, callback: v => v >= 1000 ? (v/1000)+'K' : v } }
                     }
                   }}/>
-                  {/* สรุปสถิติ */}
+                  {/* Stats summary */}
                   <div className={`mt-4 grid grid-cols-4 gap-3`}>
                     {[
-                      { label: 'ช่วงเช้า', time: '07-09', val: VISITED_HOURS.slice(7,10).reduce((s,v)=>s+v,0) },
-                      { label: 'ช่วงกลางวัน', time: '11-14', val: VISITED_HOURS.slice(11,15).reduce((s,v)=>s+v,0) },
-                      { label: 'ช่วงเย็น', time: '16-19', val: VISITED_HOURS.slice(16,20).reduce((s,v)=>s+v,0) },
-                      { label: 'เฉลี่ย/ชม.', time: '24 ชม.', val: Math.round(VISITED_HOURS.reduce((s,v)=>s+v,0)/24) },
+                      { label: al.morning, time: '07-09', val: VISITED_HOURS.slice(7,10).reduce((s,v)=>s+v,0) },
+                      { label: al.midday, time: '11-14', val: VISITED_HOURS.slice(11,15).reduce((s,v)=>s+v,0) },
+                      { label: al.evening, time: '16-19', val: VISITED_HOURS.slice(16,20).reduce((s,v)=>s+v,0) },
+                      { label: al.avgPerHr, time: al.h24, val: Math.round(VISITED_HOURS.reduce((s,v)=>s+v,0)/24) },
                     ].map((s, i) => (
                       <div key={i} className={`${t.statBg} rounded-xl p-3 text-center`}>
                         <p className={`text-xs ${t.textMuted} font-bold`}>{s.label} <span className="font-normal">({s.time})</span></p>
@@ -1973,16 +2112,16 @@ const AdminView = ({ onLogout }) => {
                   {/* สัดส่วนภาษาที่ใช้ — กราฟแท่งแนวนอน */}
                   <div className={`${t.card} p-6 rounded-2xl border`}>
                     <div className="flex justify-between items-start mb-1">
-                      <h3 className={`text-base font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} flex items-center gap-2`}><Globe size={18} className="text-cyan-500"/> สัดส่วนภาษาที่ใช้</h3>
+                      <h3 className={`text-base font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} flex items-center gap-2`}><Globe size={18} className="text-cyan-500"/> {al.langDistribution}</h3>
                       <span className={`text-lg font-bold font-inter ${t.text}`}>57,860</span>
                     </div>
-                    <p className={`text-sm ${t.textMuted} mb-5`}>ภาษาที่ผู้ใช้เลือกใน Kiosk สัปดาห์นี้</p>
+                    <p className={`text-sm ${t.textMuted} mb-5`}>{al.langDistDesc}</p>
                     <div className="space-y-4">
                       {[
-                        { lang: 'ไทย', pct: 52, count: 30086, color: 'bg-blue-500', dot: 'bg-blue-500' },
-                        { lang: 'อังกฤษ', pct: 28, count: 16201, color: 'bg-emerald-500', dot: 'bg-emerald-500' },
-                        { lang: 'จีน', pct: 14, count: 8100, color: 'bg-red-500', dot: 'bg-red-500' },
-                        { lang: 'เกาหลี', pct: 6, count: 3473, color: 'bg-purple-500', dot: 'bg-purple-500' },
+                        { lang: al.langTH, pct: 52, count: 30086, color: 'bg-blue-500', dot: 'bg-blue-500' },
+                        { lang: al.langEN, pct: 28, count: 16201, color: 'bg-emerald-500', dot: 'bg-emerald-500' },
+                        { lang: al.langCN, pct: 14, count: 8100, color: 'bg-red-500', dot: 'bg-red-500' },
+                        { lang: al.langKR, pct: 6, count: 3473, color: 'bg-purple-500', dot: 'bg-purple-500' },
                       ].map((l, i) => (
                         <div key={i} className="group cursor-default">
                           <div className="flex items-center gap-3">
@@ -2008,17 +2147,17 @@ const AdminView = ({ onLogout }) => {
                   {/* ประสิทธิภาพ Kiosk — กราฟแท่งแนวนอนจัดอันดับ */}
                   <div className={`${t.card} p-6 rounded-2xl border`}>
                     <div className="flex justify-between items-start mb-1">
-                      <h3 className={`text-base font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} flex items-center gap-2`}><Monitor size={18} className="text-gray-500"/> ประสิทธิภาพ Kiosk</h3>
+                      <h3 className={`text-base font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} flex items-center gap-2`}><Monitor size={18} className="text-gray-500"/> {al.kioskPerformance}</h3>
                       <span className={`text-lg font-bold font-inter ${t.text}`}>38,450</span>
                     </div>
-                    <p className={`text-sm ${t.textMuted} mb-5`}>Kiosk ที่มีเซสชันสูงสุด</p>
+                    <p className={`text-sm ${t.textMuted} mb-5`}>{al.kioskPerfDesc}</p>
                     <div className="space-y-4">
                       {[
-                        { name: 'Kiosk 03 — โถงกลาง', sessions: 9850, color: 'bg-indigo-500' },
-                        { name: 'Kiosk 09 — ทางเข้า A', sessions: 8280, color: 'bg-indigo-400' },
-                        { name: 'Kiosk 01 — ชานชาลา 1', sessions: 7620, color: 'bg-indigo-400/80' },
-                        { name: 'Kiosk 04 — จุดจำหน่ายตั๋ว', sessions: 6980, color: 'bg-indigo-300' },
-                        { name: 'Kiosk 06 — ศูนย์อาหาร', sessions: 5720, color: 'bg-indigo-300/80' },
+                        { name: `Kiosk 03 — ${al.mainHall}`, sessions: 9850, color: 'bg-indigo-500' },
+                        { name: `Kiosk 09 — ${al.entranceA}`, sessions: 8280, color: 'bg-indigo-400' },
+                        { name: `Kiosk 01 — ${al.platform1}`, sessions: 7620, color: 'bg-indigo-400/80' },
+                        { name: `Kiosk 04 — ${al.ticketArea}`, sessions: 6980, color: 'bg-indigo-300' },
+                        { name: `Kiosk 06 — ${al.foodCourt}`, sessions: 5720, color: 'bg-indigo-300/80' },
                       ].map((k, i) => {
                         const maxS = 9850;
                         const pct = (k.sessions / maxS * 100);
@@ -2052,43 +2191,43 @@ const AdminView = ({ onLogout }) => {
           <div className="space-y-6 animate-fade-in max-w-6xl">
             <div className="flex justify-between items-start">
               <div>
-                <h2 className={`text-2xl font-bold ${t.text} flex items-center gap-2`}><Activity className="text-red-500"/> รายงาน Heat Map รายวัน</h2>
-                <p className={`text-sm ${t.textMuted} mt-1`}>DeepTrack — Heatmap ความหนาแน่นรายชั่วโมง (Distinct Device)</p>
+                <h2 className={`text-2xl font-bold ${t.text} flex items-center gap-2`}><Activity className="text-red-500"/> {al.dailyHeatmap}</h2>
+                <p className={`text-sm ${t.textMuted} mt-1`}>{al.heatmapDesc}</p>
               </div>
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full"><span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"/>{NODES.filter(n=>n.status==='active').length} เซ็นเซอร์ทำงาน</span>
+                <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full"><span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"/>{NODES.filter(n=>n.status==='active').length} {al.activeSensors}</span>
               </div>
             </div>
 
             {/* Dashboard Overview (4.8) */}
             <div className="grid grid-cols-4 gap-4">
-              <Stat icon={Wifi} label="เซ็นเซอร์ทำงาน" value={`${NODES.filter(n=>n.status==='active').length}/${NODES.length}`} color="bg-cyan-50 text-cyan-600"/>
-              <Stat icon={Users} label="อุปกรณ์ที่ตรวจจับ" value="126,240" color="bg-blue-50 text-blue-600"/>
-              <Stat icon={Activity} label="ความหนาแน่นสูงสุด" value="92%" color="bg-red-50 text-red-600"/>
-              <Stat icon={Clock} label="เวลาเฉลี่ยที่อยู่ในสถานี" value="48 นาที" color="bg-purple-50 text-purple-600"/>
+              <Stat icon={Wifi} label={al.activeSensors} value={`${NODES.filter(n=>n.status==='active').length}/${NODES.length}`} color="bg-cyan-50 text-cyan-600"/>
+              <Stat icon={Users} label={al.devicesDetected} value="126,240" color="bg-blue-50 text-blue-600"/>
+              <Stat icon={Activity} label={al.peakDensity} value="92%" color="bg-red-50 text-red-600"/>
+              <Stat icon={Clock} label={al.avgStationTime} value={al.avgStationTimeVal} color="bg-purple-50 text-purple-600"/>
             </div>
 
             {/* สรุปการตรวจจับตามช่วงเวลา (4.8) — Chart.js */}
             <div className={`${t.card} rounded-2xl border overflow-hidden`}>
               <div className={`p-5 border-b ${t.borderSubtle} flex justify-between items-center`}>
                 <div>
-                  <h3 className={`text-base font-bold ${t.text} flex items-center gap-2`}><BarChart3 size={18} className="text-blue-500"/> สรุปการตรวจจับ</h3>
-                  <p className={`text-sm ${t.textMuted} mt-0.5`}>จำนวน Unique Device ตามช่วงเวลา</p>
+                  <h3 className={`text-base font-bold ${t.text} flex items-center gap-2`}><BarChart3 size={18} className="text-blue-500"/> {al.detectionSummary}</h3>
+                  <p className={`text-sm ${t.textMuted} mt-0.5`}>{al.uniqueDeviceBySlot}</p>
                 </div>
-                <span className={`text-lg font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} font-inter`}>{DETECTION_SLOTS.reduce((s,d)=>s+d.count,0).toLocaleString()} <span className={`text-sm font-medium ${t.textMuted}`}>อุปกรณ์/วัน</span></span>
+                <span className={`text-lg font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} font-inter`}>{DETECTION_SLOTS.reduce((s,d)=>s+d.count,0).toLocaleString()} <span className={`text-sm font-medium ${t.textMuted}`}>{al.devicesPerDay}</span></span>
               </div>
               <div className="p-5">
                 <ChartCanvas height={260} data={{
-                  labels: DETECTION_SLOTS.map(s => `${s.label} (${s.time})`),
+                  labels: [al.slotMorning, al.slotLate, al.slotNoon, al.slotAfternoon, al.slotEvening, al.slotNight].map((l,i) => `${l} (${DETECTION_SLOTS[i].time})`),
                   datasets: [{
-                    label: 'อุปกรณ์',
+                    label: al.devices,
                     data: DETECTION_SLOTS.map(s => s.count),
                     backgroundColor: DETECTION_SLOTS.map(s => s.pct > 80 ? '#EF4444' : s.pct > 60 ? '#F59E0B' : s.pct > 30 ? '#06B6D4' : '#94A3B8'),
                     borderRadius: 8, borderSkipped: false, barPercentage: 0.65,
                   }]
                 }} options={{
                   responsive: true, maintainAspectRatio: false,
-                  plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.parsed.y.toLocaleString()} อุปกรณ์` } } },
+                  plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.parsed.y.toLocaleString()} ${al.devices}` } } },
                   scales: {
                     x: { grid: { display: false }, ticks: { ...chartTick, font: { ...chartTick.font, size: 13 } } },
                     y: { beginAtZero: true, grid: chartGrid, ticks: { ...chartTick, callback: v => v >= 1000 ? (v/1000)+'K' : v } }
@@ -2101,8 +2240,8 @@ const AdminView = ({ onLogout }) => {
             <div className={`${t.card} rounded-2xl border overflow-hidden`}>
               <div className={`p-5 border-b ${t.borderSubtle} flex justify-between items-center`}>
                 <div>
-                  <h3 className={`text-base font-bold ${t.text}`}>แผนผัง Node สถานี — Heatmap รายชั่วโมง</h3>
-                  <p className={`text-sm ${t.textMuted} mt-0.5`}>เลือกชั่วโมงเพื่อดูความหนาแน่นของแต่ละ Node</p>
+                  <h3 className={`text-base font-bold ${t.text}`}>{al.stationNodeMap}</h3>
+                  <p className={`text-sm ${t.textMuted} mt-0.5`}>{al.selectHourDesc}</p>
                 </div>
                 <div className={`flex items-center gap-3 text-[10px] font-bold ${t.textMuted}`}>
                   <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-emerald-500"/>Comfort</span>
@@ -2135,12 +2274,12 @@ const AdminView = ({ onLogout }) => {
                         </div>
                         {/* Tooltip */}
                         <div className="absolute -top-16 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 shadow-lg">
-                          <p className="font-bold">{n.name} ({n.id})</p>
+                          <p className="font-bold">{nn(n.id)} ({n.id})</p>
                           <p>Occupancy: {val}% — <span className={val>80?'text-red-300':val>50?'text-yellow-300':'text-emerald-300'}>{lv.label}</span></p>
                           <p className="text-gray-400">{n.type === 'indoor' ? 'Indoor' : 'Outdoor'} sensor</p>
                         </div>
                         {/* Label */}
-                        <span className={`absolute top-7 left-1/2 -translate-x-1/2 text-[9px] font-bold ${t.textSec} whitespace-nowrap`}>{n.name}</span>
+                        <span className={`absolute top-7 left-1/2 -translate-x-1/2 text-[9px] font-bold ${t.textSec} whitespace-nowrap`}>{nn(n.id)}</span>
                       </div>
                     );
                   })}
@@ -2155,7 +2294,7 @@ const AdminView = ({ onLogout }) => {
 
             {/* Node Occupancy Table */}
             <div className={`${t.card} rounded-2xl border overflow-hidden`}>
-              <div className={`p-5 border-b ${t.borderSubtle}`}><h3 className={`text-base font-bold ${t.text}`}>ความหนาแน่น Node — {String(heatHour).padStart(2,'0')}:00 น.</h3></div>
+              <div className={`p-5 border-b ${t.borderSubtle}`}><h3 className={`text-base font-bold ${t.text}`}>{al.nodeDensity} — {String(heatHour).padStart(2,'0')}:00</h3></div>
               <table className="w-full text-sm">
                 <thead className={`${t.cardHead} ${t.textSec} text-xs uppercase`}>
                   <tr><th className="px-5 py-3 text-left">Node</th><th className="px-5 py-3 text-left">Location</th><th className="px-5 py-3 text-center">Type</th><th className="px-5 py-3 text-center">Occupancy</th><th className="px-5 py-3 text-center">Status</th><th className="px-5 py-3 text-right">Detected</th></tr>
@@ -2167,7 +2306,7 @@ const AdminView = ({ onLogout }) => {
                     return (
                       <tr key={n.id} className={`${t.hoverSubtle} cursor-default`}>
                         <td className={`px-5 py-3 font-bold font-inter ${t.text}`}>{n.id}</td>
-                        <td className={`px-5 py-3 font-medium ${dk ? 'text-gray-200' : 'text-gray-700'}`}>{n.name}</td>
+                        <td className={`px-5 py-3 font-medium ${dk ? 'text-gray-200' : 'text-gray-700'}`}>{nn(n.id)}</td>
                         <td className="px-5 py-3 text-center"><span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${n.type==='indoor'?'bg-blue-50 text-blue-600':'bg-amber-50 text-amber-600'}`}>{n.type}</span></td>
                         <td className="px-5 py-3">
                           <div className="flex items-center gap-2 justify-center">
@@ -2191,8 +2330,8 @@ const AdminView = ({ onLogout }) => {
           <div className="space-y-6 animate-fade-in max-w-6xl">
             <div className="flex justify-between items-start">
               <div>
-                <h2 className={`text-2xl font-bold ${t.text} flex items-center gap-2`}><MapPin className="text-indigo-500"/> รายงานการเคลื่อนที่อุปกรณ์</h2>
-                <p className={`text-sm ${t.textMuted} mt-1`}>DeepTrack — เส้นทางการเคลื่อนที่ Node → Node (Sankey Flow)</p>
+                <h2 className={`text-2xl font-bold ${t.text} flex items-center gap-2`}><MapPin className="text-indigo-500"/> {al.deviceMovement}</h2>
+                <p className={`text-sm ${t.textMuted} mt-1`}>{al.walkPathDesc}</p>
               </div>
               <div className="flex items-center gap-3">
                 <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full"><span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"/>LIVE</span>
@@ -2203,7 +2342,7 @@ const AdminView = ({ onLogout }) => {
             <div className={`${t.card} rounded-2xl border p-5`}>
               <div className="flex items-center gap-3 mb-3">
                 <Clock size={16} className={t.textMuted}/>
-                <span className={`text-sm font-bold ${dk ? 'text-gray-200' : 'text-gray-700'}`}>เลือกช่วงเวลา (Flow ราย 3 ชั่วโมง)</span>
+                <span className={`text-sm font-bold ${dk ? 'text-gray-200' : 'text-gray-700'}`}>{al.selectTimeSlot}</span>
               </div>
               <div className="flex gap-2">
                 {FLOW_SLOTS.map((s, i) => (
@@ -2221,16 +2360,16 @@ const AdminView = ({ onLogout }) => {
                 <h3 className="font-bold text-white flex items-center gap-2"><Zap size={16} className="text-cyan-400"/> Node → Node Flow Map <span className="text-[10px] font-medium text-gray-500 ml-1">3D</span></h3>
                 <div className="flex items-center gap-3">
                   <span className="text-[10px] text-gray-500">Drag to rotate &middot; Hover nodes for details</span>
-                  <span className="text-xs text-gray-400 font-inter bg-gray-800 px-2 py-0.5 rounded-md">ช่วง {FLOW_SLOTS[flowSlot]} น.</span>
+                  <span className="text-xs text-gray-400 font-inter bg-gray-800 px-2 py-0.5 rounded-md">{al.period} {FLOW_SLOTS[flowSlot]}</span>
                 </div>
               </div>
               <FlowMap3D nodes={NODES} flows={FLOWS}/>
               {/* Legend */}
               <div className="px-5 py-3 border-t border-gray-800 flex items-center gap-4">
-                <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-indigo-500"/>Node ในอาคาร</span>
-                <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-cyan-500"/>Node กลางแจ้ง</span>
-                <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-3 h-0.5 bg-gradient-to-r from-cyan-500 to-indigo-500 rounded"/>เส้นทางอุปกรณ์</span>
-                <span className="ml-auto text-xs text-gray-500 font-inter">{FLOWS.reduce((s,f)=>s+f.count,0).toLocaleString()} การเคลื่อนที่ทั้งหมด</span>
+                <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-indigo-500"/>{al.indoorNode}</span>
+                <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-2.5 h-2.5 rounded-full bg-cyan-500"/>{al.outdoorNode}</span>
+                <span className="flex items-center gap-1.5 text-xs text-gray-400"><span className="w-3 h-0.5 bg-gradient-to-r from-cyan-500 to-indigo-500 rounded"/>{al.devicePath}</span>
+                <span className="ml-auto text-xs text-gray-500 font-inter">{FLOWS.reduce((s,f)=>s+f.count,0).toLocaleString()} {al.totalMovements}</span>
               </div>
             </div>
 
@@ -2240,8 +2379,8 @@ const AdminView = ({ onLogout }) => {
               <div className={`${t.card} rounded-2xl border overflow-hidden`}>
                 <div className={`p-5 border-b ${t.borderSubtle} flex justify-between items-start`}>
                   <div>
-                    <h3 className={`text-base font-bold ${t.text} flex items-center gap-2`}><Zap size={18} className="text-amber-500"/> วิเคราะห์จุดศูนย์กลาง</h3>
-                    <p className={`text-sm ${t.textMuted} mt-0.5`}>จำนวนอุปกรณ์ที่ผ่านแต่ละ Node</p>
+                    <h3 className={`text-base font-bold ${t.text} flex items-center gap-2`}><Zap size={18} className="text-amber-500"/> {al.hubAnalysis}</h3>
+                    <p className={`text-sm ${t.textMuted} mt-0.5`}>{al.hubDesc}</p>
                   </div>
                   <span className={`text-lg font-bold font-inter ${t.text}`}>{[...NODES].reduce((s,n)=>s+n.detected,0).toLocaleString()}</span>
                 </div>
@@ -2249,27 +2388,27 @@ const AdminView = ({ onLogout }) => {
                   {(() => {
                     const sorted = [...NODES].sort((a,b)=>b.detected-a.detected);
                     return <ChartCanvas height={240} data={{
-                      labels: sorted.map(n => n.name),
+                      labels: sorted.map(n => nn(n.id)),
                       datasets: [{
-                        label: 'อุปกรณ์ตรวจจับ',
+                        label: al.detectedDevices,
                         data: sorted.map(n => n.detected),
                         backgroundColor: sorted.map((_, i) => i === 0 ? '#F59E0B' : i < 3 ? '#60A5FA' : (dk ? '#6B7280' : '#CBD5E1')),
                         borderRadius: 6, borderSkipped: false, barPercentage: 0.7, categoryPercentage: 0.8,
                       }]
                     }} options={{
                       responsive: true, maintainAspectRatio: false,
-                      plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.parsed.y.toLocaleString()} อุปกรณ์` } } },
+                      plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: ctx => `${ctx.parsed.y.toLocaleString()} ${al.devices}` } } },
                       scales: { x: { grid: { display: false }, ticks: { ...chartTick, font: { family: 'Prompt', size: 11 }, maxRotation: 45, minRotation: 20 } }, y: { grid: chartGrid, ticks: { ...chartTick, callback: v => v >= 1000 ? (v/1000)+'K' : v }, beginAtZero: true } }
                     }}/>;
                   })()}
-                  {/* อันดับ Node ด้านล่าง */}
+                  {/* Node ranking */}
                   <div className={`mt-4 grid grid-cols-2 gap-2`}>
                     {[...NODES].sort((a,b)=>b.detected-a.detected).slice(0,4).map((n, i) => (
                       <div key={n.id} className={`${t.statBg} rounded-lg p-2.5 flex items-center gap-2`}>
                         <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${i===0?'bg-amber-500 text-white':i<2?'bg-blue-400 text-white':(dk?'bg-gray-600 text-gray-300':'bg-gray-200 text-gray-500')}`}>{i+1}</span>
                         <div className="flex-1 min-w-0">
-                          <span className={`text-sm font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} block truncate`}>{n.name}</span>
-                          <span className={`text-xs ${t.textMuted} font-inter`}>{n.detected.toLocaleString()} อุปกรณ์</span>
+                          <span className={`text-sm font-bold ${dk ? 'text-gray-200' : 'text-gray-700'} block truncate`}>{nn(n.id)}</span>
+                          <span className={`text-xs ${t.textMuted} font-inter`}>{n.detected.toLocaleString()} {al.devices}</span>
                         </div>
                       </div>
                     ))}
@@ -2281,34 +2420,34 @@ const AdminView = ({ onLogout }) => {
               <div className={`${t.card} rounded-2xl border overflow-hidden`}>
                 <div className={`p-5 border-b ${t.borderSubtle} flex justify-between items-start`}>
                   <div>
-                    <h3 className={`text-base font-bold ${t.text} flex items-center gap-2`}><TrendingUp size={18} className="text-indigo-500"/> จำนวนอุปกรณ์รายชั่วโมง</h3>
-                    <p className={`text-sm ${t.textMuted} mt-0.5`}>Unique Device ต่อชั่วโมง (DeepTrack 4.6)</p>
+                    <h3 className={`text-base font-bold ${t.text} flex items-center gap-2`}><TrendingUp size={18} className="text-indigo-500"/> {al.hourlyDeviceCount}</h3>
+                    <p className={`text-sm ${t.textMuted} mt-0.5`}>{al.uniquePerHour}</p>
                   </div>
                   <div className="text-right">
                     <span className={`text-lg font-bold font-inter ${t.text}`}>{VISITED_HOURS.reduce((s,v)=>s+v,0).toLocaleString()}</span>
-                    <p className={`text-xs ${t.textMuted}`}>อุปกรณ์/วัน</p>
+                    <p className={`text-xs ${t.textMuted}`}>{al.devicesPerDay}</p>
                   </div>
                 </div>
                 <div className="p-5">
                   <ChartCanvas height={240} data={{
                     labels: Array.from({length:24}, (_,i) => String(i).padStart(2,'0')+':00'),
                     datasets: [{
-                      label: 'อุปกรณ์',
+                      label: al.devices,
                       data: VISITED_HOURS,
                       backgroundColor: VISITED_HOURS.map(v => { const maxV = Math.max(...VISITED_HOURS); const pct = v/maxV*100; return pct > 80 ? '#EF4444' : pct > 50 ? '#F59E0B' : '#06B6D4'; }),
                       borderRadius: 3, borderSkipped: false, barPercentage: 0.85, categoryPercentage: 0.9,
                     }]
                   }} options={{
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { title: ctx => ctx[0].label + ' น.', label: ctx => `${ctx.parsed.y.toLocaleString()} อุปกรณ์` } } },
+                    plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { title: ctx => ctx[0].label, label: ctx => `${ctx.parsed.y.toLocaleString()} ${al.devices}` } } },
                     scales: { x: { grid: { display: false }, ticks: { ...chartTick, maxRotation: 0, callback: function(val, idx) { return idx % 4 === 0 ? this.getLabelForValue(val) : ''; } } }, y: { grid: chartGrid, ticks: { ...chartTick, callback: v => v >= 1000 ? (v/1000)+'K' : v }, beginAtZero: true } }
                   }}/>
-                  {/* สรุปสถิติ */}
+                  {/* Stats */}
                   <div className={`mt-3 grid grid-cols-3 gap-2`}>
                     {[
-                      { label: 'ช่วงเช้า', val: VISITED_HOURS.slice(7,10).reduce((s,v)=>s+v,0) },
-                      { label: 'ช่วงเย็น', val: VISITED_HOURS.slice(16,20).reduce((s,v)=>s+v,0) },
-                      { label: 'เฉลี่ย/ชม.', val: Math.round(VISITED_HOURS.reduce((s,v)=>s+v,0)/24) },
+                      { label: al.morning, val: VISITED_HOURS.slice(7,10).reduce((s,v)=>s+v,0) },
+                      { label: al.evening, val: VISITED_HOURS.slice(16,20).reduce((s,v)=>s+v,0) },
+                      { label: al.avgPerHr, val: Math.round(VISITED_HOURS.reduce((s,v)=>s+v,0)/24) },
                     ].map((s, i) => (
                       <div key={i} className={`${t.statBg} rounded-lg p-2.5 text-center`}>
                         <p className={`text-xs ${t.textMuted} font-bold`}>{s.label}</p>
@@ -2322,10 +2461,10 @@ const AdminView = ({ onLogout }) => {
 
             {/* ตารางรายละเอียด Flow */}
             <div className={`${t.card} rounded-2xl border overflow-hidden`}>
-              <div className={`p-5 border-b ${t.borderSubtle}`}><h3 className={`text-base font-bold ${t.text}`}>รายละเอียดการเคลื่อนที่อุปกรณ์ — Node → Node</h3></div>
+              <div className={`p-5 border-b ${t.borderSubtle}`}><h3 className={`text-base font-bold ${t.text}`}>{al.flowDetail}</h3></div>
               <table className="w-full text-sm">
                 <thead className={`${t.cardHead} ${t.textSec} text-xs uppercase`}>
-                  <tr><th className="px-5 py-3 text-left">จาก</th><th className="px-5 py-3 text-center">→</th><th className="px-5 py-3 text-left">ไป</th><th className="px-5 py-3 text-right">อุปกรณ์</th><th className="px-5 py-3 text-right">% ของทั้งหมด</th></tr>
+                  <tr><th className="px-5 py-3 text-left">{al.from}</th><th className="px-5 py-3 text-center">→</th><th className="px-5 py-3 text-left">{al.to}</th><th className="px-5 py-3 text-right">{al.devices}</th><th className="px-5 py-3 text-right">{al.pctOfTotal}</th></tr>
                 </thead>
                 <tbody className={`${t.divider} divide-y`}>
                   {[...FLOWS].sort((a,b)=>b.count-a.count).map((f, i) => {
@@ -2336,14 +2475,14 @@ const AdminView = ({ onLogout }) => {
                         <td className="px-5 py-3">
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-[9px] font-bold text-indigo-700">{f.from.replace('N','')}</div>
-                            <span className={`font-medium ${t.text}`}>{from?.name}</span>
+                            <span className={`font-medium ${t.text}`}>{nn(f.from)}</span>
                           </div>
                         </td>
                         <td className="px-5 py-3 text-center"><ArrowRight size={14} className={`${dk ? 'text-gray-600' : 'text-gray-300'} mx-auto`}/></td>
                         <td className="px-5 py-3">
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded-full bg-cyan-100 flex items-center justify-center text-[9px] font-bold text-cyan-700">{f.to.replace('N','')}</div>
-                            <span className={`font-medium ${t.text}`}>{to?.name}</span>
+                            <span className={`font-medium ${t.text}`}>{nn(f.to)}</span>
                           </div>
                         </td>
                         <td className={`px-5 py-3 text-right font-inter font-bold ${t.text}`}>{f.count.toLocaleString()}</td>
