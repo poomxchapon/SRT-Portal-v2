@@ -86,7 +86,7 @@ import {
 // ═══════════════════════════════════════════
 // 1. CONFIGURATION
 // ═══════════════════════════════════════════
-const APP_VERSION = "3.9.0";
+const APP_VERSION = "4.0.0";
 
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
@@ -372,7 +372,8 @@ const StationSVG = ({ t, scale }) => (
 // ═══════════════════════════════════════════
 // 5. KIOSK VIEW
 // ═══════════════════════════════════════════
-const KioskView = ({ shops, onAdmin }) => {
+const KioskView = ({ shops, banners: propBanners, popups: propPopups, onAdmin }) => {
+  const activeBanners = propBanners?.length ? propBanners : BANNERS;
   const [lang, setLang] = useState('th');
   const [modal, setModal] = useState(null);
   const [selectedLoc, setSelectedLoc] = useState(null);
@@ -385,6 +386,7 @@ const KioskView = ({ shops, onAdmin }) => {
   const [search, setSearch] = useState('');
   const [question, setQuestion] = useState('');
   const [selectedBanner, setSelectedBanner] = useState(null);
+  const [kioskPopup, setKioskPopup] = useState(null);
   const bannerRef = useRef(null);
   const bannerIdx = useRef(0);
 
@@ -394,11 +396,25 @@ const KioskView = ({ shops, onAdmin }) => {
       if (!bannerRef.current) return;
       const container = bannerRef.current;
       const cardWidth = container.firstChild?.offsetWidth || 0;
-      bannerIdx.current = (bannerIdx.current + 1) % BANNERS.length;
+      bannerIdx.current = (bannerIdx.current + 1) % activeBanners.length;
       container.scrollTo({ left: bannerIdx.current * (cardWidth + 12), behavior: 'smooth' });
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [activeBanners.length]);
+
+  // Show popup on kiosk wake (once per session)
+  useEffect(() => {
+    if (!propPopups?.length) return;
+    const wakePopup = propPopups.find(p => p.trigger_type === 'on-wake');
+    if (wakePopup && !sessionStorage.getItem('srt_popup_shown')) {
+      setTimeout(() => { setKioskPopup(wakePopup); sessionStorage.setItem('srt_popup_shown', '1'); }, 1500);
+    }
+    const delayPopup = propPopups.find(p => p.trigger_type === 'delay-15');
+    if (delayPopup) {
+      const t = setTimeout(() => setKioskPopup(delayPopup), 15000);
+      return () => clearTimeout(t);
+    }
+  }, [propPopups]);
 
   const t = T[lang];
   const locs = useMemo(() => !search ? LOCATIONS : LOCATIONS.filter(l => l.name[lang].toLowerCase().includes(search.toLowerCase())), [search,lang]);
@@ -568,7 +584,7 @@ const KioskView = ({ shops, onAdmin }) => {
         {/* Tourism / Event Banners */}
         <div className="w-full shrink-0 mb-2">
           <div className="flex overflow-x-auto gap-3 no-scrollbar snap-x snap-mandatory pb-1" ref={bannerRef}>
-            {BANNERS.map(b => (
+            {activeBanners.map(b => (
               <div key={b.id} onClick={()=>setSelectedBanner(b)} className="snap-start shrink-0 w-[85%] rounded-xl overflow-hidden relative cursor-pointer btn-press group" style={{minHeight:'100px'}}>
                 <img src={b.img} alt="" className="absolute inset-0 w-full h-full object-cover"/>
                 <div className={`absolute inset-0 bg-gradient-to-r ${b.color}`}/>
@@ -866,6 +882,18 @@ const KioskView = ({ shops, onAdmin }) => {
                 <Send size={16}/>{t.send}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Kiosk Popup Overlay */}
+      {kioskPopup && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 animate-fade-in" onClick={()=>setKioskPopup(null)}>
+          <div className="glass glow-border rounded-2xl p-6 max-w-sm w-[90%] text-center animate-slide-up" onClick={e=>e.stopPropagation()}>
+            <div className="w-12 h-12 bg-kiosk-accent/20 rounded-xl flex items-center justify-center mx-auto mb-3"><Bell size={24} className="text-kiosk-accent"/></div>
+            <h3 className="text-lg font-bold text-white mb-2">{kioskPopup.title}</h3>
+            <p className="text-sm text-gray-300 leading-relaxed">{kioskPopup.texts?.[lang] || kioskPopup.texts?.th || ''}</p>
+            <button onClick={()=>setKioskPopup(null)} className="mt-4 px-6 py-2 bg-kiosk-accent/20 hover:bg-kiosk-accent/30 text-kiosk-accent rounded-xl text-sm font-bold transition-colors btn-press cursor-pointer">{t.close}</button>
           </div>
         </div>
       )}
@@ -1269,27 +1297,30 @@ const AdminView = ({ onLogout }) => {
   };
   const al = AL[adminLang];
 
-  // ═══ Popup state ═══
-  const [popups, setPopups] = useState([
-    { id: 1, title: 'Welcome Message', trigger: 'on-wake', active: true, texts: { th: 'ยินดีต้อนรับสู่สถานีกลางกรุงเทพอภิวัฒน์', en: 'Welcome to Krung Thep Aphiwat Central Terminal', cn: '欢迎来到曼谷阿披瓦中央车站', kr: '끄룽텝 아피왓 중앙역에 오신 것을 환영합니다' }, langs: { th: true, en: true, cn: true, kr: true } },
-    { id: 2, title: 'Train Delay Alert', trigger: 'delay-15', active: true, texts: { th: 'ขออภัย รถไฟมีความล่าช้าประมาณ 15 นาที', en: 'Sorry, the train is delayed approximately 15 minutes', cn: '抱歉，火车延误约15分钟', kr: '죄송합니다, 열차가 약 15분 지연됩니다' }, langs: { th: true, en: true, cn: false, kr: false } },
-    { id: 3, title: 'Emergency Evacuation', trigger: 'manual', active: false, texts: { th: 'กรุณาอพยพไปยังทางออกฉุกเฉินที่ใกล้ที่สุด', en: 'Please evacuate to the nearest emergency exit', cn: '请撤离到最近的紧急出口', kr: '가장 가까운 비상구로 대피하십시오' }, langs: { th: true, en: true, cn: true, kr: true } },
-  ]);
+  // ═══ Popup state (loaded from Supabase) ═══
+  const [popups, setPopups] = useState([]);
   const [showPopupForm, setShowPopupForm] = useState(false);
   const [editPopup, setEditPopup] = useState(null);
   const [popupForm, setPopupForm] = useState({ title: '', trigger: 'manual', texts: { th: '', en: '', cn: '', kr: '' }, langs: { th: true, en: false, cn: false, kr: false } });
   const [translating, setTranslating] = useState(false);
 
-  // ═══ Ads state ═══
-  const [ads, setAds] = useState([
-    { id: 1, name: 'Songkran Festival 2026', status: 'active', type: 'banner', start: '2026-04-01', end: '2026-04-30', impressions: '45.2K', clicks: '3.1K', ctr: '6.9%' },
-    { id: 2, name: 'Ayutthaya Day Trip', status: 'active', type: 'banner', start: '2026-01-15', end: '2026-06-30', impressions: '32.8K', clicks: '2.4K', ctr: '7.3%' },
-    { id: 3, name: 'SRT Pass Promo', status: 'paused', type: 'popup', start: '2026-02-01', end: '2026-03-31', impressions: '18.5K', clicks: '980', ctr: '5.3%' },
-    { id: 4, name: 'Night Market Guide', status: 'active', type: 'banner', start: '2026-01-01', end: '2026-12-31', impressions: '28.1K', clicks: '1.8K', ctr: '6.4%' },
-    { id: 5, name: 'Chiang Mai Express', status: 'scheduled', type: 'banner', start: '2026-03-01', end: '2026-05-31', impressions: '-', clicks: '-', ctr: '-' },
-  ]);
+  // ═══ Ads state (loaded from Supabase) ═══
+  const [ads, setAds] = useState([]);
   const [showAdForm, setShowAdForm] = useState(false);
   const [adForm, setAdForm] = useState({ name: '', type: 'banner', status: 'scheduled', start: '', end: '', imageUrl: '' });
+
+  // ═══ Load ads & popups from Supabase ═══
+  useEffect(() => {
+    const loadAdmin = async () => {
+      const adData = await api.get('advertisements');
+      if (adData?.length) setAds(adData.map(a => ({ ...a, start: a.start_date, end: a.end_date, imageUrl: a.image_url })));
+      const popupData = await api.get('popups');
+      if (popupData?.length) setPopups(popupData.map(p => ({ ...p, trigger: p.trigger_type })));
+    };
+    loadAdmin();
+    const iv = setInterval(loadAdmin, 30000);
+    return () => clearInterval(iv);
+  }, []);
 
   // ═══ Kiosk MA state ═══
   const KIOSK_LOCATIONS = ['Platform 1','Platform 2','Main Hall','Ticket Area','Platform 3','Food Court','Exit A','Exit B','Entrance A','Entrance B','Waiting Area','Platform 4','Info Center','Parking'];
@@ -1475,27 +1506,50 @@ const AdminView = ({ onLogout }) => {
     setPopupForm({ title: p.title, trigger: p.trigger, texts: { ...p.texts }, langs: { ...p.langs } });
     setShowPopupForm(true);
   };
-  const savePopup = () => {
+  const savePopup = async () => {
     if (!popupForm.title.trim() || !popupForm.texts.th.trim()) return;
+    const row = { title: popupForm.title, trigger_type: popupForm.trigger, texts: popupForm.texts, langs: popupForm.langs };
     if (editPopup) {
+      await api.patch('popups', editPopup, row);
       setPopups(ps => ps.map(p => p.id === editPopup ? { ...p, ...popupForm } : p));
     } else {
-      setPopups(ps => [...ps, { id: Date.now(), ...popupForm, active: true }]);
+      row.active = true;
+      const res = await api.post('popups', row);
+      if (res?.[0]) setPopups(ps => [...ps, { ...res[0], trigger: res[0].trigger_type }]);
     }
     setShowPopupForm(false);
   };
-  const deletePopup = (id) => setPopups(ps => ps.filter(p => p.id !== id));
-  const togglePopup = (id) => setPopups(ps => ps.map(p => p.id === id ? { ...p, active: !p.active } : p));
+  const deletePopup = async (id) => {
+    await api.del('popups', id);
+    setPopups(ps => ps.filter(p => p.id !== id));
+  };
+  const togglePopup = async (id) => {
+    const p = popups.find(x => x.id === id);
+    if (!p) return;
+    await api.patch('popups', id, { active: !p.active });
+    setPopups(ps => ps.map(x => x.id === id ? { ...x, active: !x.active } : x));
+  };
 
   // ═══ Ad form helpers ═══
   const openNewAd = () => { setAdForm({ name: '', type: 'banner', status: 'scheduled', start: '', end: '', imageUrl: '' }); setShowAdForm(true); };
-  const saveAd = () => {
+  const saveAd = async () => {
     if (!adForm.name.trim()) return;
-    setAds(a => [...a, { id: Date.now(), ...adForm, impressions: '-', clicks: '-', ctr: '-' }]);
+    const row = { name: adForm.name, type: adForm.type, status: adForm.status, start_date: adForm.start || null, end_date: adForm.end || null, image_url: adForm.imageUrl || null };
+    const res = await api.post('advertisements', row);
+    if (res?.[0]) setAds(a => [...a, { ...res[0], start: res[0].start_date, end: res[0].end_date, imageUrl: res[0].image_url }]);
     setShowAdForm(false);
   };
-  const toggleAd = (id) => setAds(a => a.map(ad => ad.id === id ? { ...ad, status: ad.status === 'active' ? 'paused' : 'active' } : ad));
-  const deleteAd = (id) => setAds(a => a.filter(ad => ad.id !== id));
+  const toggleAd = async (id) => {
+    const ad = ads.find(a => a.id === id);
+    if (!ad) return;
+    const newStatus = ad.status === 'active' ? 'paused' : 'active';
+    await api.patch('advertisements', id, { status: newStatus });
+    setAds(a => a.map(a2 => a2.id === id ? { ...a2, status: newStatus } : a2));
+  };
+  const deleteAd = async (id) => {
+    await api.del('advertisements', id);
+    setAds(a => a.filter(ad => ad.id !== id));
+  };
 
   // ═══ Kiosk MA helpers ═══
   const kioskAction = (id, action) => {
@@ -2519,6 +2573,8 @@ function App() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginErr, setLoginErr] = useState('');
+  const [kioskBanners, setKioskBanners] = useState(BANNERS);
+  const [kioskPopups, setKioskPopups] = useState([]);
 
   useEffect(() => {
     const load = async () => {
@@ -2534,6 +2590,29 @@ function App() {
     return () => clearInterval(i);
   }, []);
 
+  // Load banners & popups for kiosk (polling every 30s)
+  useEffect(() => {
+    const CATEGORY_COLORS = { event: 'from-orange-600/90 to-rose-600/90', promo: 'from-violet-600/90 to-indigo-600/90', tourism: 'from-emerald-600/90 to-teal-600/90' };
+    const loadKiosk = async () => {
+      const bd = await api.get('banners');
+      if (bd?.length) {
+        const mapped = bd.filter(b => b.active).map(b => ({
+          id: b.id, img: b.image_url || '', tag: b.tag || {}, title: b.title || {},
+          desc: b.description || {}, color: CATEGORY_COLORS[b.category] || 'from-cyan-600/90 to-blue-600/90',
+          date: b.start_date ? { th: b.start_date, en: b.start_date } : {},
+          location: b.location || {}, price: typeof b.price === 'string' ? { th: b.price, en: b.price } : (b.price || {}),
+          highlights: b.highlights || {}
+        }));
+        setKioskBanners(mapped.length ? mapped : BANNERS);
+      }
+      const pd = await api.get('popups');
+      if (pd?.length) setKioskPopups(pd.filter(p => p.active));
+    };
+    loadKiosk();
+    const iv = setInterval(loadKiosk, 30000);
+    return () => clearInterval(iv);
+  }, []);
+
   const login = (e) => {
     e.preventDefault();
     if (username==='admin'&&password==='1234') { setLogged(true); setView('admin'); return; }
@@ -2544,7 +2623,7 @@ function App() {
 
   const logout = () => { setLogged(false); setView('kiosk'); setUsername(''); setPassword(''); setLoginErr(''); };
 
-  if (view === 'kiosk') return <KioskView shops={shops} onAdmin={()=>setView('login')}/>;
+  if (view === 'kiosk') return <KioskView shops={shops} banners={kioskBanners} popups={kioskPopups} onAdmin={()=>setView('login')}/>;
 
   if (view === 'login') return (
     <div className="h-full flex items-center justify-center bg-kiosk-bg font-prompt relative overflow-hidden">
