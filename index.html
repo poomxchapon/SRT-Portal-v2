@@ -86,7 +86,7 @@ import {
 // ═══════════════════════════════════════════
 // 1. CONFIGURATION
 // ═══════════════════════════════════════════
-const APP_VERSION = "4.1.0";
+const APP_VERSION = "4.2.0";
 
 const SUPABASE_URL = "https://ecdgafksqlbuscetftok.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjZGdhZmtzcWxidXNjZXRmdG9rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY5NjM3MjMsImV4cCI6MjA4MjUzOTcyM30.fvM68OgwvmLupKXC0NNjsf1Lggv8WlBufC0JVr6q7V4";
@@ -901,16 +901,22 @@ const KioskView = ({ shops, banners: propBanners, popups: propPopups, onAdmin })
       )}
 
       {/* Kiosk Popup Overlay */}
-      {kioskPopup && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 animate-fade-in" onClick={()=>setKioskPopup(null)}>
-          <div className="glass glow-border rounded-2xl p-6 max-w-sm w-[90%] text-center animate-slide-up" onClick={e=>e.stopPropagation()}>
-            <div className="w-12 h-12 bg-kiosk-accent/20 rounded-xl flex items-center justify-center mx-auto mb-3"><Bell size={24} className="text-kiosk-accent"/></div>
-            <h3 className="text-lg font-bold text-white mb-2">{kioskPopup.title}</h3>
-            <p className="text-sm text-gray-300 leading-relaxed">{kioskPopup.texts?.[lang] || kioskPopup.texts?.th || ''}</p>
-            <button onClick={()=>setKioskPopup(null)} className="mt-4 px-6 py-2 bg-kiosk-accent/20 hover:bg-kiosk-accent/30 text-kiosk-accent rounded-xl text-sm font-bold transition-colors btn-press cursor-pointer">{t.close}</button>
+      {kioskPopup && (() => {
+        const isEmergency = kioskPopup.trigger_type === 'broadcast';
+        return (
+          <div className={`fixed inset-0 z-[200] flex items-center justify-center animate-fade-in ${isEmergency ? 'bg-red-950/80' : 'bg-black/70'}`} onClick={()=>setKioskPopup(null)}>
+            <div className={`rounded-2xl p-6 max-w-sm w-[90%] text-center animate-slide-up ${isEmergency ? 'bg-red-950 border-2 border-red-500 shadow-[0_0_40px_rgba(239,68,68,0.4)]' : 'glass glow-border'}`} onClick={e=>e.stopPropagation()}>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3 ${isEmergency ? 'bg-red-500/30' : 'bg-kiosk-accent/20'}`}>
+                {isEmergency ? <AlertTriangle size={24} className="text-red-400 animate-pulse"/> : <Bell size={24} className="text-kiosk-accent"/>}
+              </div>
+              {isEmergency && <span className="inline-block px-3 py-1 bg-red-500 text-white text-[10px] font-bold uppercase rounded-full mb-2 animate-pulse">Emergency</span>}
+              <h3 className={`text-lg font-bold mb-2 ${isEmergency ? 'text-red-100' : 'text-white'}`}>{kioskPopup.title}</h3>
+              <p className={`text-sm leading-relaxed ${isEmergency ? 'text-red-200' : 'text-gray-300'}`}>{kioskPopup.texts?.[lang] || kioskPopup.texts?.th || ''}</p>
+              <button onClick={()=>setKioskPopup(null)} className={`mt-4 px-6 py-2 rounded-xl text-sm font-bold transition-colors btn-press cursor-pointer ${isEmergency ? 'bg-red-500/30 hover:bg-red-500/50 text-red-300' : 'bg-kiosk-accent/20 hover:bg-kiosk-accent/30 text-kiosk-accent'}`}>{t.close}</button>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 };
@@ -1204,7 +1210,7 @@ const AdminView = ({ onLogout }) => {
       thPlaceholder: 'พิมพ์ข้อความภาษาไทยที่นี่...', enTranslation: 'คำแปลภาษาอังกฤษ...',
       cnTranslation: 'คำแปลภาษาจีน...', krTranslation: 'คำแปลภาษาเกาหลี...',
       saveChanges: 'บันทึกการเปลี่ยนแปลง', createPopup: 'สร้างป๊อปอัพ',
-      triggerWake: 'เมื่อ kiosk เปิด', triggerDelay: 'เมื่อล่าช้า > 15 นาที', triggerManual: 'ทริกเกอร์เอง', triggerScheduled: 'ตั้งเวลา', broadcast: 'ส่งไป Kiosk',
+      triggerWake: 'เมื่อ kiosk เปิด', triggerDelay: 'เมื่อล่าช้า > 15 นาที', triggerManual: 'ทริกเกอร์เอง', triggerScheduled: 'ตั้งเวลา', triggerEmergency: '🚨 ขึ้นทันที (ฉุกเฉิน)', broadcast: 'ส่งไป Kiosk',
       // Kiosk MA
       kiosksOnline: 'Kiosk ออนไลน์', avgUptime: 'Uptime เฉลี่ย', issues: 'ปัญหา',
       kioskStatus: 'สถานะ Kiosk', clickToManage: 'คลิก Kiosk เพื่อจัดการ',
@@ -1269,7 +1275,7 @@ const AdminView = ({ onLogout }) => {
       thPrimary: 'Thai (TH) — Primary', autoTranslate: 'Auto-Translate', translating: 'Translating...',
       thPlaceholder: 'Type Thai message here...', enTranslation: 'English translation...', cnTranslation: 'Chinese translation...', krTranslation: 'Korean translation...',
       saveChanges: 'Save Changes', createPopup: 'Create Popup',
-      triggerWake: 'On kiosk wake', triggerDelay: 'When delay > 15 min', triggerManual: 'Manual trigger', triggerScheduled: 'Scheduled time', broadcast: 'Send to Kiosk',
+      triggerWake: 'On kiosk wake', triggerDelay: 'When delay > 15 min', triggerManual: 'Manual trigger', triggerScheduled: 'Scheduled time', triggerEmergency: '🚨 Immediate (Emergency)', broadcast: 'Send to Kiosk',
       kiosksOnline: 'Kiosks Online', avgUptime: 'Avg Uptime', issues: 'Issues',
       kioskStatus: 'Kiosk Status', clickToManage: 'Click a kiosk to manage',
       start: 'Start', shutdown: 'Shutdown', restart: 'Restart', schedule: 'Schedule',
@@ -1507,7 +1513,7 @@ const AdminView = ({ onLogout }) => {
 
   const LANG_LABELS = { th: 'TH', en: 'EN', cn: 'CN', kr: 'KR' };
   const LANG_COLORS = { th: 'bg-blue-100 text-blue-700', en: 'bg-emerald-100 text-emerald-700', cn: 'bg-red-100 text-red-700', kr: 'bg-purple-100 text-purple-700' };
-  const TRIGGER_LABELS = { 'on-wake': al.triggerWake, 'delay-15': al.triggerDelay, 'manual': al.triggerManual, 'scheduled': al.triggerScheduled };
+  const TRIGGER_LABELS = { 'on-wake': al.triggerWake, 'delay-15': al.triggerDelay, 'manual': al.triggerManual, 'scheduled': al.triggerScheduled, 'broadcast': al.triggerEmergency };
 
   // ═══ Popup form helpers ═══
   const openNewPopup = () => {
@@ -1772,7 +1778,7 @@ const AdminView = ({ onLogout }) => {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className={`font-bold ${t.text} text-sm`}>{p.title}</h4>
-                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${t.badge}`}>{TRIGGER_LABELS[p.trigger] || p.trigger}</span>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${p.trigger === 'broadcast' ? 'bg-red-100 text-red-700' : t.badge}`}>{TRIGGER_LABELS[p.trigger] || p.trigger}</span>
                             </div>
                             <p className={`text-xs ${t.textSec} mb-2 truncate`}>{p.texts.th}</p>
                             <div className="flex gap-1">
@@ -1823,6 +1829,7 @@ const AdminView = ({ onLogout }) => {
                             <option value="delay-15">{al.triggerDelay}</option>
                             <option value="manual">{al.triggerManual}</option>
                             <option value="scheduled">{al.triggerScheduled}</option>
+                            <option value="broadcast">{al.triggerEmergency}</option>
                           </select>
                         </div>
                         {/* Language checkboxes */}
