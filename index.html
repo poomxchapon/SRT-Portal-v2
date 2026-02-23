@@ -373,6 +373,7 @@ const StationSVG = ({ t, scale }) => (
 // 5. KIOSK VIEW
 // ═══════════════════════════════════════════
 const KioskView = ({ shops, banners: propBanners, popups: propPopups, onAdmin }) => {
+  const allBanners = useMemo(() => [...BANNERS, ...(propBanners || [])], [propBanners]);
   const [lang, setLang] = useState('th');
   const [modal, setModal] = useState(null);
   const [selectedLoc, setSelectedLoc] = useState(null);
@@ -385,27 +386,40 @@ const KioskView = ({ shops, banners: propBanners, popups: propPopups, onAdmin })
   const [search, setSearch] = useState('');
   const [question, setQuestion] = useState('');
   const [kioskPopup, setKioskPopup] = useState(null);
+  const [selectedBanner, setSelectedBanner] = useState(null);
   const [bannerIdx, setBannerIdx] = useState(0);
 
   // Auto-cycle banners every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setBannerIdx(i => (i + 1) % BANNERS.length);
+      setBannerIdx(i => (i + 1) % allBanners.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [allBanners.length]);
 
-  // Show popup on kiosk wake (once per session)
+  // Show popup on kiosk (on-wake, delay-15, broadcast)
   useEffect(() => {
     if (!propPopups?.length) return;
+    // On-wake: show once per session
     const wakePopup = propPopups.find(p => p.trigger_type === 'on-wake');
     if (wakePopup && !sessionStorage.getItem('srt_popup_shown')) {
       setTimeout(() => { setKioskPopup(wakePopup); sessionStorage.setItem('srt_popup_shown', '1'); }, 1500);
     }
+    // Delay-15: show after 15s idle
     const delayPopup = propPopups.find(p => p.trigger_type === 'delay-15');
     if (delayPopup) {
       const t = setTimeout(() => setKioskPopup(delayPopup), 15000);
       return () => clearTimeout(t);
+    }
+    // Broadcast: admin triggered — show immediately then reset
+    const broadcastPopup = propPopups.find(p => p.trigger_type === 'broadcast');
+    if (broadcastPopup) {
+      const shownKey = `srt_bc_${broadcastPopup.id}`;
+      if (!sessionStorage.getItem(shownKey)) {
+        setKioskPopup(broadcastPopup);
+        sessionStorage.setItem(shownKey, '1');
+        api.patch('popups', broadcastPopup.id, { trigger_type: 'manual' });
+      }
     }
   }, [propPopups]);
 
@@ -576,25 +590,78 @@ const KioskView = ({ shops, banners: propBanners, popups: propPopups, onAdmin })
 
         {/* Tourism / Event Banners — auto-cycle every 5s */}
         <div className="w-full shrink-0 mb-2">
-          {BANNERS.map((b, i) => (
-            <div key={b.id} className={`rounded-xl overflow-hidden relative transition-all duration-700 ${i === bannerIdx ? 'opacity-100 max-h-[120px]' : 'opacity-0 max-h-0 absolute'}`} style={{minHeight: i === bannerIdx ? '100px' : '0'}}>
+          {allBanners.map((b, i) => (
+            <div key={b.id} onClick={()=>setSelectedBanner(b)} className={`rounded-xl overflow-hidden relative transition-all duration-700 cursor-pointer btn-press ${i === bannerIdx ? 'opacity-100 max-h-[120px]' : 'opacity-0 max-h-0 absolute'}`} style={{minHeight: i === bannerIdx ? '100px' : '0'}}>
               <img src={b.img} alt="" className="absolute inset-0 w-full h-full object-cover"/>
               <div className={`absolute inset-0 bg-gradient-to-r ${b.color}`}/>
               <div className="relative z-10 p-3.5 flex flex-col justify-between h-full">
-                <span className="self-start px-2 py-0.5 rounded-full bg-white/20 text-[9px] font-bold uppercase tracking-wider text-white/90">{b.tag[lang]}</span>
+                <span className="self-start px-2 py-0.5 rounded-full bg-white/20 text-[9px] font-bold uppercase tracking-wider text-white/90">{b.tag?.[lang] || b.tag?.th || ''}</span>
                 <div className="mt-2">
-                  <h3 className="text-sm font-bold text-white leading-tight drop-shadow">{b.title[lang]}</h3>
-                  <p className="text-[10px] text-white/80 mt-0.5 leading-snug line-clamp-2">{b.desc[lang]}</p>
+                  <h3 className="text-sm font-bold text-white leading-tight drop-shadow">{b.title?.[lang] || b.title?.th || ''}</h3>
+                  <p className="text-[10px] text-white/80 mt-0.5 leading-snug line-clamp-2">{b.desc?.[lang] || b.desc?.th || ''}</p>
                 </div>
               </div>
             </div>
           ))}
           <div className="flex justify-center gap-1.5 mt-1.5">
-            {BANNERS.map((_, i) => (
+            {allBanners.map((_, i) => (
               <button key={i} onClick={()=>setBannerIdx(i)} className={`w-1.5 h-1.5 rounded-full transition-all cursor-pointer ${i === bannerIdx ? 'bg-kiosk-accent w-4' : 'bg-gray-600'}`}/>
             ))}
           </div>
         </div>
+
+        {/* Banner Detail Overlay */}
+        {selectedBanner && (
+          <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/80 animate-fade-in" onClick={()=>setSelectedBanner(null)}>
+            <div className="w-full max-w-lg rounded-t-2xl overflow-hidden animate-slide-up max-h-[85vh] flex flex-col bg-[#0A0F1A]" onClick={e=>e.stopPropagation()}>
+              <div className="relative h-48 shrink-0">
+                {selectedBanner.img && <img src={selectedBanner.img} alt="" className="w-full h-full object-cover"/>}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0A0F1A] via-black/50 to-transparent"/>
+                <button onClick={()=>setSelectedBanner(null)} className="absolute top-3 right-3 p-2.5 rounded-full bg-black/80 text-white btn-press cursor-pointer"><X size={16}/></button>
+                <div className="absolute bottom-3 left-4 right-4">
+                  {selectedBanner.tag?.[lang] && <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/25 text-[10px] font-bold uppercase tracking-wider text-white mb-1.5">{selectedBanner.tag[lang]}</span>}
+                  <h2 className="text-lg font-bold text-white drop-shadow leading-tight">{selectedBanner.title?.[lang] || selectedBanner.title?.th || ''}</h2>
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#0A0F1A]">
+                {selectedBanner.desc?.[lang] && <p className="text-sm text-gray-300 leading-relaxed">{selectedBanner.desc[lang]}</p>}
+                <div className="flex flex-col gap-2.5">
+                  {selectedBanner.date?.[lang] && (
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-800 border border-gray-700/60">
+                      <div className="w-9 h-9 rounded-lg bg-kiosk-accent/20 flex items-center justify-center shrink-0"><Calendar size={16} className="text-kiosk-accent"/></div>
+                      <div><div className="text-[10px] text-gray-500 uppercase font-bold tracking-wide">{ {th:'วันที่',en:'Date',cn:'日期',kr:'날짜'}[lang] }</div><div className="text-sm text-white font-medium mt-0.5">{selectedBanner.date[lang]}</div></div>
+                    </div>
+                  )}
+                  {selectedBanner.location?.[lang] && (
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-800 border border-gray-700/60">
+                      <div className="w-9 h-9 rounded-lg bg-kiosk-accent/20 flex items-center justify-center shrink-0"><MapPin size={16} className="text-kiosk-accent"/></div>
+                      <div><div className="text-[10px] text-gray-500 uppercase font-bold tracking-wide">{ {th:'สถานที่',en:'Location',cn:'地点',kr:'장소'}[lang] }</div><div className="text-sm text-white font-medium mt-0.5">{selectedBanner.location[lang]}</div></div>
+                    </div>
+                  )}
+                  {selectedBanner.price?.[lang] && (
+                    <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-950/50 border border-emerald-800/30">
+                      <div className="w-9 h-9 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0"><Ticket size={16} className="text-emerald-400"/></div>
+                      <div><div className="text-[10px] text-gray-500 uppercase font-bold tracking-wide">{ {th:'ราคา',en:'Price',cn:'价格',kr:'가격'}[lang] }</div><div className="text-sm text-emerald-400 font-bold mt-0.5">{selectedBanner.price[lang]}</div></div>
+                    </div>
+                  )}
+                </div>
+                {selectedBanner.highlights?.[lang]?.length > 0 && (
+                  <div className="p-3 rounded-xl bg-gray-800 border border-gray-700/60">
+                    <h4 className="text-[10px] text-gray-400 uppercase font-bold tracking-wide mb-2.5">{ {th:'ไฮไลท์',en:'Highlights',cn:'亮点',kr:'하이라이트'}[lang] }</h4>
+                    <ul className="space-y-2">
+                      {selectedBanner.highlights[lang].map((h,i) => (
+                        <li key={i} className="flex items-start gap-2.5 text-sm text-gray-200">
+                          <span className="mt-1 w-2 h-2 rounded-full bg-kiosk-accent shrink-0"/>
+                          <span>{h}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* FAQ Grid */}
         <div className="w-full flex-1 min-h-0 flex flex-col gap-2">
@@ -1137,7 +1204,7 @@ const AdminView = ({ onLogout }) => {
       thPlaceholder: 'พิมพ์ข้อความภาษาไทยที่นี่...', enTranslation: 'คำแปลภาษาอังกฤษ...',
       cnTranslation: 'คำแปลภาษาจีน...', krTranslation: 'คำแปลภาษาเกาหลี...',
       saveChanges: 'บันทึกการเปลี่ยนแปลง', createPopup: 'สร้างป๊อปอัพ',
-      triggerWake: 'เมื่อ kiosk เปิด', triggerDelay: 'เมื่อล่าช้า > 15 นาที', triggerManual: 'ทริกเกอร์เอง', triggerScheduled: 'ตั้งเวลา',
+      triggerWake: 'เมื่อ kiosk เปิด', triggerDelay: 'เมื่อล่าช้า > 15 นาที', triggerManual: 'ทริกเกอร์เอง', triggerScheduled: 'ตั้งเวลา', broadcast: 'ส่งไป Kiosk',
       // Kiosk MA
       kiosksOnline: 'Kiosk ออนไลน์', avgUptime: 'Uptime เฉลี่ย', issues: 'ปัญหา',
       kioskStatus: 'สถานะ Kiosk', clickToManage: 'คลิก Kiosk เพื่อจัดการ',
@@ -1202,7 +1269,7 @@ const AdminView = ({ onLogout }) => {
       thPrimary: 'Thai (TH) — Primary', autoTranslate: 'Auto-Translate', translating: 'Translating...',
       thPlaceholder: 'Type Thai message here...', enTranslation: 'English translation...', cnTranslation: 'Chinese translation...', krTranslation: 'Korean translation...',
       saveChanges: 'Save Changes', createPopup: 'Create Popup',
-      triggerWake: 'On kiosk wake', triggerDelay: 'When delay > 15 min', triggerManual: 'Manual trigger', triggerScheduled: 'Scheduled time',
+      triggerWake: 'On kiosk wake', triggerDelay: 'When delay > 15 min', triggerManual: 'Manual trigger', triggerScheduled: 'Scheduled time', broadcast: 'Send to Kiosk',
       kiosksOnline: 'Kiosks Online', avgUptime: 'Avg Uptime', issues: 'Issues',
       kioskStatus: 'Kiosk Status', clickToManage: 'Click a kiosk to manage',
       start: 'Start', shutdown: 'Shutdown', restart: 'Restart', schedule: 'Schedule',
@@ -1477,6 +1544,11 @@ const AdminView = ({ onLogout }) => {
     setPopups(ps => ps.map(x => x.id === id ? { ...x, active: !x.active } : x));
   };
 
+  const broadcastPopup = async (id) => {
+    await api.patch('popups', id, { trigger_type: 'broadcast', active: true });
+    setPopups(ps => ps.map(p => p.id === id ? { ...p, trigger: 'broadcast', active: true } : p));
+  };
+
   // ═══ Ad form helpers ═══
   const openNewAd = () => { setAdForm({ name: '', type: 'banner', status: 'scheduled', start: '', end: '', imageUrl: '' }); setShowAdForm(true); };
   const saveAd = async () => {
@@ -1710,6 +1782,7 @@ const AdminView = ({ onLogout }) => {
                             </div>
                           </div>
                           <div className="flex items-center gap-2 ml-3 shrink-0">
+                            <button onClick={() => broadcastPopup(p.id)} className="bg-orange-500 hover:bg-orange-600 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg btn-press cursor-pointer flex items-center gap-1 transition-colors" title={al.broadcast}><Send size={12}/>{al.broadcast}</button>
                             <button onClick={() => openEditPopup(p)} className={`p-1.5 rounded-lg ${t.hover} transition-colors cursor-pointer`} title="Edit"><Edit2 size={14} className="text-gray-400"/></button>
                             <button onClick={() => deletePopup(p.id)} className={`p-1.5 rounded-lg ${dk ? 'hover:bg-red-950/30' : 'hover:bg-red-50'} transition-colors cursor-pointer`} title="Delete"><Trash size={14} className="text-red-400"/></button>
                             <button onClick={() => togglePopup(p.id)} className="cursor-pointer" title={p.active ? 'Disable' : 'Enable'}>
@@ -2537,26 +2610,34 @@ function App() {
     return () => clearInterval(i);
   }, []);
 
-  // Load banners & popups for kiosk (polling every 30s)
+  // Load ads & popups for kiosk (polling every 10s)
   useEffect(() => {
-    const CATEGORY_COLORS = { event: 'from-orange-600/90 to-rose-600/90', promo: 'from-violet-600/90 to-indigo-600/90', tourism: 'from-emerald-600/90 to-teal-600/90' };
+    const AD_COLORS = { banner: 'from-cyan-600/90 to-blue-600/90', popup: 'from-orange-600/90 to-rose-600/90', video: 'from-violet-600/90 to-indigo-600/90', interstitial: 'from-emerald-600/90 to-teal-600/90' };
     const loadKiosk = async () => {
-      const bd = await api.get('banners');
-      if (bd?.length) {
-        const mapped = bd.filter(b => b.active).map(b => ({
-          id: b.id, img: b.image_url || '', tag: b.tag || {}, title: b.title || {},
-          desc: b.description || {}, color: CATEGORY_COLORS[b.category] || 'from-cyan-600/90 to-blue-600/90',
-          date: b.start_date ? { th: b.start_date, en: b.start_date } : {},
-          location: b.location || {}, price: typeof b.price === 'string' ? { th: b.price, en: b.price } : (b.price || {}),
-          highlights: b.highlights || {}
-        }));
-        setKioskBanners(mapped.length ? mapped : BANNERS);
+      // Load active advertisements → map to banner format for kiosk carousel
+      const ads = await api.get('advertisements');
+      if (ads?.length) {
+        const today = new Date().toISOString().slice(0, 10);
+        const adBanners = ads
+          .filter(a => a.status === 'active' && (!a.end_date || a.end_date >= today))
+          .map(a => ({
+            id: `ad-${a.id}`, img: a.image_url || '', isAd: true,
+            tag: { th: 'โฆษณา', en: 'AD', cn: '广告', kr: '광고' },
+            title: { th: a.name, en: a.name, cn: a.name, kr: a.name },
+            desc: { th: '', en: '' },
+            color: AD_COLORS[a.type] || 'from-cyan-600/90 to-blue-600/90'
+          }));
+        setKioskBanners(adBanners);
+      } else {
+        setKioskBanners([]);
       }
+      // Load active popups (including broadcast triggers)
       const pd = await api.get('popups');
       if (pd?.length) setKioskPopups(pd.filter(p => p.active));
+      else setKioskPopups([]);
     };
     loadKiosk();
-    const iv = setInterval(loadKiosk, 30000);
+    const iv = setInterval(loadKiosk, 10000);
     return () => clearInterval(iv);
   }, []);
 
